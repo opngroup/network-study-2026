@@ -3,6 +3,7 @@
 ## 발표 자료
 
 - [슬라이드 (Marp)](./slides.md) — 출발지 포트 → 4-튜플 → NAT·NAPT → conntrack
+- [슬라이드 HTML](./slides.html) — 그림까지 들어 있는 파일 하나. 내려받아 브라우저로 연다
 - 그림: [공유기 구조](./nat-home.svg) · [NAPT 왕복](./napt-flow.svg)
 - 학습 메모: [study.md](./study.md)
 - NAPT 직접 확인: `bash napt-check.sh` — 내가 쓴 출발지와 서버가 본 출발지를 나란히 찍는다
