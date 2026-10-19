@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 520" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+  </defs>
+  <rect width="1000" height="520" fill="#fff"/>
+
+  <!-- 세 기둥 -->
+  <rect x="20" y="16" width="170" height="54" rx="10" fill="#f3f6f9" stroke="#6b7785" stroke-width="2"/>
+  <text x="105" y="40" text-anchor="middle" font-size="17" font-weight="700" fill="#2b3440">내 맥</text>
+  <text x="105" y="60" text-anchor="middle" font-size="12" fill="#2b3440" font-family="Menlo, monospace">192.168.219.41</text>
+
+  <rect x="300" y="16" width="400" height="54" rx="10" fill="#fff4e5" stroke="#d98a1a" stroke-width="2"/>
+  <text x="500" y="40" text-anchor="middle" font-size="17" font-weight="700" fill="#7a4a00">공유기 (리눅스 커널 netfilter)</text>
+  <text x="500" y="60" text-anchor="middle" font-size="12" fill="#7a4a00" font-family="Menlo, monospace">공인 IP 124.52.x.x</text>
+
+  <rect x="810" y="16" width="170" height="54" rx="10" fill="#eef4ff" stroke="#5b7fc7" stroke-width="2"/>
+  <text x="895" y="40" text-anchor="middle" font-size="17" font-weight="700" fill="#1f3a73">서버</text>
+  <text x="895" y="60" text-anchor="middle" font-size="12" fill="#1f3a73" font-family="Menlo, monospace">160.79.104.10:443</text>
+
+  <line x1="105" y1="70" x2="105" y2="505" stroke="#c5ccd3" stroke-width="2" stroke-dasharray="5 5"/>
+  <line x1="895" y1="70" x2="895" y2="505" stroke="#c5ccd3" stroke-width="2" stroke-dasharray="5 5"/>
+
+  <!-- 나갈 때 -->
+  <text x="20" y="98" font-size="14" font-weight="700" fill="#2b3440">나갈 때 (요청)</text>
+  <line x1="105" y1="122" x2="300" y2="122" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
+  <text x="112" y="114" font-size="11" fill="#333" font-family="Menlo, monospace">.41:53486 → 서버:443</text>
+
+  <rect x="300" y="88" width="400" height="104" rx="8" fill="#fffaf2" stroke="#d98a1a" stroke-width="1.5"/>
+  <text x="314" y="110" font-size="13" fill="#7a4a00">① conntrack 표 조회 → <tspan font-weight="700">없음</tspan> (새 연결)</text>
+  <text x="314" y="132" font-size="13" fill="#7a4a00">② NAT 규칙 MASQUERADE 적용 → 바깥 포트 41090 고름</text>
+  <text x="314" y="154" font-size="13" fill="#7a4a00">③ 표에 행 추가 (아래 상자)</text>
+  <text x="314" y="176" font-size="13" fill="#7a4a00">④ 출발지 고쳐 쓰기 + 체크섬 다시 계산</text>
+
+  <line x1="700" y1="140" x2="895" y2="140" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
+  <text x="706" y="132" font-size="11" fill="#333" font-family="Menlo, monospace">124.52.x.x:41090 → 서버:443</text>
+
+  <!-- conntrack 행 -->
+  <rect x="300" y="212" width="400" height="104" rx="8" fill="#ffffff" stroke="#d98a1a" stroke-width="2.5"/>
+  <text x="500" y="234" text-anchor="middle" font-size="14" font-weight="700" fill="#7a4a00">conntrack 표의 행 하나 = 연결 하나</text>
+  <text x="314" y="258" font-size="12" fill="#333" font-family="Menlo, monospace">원래 방향  .41:53486 → 서버:443</text>
+  <text x="314" y="278" font-size="12" fill="#d1242f" font-family="Menlo, monospace" font-weight="700">응답 방향  서버:443 → 124.52.x.x:41090  ← 찾는 키</text>
+  <text x="314" y="298" font-size="12" fill="#333" font-family="Menlo, monospace">상태 ESTABLISHED · 만료까지 남은 시간</text>
+
+  <!-- 돌아올 때 -->
+  <text x="20" y="352" font-size="14" font-weight="700" fill="#2b3440">돌아올 때 (응답)</text>
+  <line x1="895" y1="376" x2="700" y2="376" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
+  <text x="706" y="368" font-size="11" fill="#333" font-family="Menlo, monospace">서버:443 → 124.52.x.x:41090</text>
+
+  <rect x="300" y="342" width="400" height="82" rx="8" fill="#fffaf2" stroke="#d98a1a" stroke-width="1.5"/>
+  <text x="314" y="366" font-size="13" fill="#7a4a00">⑤ 응답 방향 튜플로 conntrack 조회 → <tspan font-weight="700">있음</tspan></text>
+  <text x="314" y="388" font-size="13" fill="#7a4a00">⑥ 목적지를 원래 주소로 되돌려 쓰기 + 체크섬</text>
+  <text x="314" y="410" font-size="13" fill="#7a4a00">(규칙은 다시 안 본다 — 표만 본다)</text>
+
+  <line x1="300" y1="400" x2="105" y2="400" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
+  <text x="112" y="392" font-size="11" fill="#333" font-family="Menlo, monospace">서버:443 → .41:53486</text>
+
+  <!-- 연결선: 표와 단계 -->
+  <line x1="500" y1="192" x2="500" y2="212" stroke="#d98a1a" stroke-width="2" stroke-dasharray="4 3"/>
+  <line x1="500" y1="316" x2="500" y2="342" stroke="#d98a1a" stroke-width="2" stroke-dasharray="4 3"/>
+
+  <!-- 행이 없으면 -->
+  <rect x="300" y="444" width="400" height="56" rx="8" fill="#ffebe9" stroke="#d1242f" stroke-width="1.5"/>
+  <text x="500" y="467" text-anchor="middle" font-size="13" font-weight="700" fill="#d1242f">밖에서 먼저 온 패킷 → 표에 짝이 없음 → 버림</text>
+  <text x="500" y="488" text-anchor="middle" font-size="12" fill="#d1242f">(호기심 3 · 조용하면 만료돼서 행이 지워진다)</text>
+</svg>
