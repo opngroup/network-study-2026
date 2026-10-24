@@ -10,7 +10,7 @@
 
 ## 과제 A. TCP 에코 서버 (10/26 데모)
 
-진행 전이다. 끝나면 [README 템플릿](../README-TEMPLATE.md)의 세 칸(무엇을 만들었나 · 무엇을 확인했나 · 예상과 달랐던 점)으로 이 절을 채운다.
+진행 중이다(10/24). 결과는 [assignment-a/README.md](./assignment-a/README.md), 단계별로 이해한 것은 [assignment-a/NOTES.md](./assignment-a/NOTES.md).
 
 - [ ] 접속한 클라이언트의 IP·포트를 로그로 남기고, 3개를 동시에 붙였을 때 포트가 각각 다른 것 확인
 - [ ] 127.0.0.1 과 0.0.0.0 으로 바인딩해 다른 기기(휴대폰이나 Docker 밖)에서 접속되는지 비교
