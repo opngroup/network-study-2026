@@ -233,11 +233,14 @@ TCP 는 **빠짐없이, 순서대로** 보내는 프로토콜이고, 이를 위�
 
 ---
 
-<style scoped>h2{font-size:30px;margin:0 0 8px} img{display:block;margin:0 auto}</style>
+<style scoped>li{font-size:30px;margin:16px 0}</style>
 
 ## ③ TIME_WAIT: 왜 먼저 끊은 쪽에 남을까?
 
-![h:575](./img/timewait-why.svg)
+마지막 ④ ACK 를 보낸 쪽이 **약 30초** 남는다
+
+1. **다시 대답하려고** — ④ 가 사라지면 ③ FIN 이 다시 온다
+2. **옛 패킷을 거르려고** — 같은 조합의 새 연결에 섞이지 않게
 
 ---
 
@@ -285,8 +288,8 @@ OSError: [Errno 48] Address already in use
 ## 정리
 
 1. **TCP 는 OS 가 한다** — 내 코드는 언제 열고 닫을지만 정한다
-2. **열 때 3번** — `accept()` 전에 OS 끼리 끝난다
-3. **닫을 때 4번** — 두 번째 FIN 은 **내 `close()`** 가 보낸다
+2. **연결 시작할 때 3번** — 클라이언트 `connect()` → 서버 `accept()` 전에 OS 끼리 끝난다
+3. **연결 종료할 때 4번** — 클라이언트가 먼저 끊어도, 서버는 **서버 코드가 `close()` 해야** 끊긴다
 4. **TIME_WAIT** — 먼저 끊은 쪽이 **30초** 남는다
 
 > Q. 서버가 먼저 끊으면, 서버에 무엇이 쌓일까?
