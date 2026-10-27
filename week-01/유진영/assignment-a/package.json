@@ -1,0 +1,14 @@
+{
+  "name": "week01-yoojinyoung-assignment-a",
+  "version": "1.0.0",
+  "private": true,
+  "description": "과제 A. Node.js net 모듈로 만든 TCP 에코 서버와 동시 접속 테스트 클라이언트",
+  "engines": {
+    "node": ">=18.3"
+  },
+  "scripts": {
+    "server": "node echo_server.js",
+    "server:all": "node echo_server.js --host 0.0.0.0",
+    "client": "node echo_client.js --count 3"
+  }
+}
