@@ -24,7 +24,7 @@ Oct 14, 2026 · @유진영
 
 **과제 규칙**
 
-- 공용 Git 저장소 하나에 `weekNN-이름/` 폴더로 올립니다.
+- 공용 Git 저장소 하나에 `week-NN/이름/` 폴더로 올립니다.
 - 폴더마다 README에 세 가지를 적습니다: 무엇을 만들었는지, 무엇을 확인했는지(캡처나 로그), 예상과 달랐던 점.
 - 언어와 프레임워크는 자유입니다. 각자 실무에서 쓰는 스택이면 가장 좋습니다.
 - 5\~7주차 과제는 앞 주의 결과물 위에 쌓아 갑니다. 버리지 말고 이어서 고쳐 나갑니다.
@@ -149,7 +149,7 @@ HTTP 프레임워크 없이 소켓 API만으로 받은 글자를 돌려주는 �
 
 ## 참고 자료와 도구
 
-- [웹 개발자 네트워크 진단](https://claude.ai/artifact/TkodtLQJAK5ho9eYp5Bbqe): 10월 13일에 푼 진단 퀴즈. 핵심 노트와 목차 가이드 탭도 있습니다. 8주차에 다시 푼니다
+- [웹 개발자 네트워크 진단](https://claude.ai/artifact/TkodtLQJAK5ho9eYp5Bbqe): 10월 13일에 푼 진단 퀴즈. 핵심 노트와 목차 가이드 탭도 있습니다. 8주차에 다시 풉니다
 - 교재: 《혼자 공부하는 네트워크》. 02장, 03-3, 07-3은 이번 시즌에서 다루지 않습니다
 - [MDN: Using server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events) (5·6주차)
 - [MDN: The WebSocket API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) (5주차)
