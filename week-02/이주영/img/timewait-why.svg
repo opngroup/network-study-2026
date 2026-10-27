@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+  <defs>
+    <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7b4bc4"/></marker>
+    <marker id="k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9aa3ad"/></marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f7d32"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker>
+  </defs>
+  <rect width="1000" height="500" fill="#fff"/>
+
+  <!-- 답 -->
+  <rect x="20" y="10" width="960" height="64" rx="14" fill="#1c1b19"/>
+  <text x="500" y="51" text-anchor="middle" font-size="24" font-weight="800" fill="#ffe7a0">마지막 ④ ACK 를 보낸 쪽(= 먼저 끊은 쪽)이 약 30초 남는다</text>
+
+  <!-- 이유 1 -->
+  <rect x="20" y="92" width="470" height="396" rx="18" fill="#f7f9fc" stroke="#cfd8e3" stroke-width="1.5"/>
+  <text x="44" y="132" font-size="24" font-weight="800" fill="#2b3440">① 다시 대답하려고</text>
+  <g font-size="17" font-weight="700">
+    <text x="60" y="176" fill="#2b3440">클라이언트</text>
+    <text x="400" y="176" fill="#7a4a00">서버</text>
+    <line x1="100" y1="186" x2="100" y2="410" stroke="#d5dbe2" stroke-width="2" stroke-dasharray="5 5"/>
+    <line x1="420" y1="186" x2="420" y2="410" stroke="#d5dbe2" stroke-width="2" stroke-dasharray="5 5"/>
+
+    <line x1="104" y1="230" x2="250" y2="230" stroke="#9aa3ad" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#k)"/>
+    <text x="130" y="220" fill="#9aa3ad">④ ACK</text>
+    <text x="258" y="238" font-size="24">💨</text>
+
+    <line x1="416" y1="300" x2="106" y2="300" stroke="#7b4bc4" stroke-width="3" marker-end="url(#f)"/>
+    <text x="260" y="290" text-anchor="middle" fill="#7b4bc4">③ FIN 다시 "안 갔나?"</text>
+
+    <line x1="104" y1="370" x2="414" y2="370" stroke="#2f7d32" stroke-width="3.5" marker-end="url(#g)"/>
+    <text x="260" y="360" text-anchor="middle" fill="#2f7d32">④ ACK 다시 ✅</text>
+  </g>
+  <text x="255" y="458" text-anchor="middle" font-size="18" fill="#2b3440">기억하고 있어야 <tspan font-weight="800">다시 대답</tspan>할 수 있다</text>
+
+  <!-- 이유 2 -->
+  <rect x="510" y="92" width="470" height="396" rx="18" fill="#fff8f6" stroke="#ecc9c2" stroke-width="1.5"/>
+  <text x="534" y="132" font-size="24" font-weight="800" fill="#2b3440">② 옛 패킷을 거르려고</text>
+
+  <rect x="544" y="166" width="402" height="58" rx="12" fill="#eceff1" stroke="#9aa3ad" stroke-width="1.5"/>
+  <text x="745" y="203" text-anchor="middle" font-size="19" font-weight="700" fill="#4b5563">옛 연결 · 포트 57552 ↔ 9000</text>
+
+  <line x1="745" y1="226" x2="745" y2="310" stroke="#c0392b" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#r)"/>
+  <text x="762" y="268" font-size="17" font-weight="700" fill="#c0392b">늦게 온 옛 데이터</text>
+
+  <rect x="544" y="314" width="402" height="58" rx="12" fill="#fff" stroke="#c0392b" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="745" y="351" text-anchor="middle" font-size="19" font-weight="700" fill="#c0392b">✋ 같은 조합의 새 연결 — 잠깐 금지</text>
+
+  <text x="745" y="458" text-anchor="middle" font-size="18" fill="#2b3440">새 연결에 <tspan font-weight="800">섞이지 않게</tspan> 막아 둔다</text>
+</svg>

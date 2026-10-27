@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 590 420" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+  <defs>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f6fd6"/></marker>
+    <marker id="k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker>
+  </defs>
+  <rect width="590" height="420" fill="#fff"/>
+
+  <!-- ── 왼쪽: 왜 4번이 아니라 3번 ── -->
+  <rect x="14" y="12" width="560" height="396" rx="16" fill="#f7f9fc" stroke="#cfd8e3" stroke-width="1.5"/>
+  <text x="30" y="44" font-size="18" font-weight="800" fill="#2b3440">Q. 양방향이니 연결 → 좋아 → 연결 → 좋아, 4번 아닌가?</text>
+
+  <text x="40" y="78" font-size="13" font-weight="700" fill="#857e72">따로 보내면 4번</text>
+  <g font-size="13" fill="#2b3440">
+    <text x="40" y="104">① 클라이언트 → 서버  <tspan fill="#2f6fd6" font-weight="700">SYN</tspan>  연결할래요?</text>
+    <rect x="34" y="114" width="250" height="56" rx="8" fill="none" stroke="#d08a00" stroke-width="2.5" stroke-dasharray="6 4"/>
+    <text x="40" y="134">② 서버 → 클라이언트  <tspan fill="#4b5563" font-weight="700">ACK</tspan>  좋아요</text>
+    <text x="40" y="160">③ 서버 → 클라이언트  <tspan fill="#2f6fd6" font-weight="700">SYN</tspan>  나도 연결할래요?</text>
+    <text x="40" y="190">④ 클라이언트 → 서버  <tspan fill="#4b5563" font-weight="700">ACK</tspan>  좋아요</text>
+  </g>
+  <text x="296" y="140" font-size="13" font-weight="700" fill="#d08a00">둘 다 서버가 연달아 하는 말</text>
+  <text x="296" y="158" font-size="13" font-weight="700" fill="#d08a00">→ 한 패킷에 같이 싣는다</text>
+
+  <text x="300" y="218" font-size="28" fill="#9aa3ad">↓</text>
+
+  <text x="40" y="250" font-size="13" font-weight="700" fill="#2f7d32">같이 실으면 3번</text>
+  <g font-size="13" fill="#2b3440">
+    <text x="40" y="276">① 클라이언트 → 서버  <tspan fill="#2f6fd6" font-weight="700">SYN</tspan></text>
+    <rect x="34" y="286" width="370" height="30" rx="8" fill="#ffe7a0" stroke="#d08a00" stroke-width="2"/>
+    <text x="40" y="306">② 서버 → 클라이언트  <tspan fill="#2f6fd6" font-weight="700">SYN+ACK</tspan>  좋아요 + 나도 연결할래요</text>
+    <text x="40" y="340">③ 클라이언트 → 서버  <tspan fill="#4b5563" font-weight="700">ACK</tspan></text>
+  </g>
+  <text x="40" y="368" font-size="13" fill="#2b3440">어떻게? TCP 헤더 하나에 <tspan font-weight="700">SYN · ACK 깃발을 동시에 켜고</tspan>,</text>
+  <text x="40" y="388" font-size="13" fill="#2b3440"><tspan font-family="Menlo, monospace">seq</tspan>(내 번호 5000)와 <tspan font-family="Menlo, monospace">ack</tspan>(네 번호 받았어 1001)를 <tspan font-weight="700">각자 칸에 함께 적는다</tspan></text>
+
+</svg>

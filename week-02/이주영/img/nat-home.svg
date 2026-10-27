@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+  <rect width="760" height="420" fill="#ffffff"/>
+
+  <!-- 인터넷 -->
+  <g>
+    <ellipse cx="380" cy="62" rx="150" ry="44" fill="#eef4ff" stroke="#5b7fc7" stroke-width="2"/>
+    <text x="380" y="58" text-anchor="middle" font-size="22" font-weight="700" fill="#1f3a73">인터넷</text>
+    <text x="380" y="84" text-anchor="middle" font-size="14" fill="#1f3a73">서버 160.79.104.10:443</text>
+  </g>
+
+  <!-- 공유기 ↔ 인터넷 -->
+  <line x1="380" y1="106" x2="380" y2="168" stroke="#555" stroke-width="2.5"/>
+  <text x="392" y="144" font-size="13" fill="#555">공인 IP 로만 오간다</text>
+
+  <!-- 공유기 -->
+  <g>
+    <rect x="250" y="168" width="260" height="70" rx="12" fill="#fff4e5" stroke="#d98a1a" stroke-width="2.5"/>
+    <text x="380" y="198" text-anchor="middle" font-size="20" font-weight="700" fill="#7a4a00">공유기 (NAPT)</text>
+    <text x="380" y="224" text-anchor="middle" font-size="15" fill="#7a4a00">공인 IP 124.52.x.x</text>
+    <text x="528" y="198" font-size="13" fill="#7a4a00">변환 테이블</text>
+    <text x="528" y="216" font-size="12" fill="#7a4a00" font-family="Menlo, monospace">.41:52101 ↔ :40001</text>
+    <text x="528" y="232" font-size="12" fill="#7a4a00" font-family="Menlo, monospace">.42:52101 ↔ :40002</text>
+  </g>
+
+  <!-- 공유기 ↔ 기기들 -->
+  <line x1="380" y1="238" x2="380" y2="280" stroke="#555" stroke-width="2.5"/>
+  <line x1="140" y1="280" x2="620" y2="280" stroke="#555" stroke-width="2.5"/>
+  <line x1="140" y1="280" x2="140" y2="310" stroke="#555" stroke-width="2.5"/>
+  <line x1="380" y1="280" x2="380" y2="310" stroke="#555" stroke-width="2.5"/>
+  <line x1="620" y1="280" x2="620" y2="310" stroke="#555" stroke-width="2.5"/>
+
+  <!-- 집 안 영역 -->
+  <rect x="30" y="256" width="700" height="154" rx="14" fill="none" stroke="#9aa5b1" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <text x="46" y="276" font-size="13" fill="#6b7785">집 안 (사설 IP 192.168.219.x)</text>
+
+  <!-- 기기 3대 -->
+  <g>
+    <rect x="70" y="310" width="140" height="80" rx="10" fill="#f3f6f9" stroke="#6b7785" stroke-width="2"/>
+    <text x="140" y="340" text-anchor="middle" font-size="17" font-weight="700" fill="#2b3440">내 맥</text>
+    <text x="140" y="366" text-anchor="middle" font-size="13" fill="#2b3440" font-family="Menlo, monospace">192.168.219.41</text>
+
+    <rect x="310" y="310" width="140" height="80" rx="10" fill="#f3f6f9" stroke="#6b7785" stroke-width="2"/>
+    <text x="380" y="340" text-anchor="middle" font-size="17" font-weight="700" fill="#2b3440">노트북</text>
+    <text x="380" y="366" text-anchor="middle" font-size="13" fill="#2b3440" font-family="Menlo, monospace">192.168.219.42</text>
+
+    <rect x="550" y="310" width="140" height="80" rx="10" fill="#f3f6f9" stroke="#6b7785" stroke-width="2"/>
+    <text x="620" y="340" text-anchor="middle" font-size="17" font-weight="700" fill="#2b3440">휴대폰</text>
+    <text x="620" y="366" text-anchor="middle" font-size="13" fill="#2b3440" font-family="Menlo, monospace">192.168.219.43</text>
+  </g>
+</svg>

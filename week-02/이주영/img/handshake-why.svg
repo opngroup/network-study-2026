@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 440" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+  <defs>
+    <marker id="d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d08a00"/></marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f6fd6"/></marker>
+    <marker id="k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/></marker>
+  </defs>
+  <rect width="1000" height="440" fill="#fff"/>
+
+  <!-- 답 한 줄 -->
+  <rect x="16" y="10" width="968" height="92" rx="16" fill="#1c1b19"/>
+  <text x="500" y="44" text-anchor="middle" font-size="21" font-weight="800" fill="#ffe7a0">데이터를 보내기 전 서로 얼굴 확인 목적이다.</text>
+  <g font-size="17" font-weight="700" text-anchor="middle">
+    <rect x="130" y="60" width="350" height="32" rx="16" fill="#2f7d32"/>
+    <text x="305" y="82" fill="#fff">① 서로 통하는 걸 확인했다</text>
+    <text x="500" y="83" fill="#ffe7a0">+</text>
+    <rect x="520" y="60" width="350" height="32" rx="16" fill="#2f6fd6"/>
+    <text x="695" y="82" fill="#fff">② 서로의 번호표 첫 번호를 안다</text>
+  </g>
+
+  <!-- 왼쪽: 확인 없이 -->
+  <rect x="16" y="118" width="470" height="310" rx="16" fill="#fdf1ef" stroke="#c0392b" stroke-width="2"/>
+  <text x="251" y="150" text-anchor="middle" font-size="18" font-weight="800" fill="#c0392b">❌ 확인 없이 바로 "hi" 를 보내면</text>
+
+  <rect x="40" y="168" width="100" height="38" rx="10" fill="#eef1f4" stroke="#5b6b7a" stroke-width="2"/>
+  <text x="90" y="193" text-anchor="middle" font-size="14" font-weight="700" fill="#2b3440">클라이언트</text>
+  <rect x="360" y="168" width="100" height="38" rx="10" fill="#fff4e5" stroke="#d98a1a" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="410" y="193" text-anchor="middle" font-size="14" font-weight="700" fill="#7a4a00">서버 ?</text>
+  <line x1="146" y1="187" x2="310" y2="187" stroke="#d08a00" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#d)"/>
+  <rect x="196" y="176" width="54" height="22" rx="11" fill="#d08a00"/>
+  <text x="223" y="192" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">"hi"</text>
+  <text x="318" y="196" font-size="22">💨</text>
+
+  <text x="40" y="240" font-size="14" font-weight="700" fill="#2f7d32">① 통하는지 모른다</text>
+  <g font-size="14" fill="#2b3440">
+    <text x="52" y="264">· 서버가 <tspan font-weight="700">있나</tspan>?</text>
+    <text x="52" y="288">· 서버가 <tspan font-weight="700">받을 준비</tspan>가 됐나? (listen 중인가)</text>
+    <text x="52" y="312">· 내 말이 <tspan font-weight="700">도착</tspan>하나? (중간에 사라질 수 있다)</text>
+  </g>
+  <text x="40" y="350" font-size="14" font-weight="700" fill="#2f6fd6">② 번호표가 몇 번부터인지 모른다</text>
+  <g font-size="14" fill="#2b3440">
+    <text x="52" y="374">· 내가 붙인 번호를 서버가 <tspan font-weight="700">어디서부터</tspan> 셀지 모른다</text>
+    <text x="52" y="398">· → 빠진 것·순서 바뀐 것을 <tspan font-weight="700">알아챌 수 없다</tspan></text>
+  </g>
+
+  <text x="500" y="280" text-anchor="middle" font-size="30" fill="#9aa3ad">→</text>
+
+  <!-- 오른쪽: 악수 먼저 -->
+  <rect x="514" y="118" width="470" height="310" rx="16" fill="#eef7ec" stroke="#2f7d32" stroke-width="2"/>
+  <text x="749" y="150" text-anchor="middle" font-size="18" font-weight="800" fill="#2f7d32">🤝 악수(handshake) 를 먼저 하면</text>
+
+  <rect x="538" y="168" width="100" height="38" rx="10" fill="#eef1f4" stroke="#5b6b7a" stroke-width="2"/>
+  <text x="588" y="193" text-anchor="middle" font-size="14" font-weight="700" fill="#2b3440">클라이언트</text>
+  <rect x="860" y="168" width="100" height="38" rx="10" fill="#fff4e5" stroke="#d98a1a" stroke-width="2"/>
+  <text x="910" y="193" text-anchor="middle" font-size="14" font-weight="700" fill="#7a4a00">서버</text>
+  <line x1="644" y1="180" x2="854" y2="180" stroke="#2f6fd6" stroke-width="2" marker-end="url(#b)"/>
+  <line x1="854" y1="196" x2="644" y2="196" stroke="#2f6fd6" stroke-width="2" marker-end="url(#b)"/>
+  <line x1="644" y1="212" x2="854" y2="212" stroke="#4b5563" stroke-width="2" marker-end="url(#k)"/>
+
+  <text x="538" y="250" font-size="14" font-weight="700" fill="#2f7d32">① 통한다</text>
+  <g font-size="14" fill="#2b3440">
+    <text x="550" y="274">✅ 서버가 있고 받을 준비가 됐다 (대답이 왔으니까)</text>
+    <text x="550" y="298">✅ <tspan font-weight="700">양쪽 다</tspan> 내 말이 상대에게 간다</text>
+  </g>
+  <text x="538" y="336" font-size="14" font-weight="700" fill="#2f6fd6">② 서로의 첫 번호를 안다</text>
+  <g font-size="14" fill="#2b3440">
+    <text x="550" y="360">✅ 클라이언트 길은 1000부터, 서버 길은 5000부터</text>
+    <text x="550" y="384">✅ 이제 빠짐·순서 뒤바뀜을 알아챈다</text>
+  </g>
+  <text x="749" y="416" text-anchor="middle" font-size="14" fill="#2f7d32" font-weight="700">→ 이제 안심하고 데이터를 보낸다</text>
+</svg>

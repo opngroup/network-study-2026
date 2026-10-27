@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/></marker>
+  </defs>
+  <rect width="1000" height="340" fill="#fff"/>
+
+  <!-- 왼쪽 줄 이름 -->
+  <g font-size="12" font-weight="700" fill="#857e72" text-anchor="end">
+    <text x="62" y="126">시작</text>
+    <text x="62" y="176">패킷</text>
+    <text x="62" y="232">상태</text>
+  </g>
+
+  <!-- ① 연결 -->
+  <rect x="72" y="20" width="210" height="260" rx="14" fill="#eef7ec" stroke="#2f7d32" stroke-width="2.5"/>
+  <text x="177" y="54" text-anchor="middle" font-size="22" font-weight="800" fill="#2f7d32">① 연결</text>
+  <text x="177" y="78" text-anchor="middle" font-size="13" fill="#2f7d32">3-way handshake</text>
+  <line x1="88" y1="94" x2="266" y2="94" stroke="#cfe3cb"/>
+  <text x="177" y="126" text-anchor="middle" font-size="14" fill="#2b3440" font-family="Menlo, monospace" font-weight="700">connect()</text>
+  <text x="177" y="176" text-anchor="middle" font-size="13" fill="#2f6fd6" font-weight="700">SYN → SYN+ACK → ACK</text>
+  <text x="177" y="222" text-anchor="middle" font-size="12" fill="#2b3440" font-family="Menlo, monospace">SYN_SENT · SYN_RCVD</text>
+  <text x="177" y="242" text-anchor="middle" font-size="13" fill="#2f7d32" font-family="Menlo, monospace" font-weight="700">→ ESTABLISHED</text>
+
+  <!-- 데이터 (범위 밖) -->
+  <rect x="300" y="20" width="190" height="260" rx="14" fill="#fffaf0" stroke="#d6c9a8" stroke-width="2" stroke-dasharray="7 6"/>
+  <text x="395" y="54" text-anchor="middle" font-size="20" font-weight="800" fill="#b08a3c">데이터 주고받기</text>
+  <text x="395" y="78" text-anchor="middle" font-size="12" fill="#b08a3c">오늘 범위 밖 · 유진영 발표</text>
+  <line x1="316" y1="94" x2="474" y2="94" stroke="#eadfc6"/>
+  <text x="395" y="126" text-anchor="middle" font-size="14" fill="#7a6a45" font-family="Menlo, monospace" font-weight="700">send() · recv()</text>
+  <text x="395" y="176" text-anchor="middle" font-size="13" fill="#b08a3c" font-weight="700">데이터 ⇄ ACK</text>
+  <text x="395" y="232" text-anchor="middle" font-size="13" fill="#2f7d32" font-family="Menlo, monospace" font-weight="700">ESTABLISHED</text>
+
+  <!-- ② 종료 -->
+  <rect x="508" y="20" width="230" height="260" rx="14" fill="#f4effb" stroke="#7b4bc4" stroke-width="2.5"/>
+  <text x="623" y="54" text-anchor="middle" font-size="22" font-weight="800" fill="#7b4bc4">② 종료</text>
+  <text x="623" y="78" text-anchor="middle" font-size="13" fill="#7b4bc4">4-way</text>
+  <line x1="524" y1="94" x2="722" y2="94" stroke="#e2d6f3"/>
+  <text x="623" y="126" text-anchor="middle" font-size="14" fill="#2b3440" font-family="Menlo, monospace" font-weight="700">먼저 close()</text>
+  <text x="623" y="176" text-anchor="middle" font-size="13" fill="#7b4bc4" font-weight="700">FIN → ACK → FIN → ACK</text>
+  <text x="623" y="216" text-anchor="middle" font-size="12" fill="#2b3440" font-family="Menlo, monospace">먼저: FIN_WAIT_1 · 2</text>
+  <text x="623" y="236" text-anchor="middle" font-size="12" fill="#2b3440" font-family="Menlo, monospace">나중: CLOSE_WAIT · LAST_ACK</text>
+
+  <!-- ③ TIME_WAIT -->
+  <rect x="756" y="20" width="224" height="260" rx="14" fill="#fff4e0" stroke="#b26a00" stroke-width="2.5"/>
+  <text x="868" y="54" text-anchor="middle" font-size="22" font-weight="800" fill="#b26a00">③ TIME_WAIT</text>
+  <text x="868" y="78" text-anchor="middle" font-size="13" fill="#b26a00">끊은 뒤 잠깐 남기</text>
+  <line x1="772" y1="94" x2="964" y2="94" stroke="#f0dcb8"/>
+  <text x="868" y="126" text-anchor="middle" font-size="14" fill="#2b3440" font-weight="700">마지막 ACK 를 보낸 뒤</text>
+  <text x="868" y="176" text-anchor="middle" font-size="13" fill="#b26a00" font-weight="700">(패킷 없이 ≈ 30초 대기)</text>
+  <text x="868" y="222" text-anchor="middle" font-size="13" fill="#7a4a00" font-family="Menlo, monospace" font-weight="700">TIME_WAIT</text>
+  <text x="868" y="242" text-anchor="middle" font-size="13" fill="#4b5563" font-family="Menlo, monospace" font-weight="700">→ CLOSED</text>
+
+  <!-- 단계 사이 화살표 -->
+  <g stroke="#4b5563" stroke-width="2" marker-end="url(#a)">
+    <line x1="284" y1="150" x2="297" y2="150"/>
+    <line x1="492" y1="150" x2="505" y2="150"/>
+    <line x1="740" y1="150" x2="753" y2="150"/>
+  </g>
+
+  <!-- 시간 축 -->
+  <line x1="72" y1="310" x2="972" y2="310" stroke="#9aa3ad" stroke-width="2" marker-end="url(#a)"/>
+  <text x="72" y="332" font-size="12" fill="#857e72">시간 →</text>
+  <text x="972" y="332" text-anchor="end" font-size="12" fill="#857e72">상태 이름은 netstat 의 State 열에 그대로 보인다</text>
+</svg>

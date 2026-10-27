@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+  <defs>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f6fd6"/></marker>
+    <marker id="k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/></marker>
+  </defs>
+  <rect width="1000" height="400" fill="#fff"/>
+  <!-- 머리 -->
+  <rect x="60" y="12" width="200" height="46" rx="10" fill="#eef1f4" stroke="#5b6b7a" stroke-width="2"/>
+  <text x="160" y="41" text-anchor="middle" font-size="19" font-weight="700" fill="#2b3440">클라이언트 OS</text>
+  <rect x="740" y="12" width="200" height="46" rx="10" fill="#fff4e5" stroke="#d98a1a" stroke-width="2"/>
+  <text x="840" y="41" text-anchor="middle" font-size="19" font-weight="700" fill="#7a4a00">서버 OS (LISTEN)</text>
+  <g font-family="Menlo, monospace" font-size="15" font-weight="700" text-anchor="middle">
+    <rect x="130" y="70" width="60" height="30" fill="#eceff1" stroke="#9aa3ad"/><text x="160" y="90" fill="#4b5563">CLOSED</text>
+  </g>
+  <g font-family="Menlo, monospace" font-size="15" font-weight="700" text-anchor="middle">
+    <rect x="810" y="70" width="60" height="70" fill="#fff4e5" stroke="#d98a1a"/><text x="840" y="110" fill="#7a4a00" transform="rotate(-90 840 106)">LISTEN</text>
+  </g>
+  <!-- 시작 전: 에코 서버가 해 둔 일 -->
+  <rect x="878" y="66" width="114" height="104" rx="8" fill="#fffaf2" stroke="#d98a1a" stroke-width="1.2"/>
+  <text x="935" y="82" text-anchor="middle" font-size="10" font-weight="700" fill="#7a4a00">에코 서버가 해 둔 일</text>
+  <g font-size="11" fill="#2f5d8a" font-family="Menlo, monospace">
+    <text x="886" y="100">☎ socket()</text>
+    <text x="886" y="118">🔢 bind(9000)</text>
+    <text x="886" y="136">🛎 listen()</text>
+  </g>
+  <text x="935" y="158" text-anchor="middle" font-size="10" fill="#7a4a00">→ LISTEN 으로 대기</text>
+  <line x1="878" y1="105" x2="872" y2="105" stroke="#d98a1a" stroke-width="1.2"/>
+
+  <rect x="8" y="66" width="114" height="52" rx="8" fill="#f6f7f9" stroke="#9aa3ad" stroke-width="1.2"/>
+  <text x="65" y="82" text-anchor="middle" font-size="10" font-weight="700" fill="#4b5563">클라이언트 (nc)</text>
+  <text x="16" y="99" font-size="11" fill="#4b5563" font-family="Menlo, monospace">☎ socket()</text>
+  <text x="65" y="113" text-anchor="middle" font-size="10" fill="#4b5563">→ 아직 CLOSED</text>
+  <!-- ① SYN -->
+  <line x1="194" y1="100" x2="806" y2="140" stroke="#2f6fd6" stroke-width="3" marker-end="url(#b)"/>
+  <rect x="300" y="96" width="380" height="46" rx="12" fill="#2f6fd6"/>
+  <text x="490" y="116" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">① SYN   seq = 1000</text>
+  <text x="490" y="134" text-anchor="middle" font-size="14" fill="#dfeaf9">"연결할래요? 내 번호는 1000부터"</text>
+  <g font-family="Menlo, monospace" font-size="15" font-weight="700" text-anchor="middle">
+    <rect x="130" y="100" width="60" height="150" fill="#dfeaf9" stroke="#2f6fd6"/><text x="160" y="180" fill="#2f6fd6" transform="rotate(-90 160 180)">SYN_SENT</text>
+  </g>
+  <g font-family="Menlo, monospace" font-size="15" font-weight="700" text-anchor="middle">
+    <rect x="810" y="140" width="60" height="150" fill="#dfeaf9" stroke="#2f6fd6"/><text x="840" y="215" fill="#2f6fd6" transform="rotate(-90 840 215)">SYN_RCVD</text>
+  </g>
+  <!-- ② SYN+ACK -->
+  <line x1="806" y1="150" x2="194" y2="240" stroke="#2f6fd6" stroke-width="3" marker-end="url(#b)"/>
+  <rect x="270" y="172" width="440" height="46" rx="12" fill="#2f6fd6"/>
+  <text x="490" y="192" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">② SYN+ACK   seq = 5000 · ack = 1001</text>
+  <text x="490" y="210" text-anchor="middle" font-size="14" fill="#dfeaf9">"1000 받았어요(다음 1001) + 나도, 내 번호는 5000부터"</text>
+  <!-- ③ ACK -->
+  <line x1="194" y1="250" x2="806" y2="290" stroke="#4b5563" stroke-width="3" marker-end="url(#k)"/>
+  <rect x="340" y="246" width="300" height="46" rx="12" fill="#4b5563"/>
+  <text x="490" y="266" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">③ ACK   ack = 5001</text>
+  <text x="490" y="284" text-anchor="middle" font-size="14" fill="#e5e7eb">"5000 받았어요(다음 5001)"</text>
+  <g font-family="Menlo, monospace" font-size="15" font-weight="700" text-anchor="middle">
+    <rect x="130" y="250" width="60" height="110" fill="#e6f2e4" stroke="#2f7d32"/><text x="160" y="310" fill="#2f7d32" transform="rotate(-90 160 310)">ESTABLISHED</text>
+  </g>
+  <g font-family="Menlo, monospace" font-size="15" font-weight="700" text-anchor="middle">
+    <rect x="810" y="290" width="60" height="70" fill="#e6f2e4" stroke="#2f7d32"/><text x="840" y="330" fill="#2f7d32" font-size="11" transform="rotate(-90 840 326)">ESTAB.</text>
+  </g>
+  <!-- 범례 -->
+  <rect x="230" y="336" width="540" height="54" rx="10" fill="#f6f1e6" stroke="#dcd4c4"/>
+  <text x="246" y="358" font-size="15" fill="#2b3440"><tspan font-weight="700" font-family="Menlo, monospace">seq</tspan> 내가 보내는 것의 번호  ·  <tspan font-weight="700" font-family="Menlo, monospace">ack</tspan> 다음에 받고 싶은 번호 <tspan fill="#857e72">(RFC 9293 §3.1)</tspan></text>
+  <text x="246" y="378" font-size="14" fill="#857e72">SYN 은 번호 한 칸을 쓴다 (§3.4) → 1000 을 받으면 1001 로 답한다 · 1000·5000 은 예시</text>
+</svg>

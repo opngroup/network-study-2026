@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f5d8a"/></marker>
+    <marker id="c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5b6b7a"/></marker>
+    <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7b4bc4"/></marker>
+    <marker id="k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/></marker>
+  </defs>
+  <rect width="1000" height="640" fill="#fff"/>
+
+  <!-- 머리 -->
+  <rect x="20" y="12" width="150" height="46" rx="10" fill="#e7eef6" stroke="#2f5d8a" stroke-width="2"/>
+  <text x="95" y="41" text-anchor="middle" font-size="16" font-weight="700" fill="#2f5d8a">서버 코드</text>
+  <rect x="250" y="12" width="160" height="46" rx="10" fill="#fff4e5" stroke="#d98a1a" stroke-width="2"/>
+  <text x="330" y="33" text-anchor="middle" font-size="16" font-weight="700" fill="#7a4a00">서버 OS</text>
+  <text x="330" y="50" text-anchor="middle" font-size="11" fill="#7a4a00">TCP 상태</text>
+  <rect x="590" y="12" width="160" height="46" rx="10" fill="#fff4e5" stroke="#d98a1a" stroke-width="2"/>
+  <text x="670" y="33" text-anchor="middle" font-size="16" font-weight="700" fill="#7a4a00">클라이언트 OS</text>
+  <text x="670" y="50" text-anchor="middle" font-size="11" fill="#7a4a00">TCP 상태</text>
+  <rect x="830" y="12" width="150" height="46" rx="10" fill="#eef1f4" stroke="#5b6b7a" stroke-width="2"/>
+  <text x="905" y="41" text-anchor="middle" font-size="16" font-weight="700" fill="#2b3440">클라이언트 코드 (nc)</text>
+
+  <line x1="95" y1="58" x2="95" y2="580" stroke="#d5dbe1" stroke-width="2" stroke-dasharray="5 5"/>
+  <line x1="905" y1="58" x2="905" y2="580" stroke="#d5dbe1" stroke-width="2" stroke-dasharray="5 5"/>
+  <text x="14" y="590" font-size="12" fill="#857e72">시간 ↓</text>
+
+  <!-- 서버 OS 상태 막대 -->
+  <g font-family="Menlo, monospace" font-size="14" font-weight="700" text-anchor="middle">
+    <rect x="270" y="70" width="120" height="106" fill="#e6f2e4" stroke="#2f7d32" stroke-width="1.5"/>
+    <text x="330" y="128" fill="#2f7d32">ESTABLISHED</text>
+    <rect x="270" y="176" width="120" height="124" fill="#7b4bc4" stroke="#5b2fa3" stroke-width="1.5"/>
+    <text x="330" y="232" fill="#fff">CLOSE_WAIT</text>
+    <text x="330" y="252" fill="#efe6fb" font-size="11" font-weight="400" font-family="-apple-system, sans-serif">close() 를 기다림</text>
+    <rect x="270" y="300" width="120" height="40" fill="#e9dcf7" stroke="#7b4bc4" stroke-width="1.5"/>
+    <text x="330" y="325" fill="#5b2fa3">LAST_ACK</text>
+    <rect x="270" y="340" width="120" height="240" fill="#eceff1" stroke="#9aa3ad" stroke-width="1.5"/>
+    <text x="330" y="380" fill="#4b5563">CLOSED</text>
+    <text x="330" y="400" fill="#4b5563" font-size="11" font-weight="400" font-family="-apple-system, sans-serif">바로 끝 ✅</text>
+  </g>
+
+  <!-- 클라이언트 OS 상태 막대 -->
+  <g font-family="Menlo, monospace" font-size="14" font-weight="700" text-anchor="middle">
+    <rect x="610" y="70" width="120" height="60" fill="#e6f2e4" stroke="#2f7d32" stroke-width="1.5"/>
+    <text x="670" y="105" fill="#2f7d32">ESTABLISHED</text>
+    <rect x="610" y="130" width="120" height="46" fill="#e9dcf7" stroke="#7b4bc4" stroke-width="1.5"/>
+    <text x="670" y="158" fill="#5b2fa3">FIN_WAIT_1</text>
+    <rect x="610" y="176" width="120" height="164" fill="#e9dcf7" stroke="#7b4bc4" stroke-width="1.5"/>
+    <text x="670" y="262" fill="#5b2fa3">FIN_WAIT_2</text>
+    <rect x="610" y="340" width="120" height="200" fill="#ffd79a" stroke="#b26a00" stroke-width="2.5"/>
+    <text x="670" y="420" fill="#7a4a00" font-size="16">TIME_WAIT</text>
+    <text x="670" y="444" fill="#7a4a00" font-size="13" font-weight="400" font-family="-apple-system, sans-serif">≈ 30초 (2MSL)</text>
+    <rect x="610" y="540" width="120" height="40" fill="#eceff1" stroke="#9aa3ad" stroke-width="1.5"/>
+    <text x="670" y="565" fill="#4b5563">CLOSED</text>
+  </g>
+
+  <!-- 클라이언트 코드: close() = 해제 시작 -->
+  <line x1="895" y1="130" x2="736" y2="130" stroke="#5b6b7a" stroke-width="2" marker-end="url(#c)"/>
+  <text x="842" y="122" font-size="15" font-weight="700" fill="#2b3440" font-family="Menlo, monospace" text-anchor="middle">close()</text>
+  <text x="842" y="150" font-size="13" font-weight="700" fill="#7b4bc4" text-anchor="middle">⏱ 해제 시작</text>
+  <text x="842" y="166" font-size="11" fill="#857e72" text-anchor="middle">(먼저 끊는 쪽)</text>
+
+  <!-- 4번의 패킷 -->
+  <line x1="606" y1="134" x2="396" y2="134" stroke="#7b4bc4" stroke-width="3" marker-end="url(#f)"/>
+  <rect x="436" y="108" width="128" height="22" rx="11" fill="#7b4bc4"/>
+  <text x="500" y="124" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">① FIN  다 보냈어</text>
+
+  <line x1="394" y1="180" x2="604" y2="180" stroke="#4b5563" stroke-width="3" marker-end="url(#k)"/>
+  <rect x="426" y="186" width="148" height="22" rx="11" fill="#4b5563"/>
+  <text x="500" y="202" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">② ACK  OS 가 바로</text>
+
+  <line x1="394" y1="304" x2="604" y2="304" stroke="#7b4bc4" stroke-width="3" marker-end="url(#f)"/>
+  <rect x="446" y="278" width="108" height="22" rx="11" fill="#7b4bc4"/>
+  <text x="500" y="294" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">③ FIN  나도 끝</text>
+
+  <line x1="606" y1="344" x2="396" y2="344" stroke="#4b5563" stroke-width="3" marker-end="url(#k)"/>
+  <rect x="456" y="350" width="88" height="22" rx="11" fill="#4b5563"/>
+  <text x="500" y="366" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">④ ACK  확인</text>
+
+  <!-- 서버 코드 -->
+  <line x1="266" y1="222" x2="104" y2="222" stroke="#2f5d8a" stroke-width="2" marker-end="url(#a)"/>
+  <text x="104" y="214" font-size="14" font-weight="700" fill="#2f5d8a" font-family="Menlo, monospace">recv() → b''</text>
+  <text x="104" y="240" font-size="12" fill="#2f5d8a">"클라이언트가 끊었네"</text>
+
+  <line x1="104" y1="290" x2="266" y2="290" stroke="#2f5d8a" stroke-width="2" marker-end="url(#a)"/>
+  <text x="104" y="282" font-size="14" font-weight="700" fill="#2f5d8a" font-family="Menlo, monospace">close()</text>
+  <text x="104" y="310" font-size="12" fill="#2f5d8a">이걸 불러야 ③ 이 나간다</text>
+
+  <!-- CLOSE_WAIT 함정 -->
+  <rect x="20" y="410" width="235" height="66" rx="8" fill="#fdecea" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="32" y="432" font-size="13" font-weight="700" fill="#c0392b">❌ close() 를 안 부르면</text>
+  <text x="32" y="451" font-size="12" fill="#c0392b">서버는 CLOSE_WAIT 에 멈추고</text>
+  <text x="32" y="468" font-size="12" fill="#c0392b">③ ④ 가 영영 안 일어난다 (실측)</text>
+
+  <!-- TIME_WAIT 설명 -->
+  <rect x="750" y="350" width="236" height="170" rx="10" fill="#fff8ec" stroke="#b26a00" stroke-width="1.5"/>
+  <text x="764" y="374" font-size="14" font-weight="700" fill="#7a4a00">⏳ 왜 클라이언트 쪽에 남나</text>
+  <text x="764" y="396" font-size="12" fill="#2b3440">마지막 ④ ACK 를 보낸 쪽</text>
+  <text x="764" y="412" font-size="12" fill="#2b3440">= 먼저 끊은 쪽</text>
+  <text x="764" y="438" font-size="12" font-weight="700" fill="#7a4a00">이유 1</text>
+  <text x="764" y="454" font-size="12" fill="#2b3440">④ 가 사라지면 ③ FIN 이 다시 온다</text>
+  <text x="764" y="470" font-size="12" fill="#2b3440">→ 다시 대답해 주려고 기다린다</text>
+  <text x="764" y="494" font-size="12" font-weight="700" fill="#7a4a00">이유 2</text>
+  <text x="764" y="510" font-size="12" fill="#2b3440">늦게 온 옛 패킷을 걸러 낸다</text>
+  <line x1="736" y1="440" x2="750" y2="440" stroke="#b26a00" stroke-width="1.5"/>
+
+  <!-- 바닥 -->
+  <rect x="20" y="596" width="960" height="36" rx="8" fill="#f6f1e6" stroke="#dcd4c4" stroke-width="1"/>
+  <text x="34" y="619" font-size="12" fill="#2b3440"><tspan font-weight="700">RST 로 끊으면</tspan> 4번 인사 없이 즉시 끝 · TIME_WAIT 없음 · 상대 recv() 는 <tspan font-family="Menlo, monospace">ConnectionResetError</tspan>   <tspan fill="#857e72">(실측 10/24·10/26 · 30초는 msl=15000 으로 계산)</tspan></text>
+</svg>
