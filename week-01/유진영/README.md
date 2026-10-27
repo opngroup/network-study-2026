@@ -7,7 +7,7 @@
 
 ## 과제 A. TCP 에코 서버 (10/27 데모)
 
-Python `socket`만으로 만든 에코 서버와 동시 접속 테스트 클라이언트. 결과는 [assignment-a/README.md](./assignment-a/README.md).
+Node.js `net` 모듈만으로 만든 에코 서버와 동시 접속 테스트 클라이언트. 코드 주석과 README에 배경 지식까지 정리했다. 결과는 [assignment-a/README.md](./assignment-a/README.md).
 
 - [x] 접속한 클라이언트의 IP·포트를 로그로 남기고, 3개를 동시에 붙였을 때 포트가 각각 다른 것 확인
 - [x] 127.0.0.1 과 0.0.0.0 으로 바인딩해 다른 주소에서 접속되는지 비교
