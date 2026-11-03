@@ -1,0 +1,10 @@
+  1   0.000000s  49050 → 9000 [SYN] Seq=0 Win=65495 Len=0
+  2   0.000027s  9000 → 49050 [SYN, ACK] Seq=0 Ack=1 Win=65483 Len=0
+  3   0.000036s  49050 → 9000 [ACK] Seq=1 Ack=1 Win=64 Len=0
+  4   1.004737s  49050 → 9000 [PSH, ACK] Seq=1 Ack=1 Win=64 Len=6  데이터='hello\n'
+  5   1.004746s  9000 → 49050 [ACK] Seq=1 Ack=7 Win=64 Len=0
+  6   1.005650s  9000 → 49050 [PSH, ACK] Seq=1 Ack=7 Win=64 Len=6  데이터='hello\n'
+  7   1.005657s  49050 → 9000 [ACK] Seq=7 Ack=7 Win=64 Len=0
+  8   2.008194s  49050 → 9000 [FIN, ACK] Seq=7 Ack=7 Win=64 Len=0
+  9   2.009473s  9000 → 49050 [FIN, ACK] Seq=7 Ack=8 Win=64 Len=0
+ 10   2.009484s  49050 → 9000 [ACK] Seq=8 Ack=8 Win=64 Len=0

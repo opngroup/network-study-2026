@@ -1,0 +1,15 @@
+{
+  "name": "week02-yoojinyoung-assignment-b",
+  "version": "1.0.0",
+  "private": true,
+  "description": "과제 B. 패킷 캡처용 클라이언트, TIME_WAIT 위치 확인, keep-alive 켬/끔 측정 (Node.js 표준 모듈만 사용)",
+  "engines": {
+    "node": ">=18.3"
+  },
+  "scripts": {
+    "capture-client": "node client_once.js",
+    "timewait": "node time_wait_check.js",
+    "timewait:server": "node time_wait_check.js --closer server",
+    "bench": "node keepalive_bench.js"
+  }
+}
