@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 440" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+  <rect width="520" height="440" fill="#fff"/>
+
+  <!-- 전체: HTTP 메서드 -->
+  <rect x="10" y="10" width="500" height="420" rx="18" fill="#f6f7f9" stroke="#9aa5b1" stroke-width="2"/>
+  <text x="28" y="40" font-size="17" fill="#4b5563">HTTP 메서드</text>
+  <text x="470" y="400" text-anchor="end" font-size="20" font-weight="700" fill="#b42318">POST</text>
+  <text x="470" y="374" text-anchor="end" font-size="16" fill="#6b7280">PATCH*</text>
+  <text x="470" y="420" text-anchor="end" font-size="13" fill="#6b7280">둘 다 아님</text>
+
+  <!-- 멱등 -->
+  <ellipse cx="240" cy="220" rx="200" ry="160" fill="#e8f0fe" stroke="#3b6fd8" stroke-width="3"/>
+  <text x="240" y="95" text-anchor="middle" font-size="20" font-weight="700" fill="#1f3a73">멱등 (Idempotent)</text>
+  <text x="240" y="120" text-anchor="middle" font-size="13" fill="#1f3a73">여러 번 보내도 서버 상태가 같다</text>
+  <text x="105" y="235" text-anchor="middle" font-size="19" font-weight="700" fill="#1f3a73">PUT</text>
+  <text x="105" y="262" text-anchor="middle" font-size="19" font-weight="700" fill="#1f3a73">DELETE</text>
+
+  <!-- 안전 -->
+  <ellipse cx="290" cy="245" rx="105" ry="85" fill="#e7f6ec" stroke="#2f9e5b" stroke-width="3"/>
+  <text x="290" y="205" text-anchor="middle" font-size="18" font-weight="700" fill="#145c32">안전 (Safe)</text>
+  <text x="290" y="226" text-anchor="middle" font-size="12" fill="#145c32">서버 상태를 안 바꾼다</text>
+  <text x="290" y="258" text-anchor="middle" font-size="19" font-weight="700" fill="#145c32">GET</text>
+  <text x="290" y="284" text-anchor="middle" font-size="15" fill="#145c32">HEAD · OPTIONS</text>
+</svg>
