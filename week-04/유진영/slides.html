@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>캐시, ETag, 콘텐츠 협상</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
+<style>
+/* 3주차 장표와 같은 틀: 1440×810, 어두운 표지·정리, 밝은 본문. PDF: Chrome으로 인쇄 (README 참고) */
+:root {
+  --ink: #16212b; --muted: #4d5b67; --bg: #f3f4f3; --card: #fbfbfb; --line: #dfe3e5;
+  --teal: #0b6f78; --teal-soft: #d6eef0; --orange: #b0471a; --orange-soft: #f8e4da;
+  --purple: #6b4fb3; --purple-soft: #ebe5f7; --cyan: #4cc2cc; --code: #16212b; --code-ink: #e6edf2;
+  --font: "Noto Sans KR", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  --mono: "D2Coding", "SFMono-Regular", Menlo, monospace;
+}
+@page { size: 1440px 810px; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #888; font-family: var(--font); color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.slide { width: 1440px; height: 810px; padding: 96px 96px 72px; background: var(--bg); position: relative; overflow: hidden; page-break-after: always; break-after: page; margin: 0 auto 24px; }
+@media print { .slide { margin: 0; } body { background: none; } }
+.slide.dark { background: var(--ink); color: #e9eef1; }
+.eyebrow { font-family: var(--mono); font-weight: 700; font-size: 20px; letter-spacing: .12em; color: var(--teal); margin-bottom: 14px; }
+.dark .eyebrow { color: var(--cyan); }
+h1 { font-size: 46px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 36px; line-height: 1.25; }
+h1.big { font-size: 96px; line-height: 1.12; margin: 0; }
+p, li { font-size: 24px; line-height: 1.6; }
+.muted { color: var(--muted); }
+.dark .muted { color: #aab7c1; }
+.foot { position: absolute; left: 96px; bottom: 64px; font-size: 21px; color: var(--muted); }
+.dark .foot { color: #aab7c1; }
+b.t { color: var(--teal); } b.o { color: var(--orange); } b.p { color: var(--purple); }
+code { white-space: nowrap; font-family: var(--mono); font-size: .92em; background: #e4e9ec; padding: 1px 7px; border-radius: 5px; }
+
+/* 카드 */
+.grid { display: grid; gap: 24px; }
+.g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); }
+.card { background: var(--card); border-radius: 10px; padding: 30px 30px; border: 1px solid #eceeef; }
+.card.top-t { border-top: 6px solid var(--teal); } .card.top-o { border-top: 6px solid var(--orange); } .card.top-p { border-top: 6px solid var(--purple); }
+.card .k { font-weight: 700; font-size: 21px; margin-bottom: 14px; }
+.card .h { font-weight: 800; font-size: 29px; line-height: 1.35; margin-bottom: 12px; }
+.card p { font-size: 21px; color: var(--muted); margin: 0; line-height: 1.6; }
+.top-t .k { color: var(--teal); } .top-o .k { color: var(--orange); } .top-p .k { color: var(--purple); }
+
+/* 번호 줄 */
+.rows { display: grid; gap: 14px; }
+.row { display: grid; grid-template-columns: 70px 1fr; align-items: center; background: var(--card); border-radius: 10px; padding: 20px 28px; font-size: 22px; line-height: 1.55; }
+.row .n { font-family: var(--mono); font-weight: 700; font-size: 32px; color: var(--teal); }
+.row.hl-o { background: var(--orange-soft); } .row.hl-o .n { color: var(--orange); }
+.row.hl-t { background: var(--teal-soft); }
+
+/* 코드 상자 */
+.code { background: var(--code); color: var(--code-ink); border-radius: 12px; padding: 30px 34px; font-family: var(--mono); font-size: 23px; line-height: 1.65; white-space: pre; }
+.code .c { color: #8fa1ae; } .code .hl { color: #f2a65a; } .code .ok { color: #6fd3dc; } .code .lab { color: #8fa1ae; font-size: 19px; display: block; margin-bottom: 10px; }
+
+/* 표 */
+table { width: 100%; border-collapse: collapse; font-size: 22px; }
+th { text-align: left; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+td { padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.45; }
+td code, th code { font-size: .88em; }
+tr.hl td { background: var(--teal-soft); }
+tr.hl-o td { background: var(--orange-soft); }
+
+.box { border-radius: 12px; padding: 24px 32px; font-size: 23px; line-height: 1.6; }
+.box.t { background: var(--teal-soft); } .box.o { background: var(--orange-soft); border: 2px solid var(--orange); }
+.box b { font-weight: 800; }
+
+/* 퀴즈 */
+.quiz { background: var(--card); border-radius: 10px; padding: 22px 28px; display: grid; grid-template-columns: 90px 1fr 330px; gap: 20px; align-items: center; }
+.quiz .id { font-family: var(--mono); font-weight: 700; font-size: 28px; color: var(--orange); }
+.quiz .q { font-size: 22px; line-height: 1.5; }
+.quiz .a { font-size: 21px; font-weight: 700; color: var(--teal); line-height: 1.45; }
+
+/* 흐름도 */
+.flow { display: grid; grid-template-columns: 250px 1fr 250px; gap: 0; align-items: stretch; }
+.actor { background: var(--ink); color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 24px; text-align: center; padding: 14px; }
+.msgs { display: grid; gap: 12px; padding: 0 22px; }
+.msg { position: relative; font-family: var(--mono); font-size: 20px; padding: 10px 14px; border-radius: 8px; background: var(--card); line-height: 1.45; }
+.msg.r { text-align: right; }
+.msg .arr { color: var(--teal); font-weight: 700; }
+.msg.o { background: var(--orange-soft); }
+.msg.t { background: var(--teal-soft); }
+
+/* 계층 그림 */
+.layers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; align-items: stretch; }
+.layer { border-radius: 10px; padding: 22px; text-align: center; border: 2px solid var(--line); background: var(--card); }
+.layer .nm { font-weight: 800; font-size: 26px; }
+.layer .sub { font-size: 19px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+.layer.priv { border-color: var(--teal); background: var(--teal-soft); }
+.layer.shared { border-color: var(--purple); background: var(--purple-soft); }
+.layer.origin { border-color: var(--ink); }
+.arrow-row { text-align: center; font-size: 30px; color: var(--muted); }
+
+.dark .box.us { border: 2px solid var(--cyan); background: #1f2c38; color: #e9eef1; }
+.dark .box.us .lbl { color: var(--cyan); font-weight: 700; font-size: 22px; margin-bottom: 8px; }
+ol.sum { margin: 0 0 40px; padding-left: 34px; } ol.sum li { font-size: 26px; line-height: 1.75; }
+</style>
+</head>
+<body>
+
+<!-- 1 표지 -->
+<section class="slide dark">
+  <div class="eyebrow">NETWORK STUDY · WEEK 4</div>
+  <div style="margin-top:150px">
+    <h1 class="big">캐시, ETag,<br>콘텐츠 협상</h1>
+    <p class="muted" style="font-size:32px;margin-top:28px;line-height:1.45">같은 것을 또 받지 않는 법,<br>같은 주소에서 다른 것을 받는 법</p>
+  </div>
+  <div class="foot">유진영 · 2026년 11월 12일 · 《혼자 공부하는 네트워크》 05-3</div>
+</section>
+
+<!-- 2 과제 C 1/2 -->
+<section class="slide">
+  <div class="eyebrow">지난주 과제 C 1 / 2</div>
+  <h1>멱등 API를 만들고, 5xx를 일부러 냈다</h1>
+  <div class="grid g3">
+    <div class="card top-t">
+      <div class="k">① 멱등 POST</div>
+      <div class="h">같은 키로 두 번 = 주문 1건</div>
+      <p>두 번째는 저장해 둔 첫 응답을 그대로 돌려준다(<code>Idempotent-Replayed: true</code>). 처리 중에 또 오면 409, 키는 같은데 본문이 다르면 422.</p>
+    </div>
+    <div class="card top-o">
+      <div class="k">② 500 · 504</div>
+      <div class="h">500은 앱, 504는 nginx</div>
+      <p>예외 → 500 JSON(0.000초). 4초 걸리는 핸들러 → 정확히 2.00초에 504 HTML. 느린 POST가 504로 끝나도 같은 키로 재시도하면 주문은 1건.</p>
+    </div>
+    <div class="card top-p">
+      <div class="k">③ 502</div>
+      <div class="h">거절당하면 502</div>
+      <p>응답 도중 연결 끊기 → <code>prematurely closed</code>. 127.0.0.1 바인딩 → <code>Connection refused</code>. 둘 다 0.002초 안에 502.</p>
+    </div>
+  </div>
+  <div class="foot">코드와 결과: week-03/유진영/assignment-c · node:http + nginx 1.27 · docker compose · 시험 17개</div>
+</section>
+
+<!-- 3 과제 C 2/2 -->
+<section class="slide">
+  <div class="eyebrow">지난주 과제 C 2 / 2</div>
+  <h1>해 보고 알게 된 것</h1>
+  <div class="rows">
+    <div class="row hl-o"><div class="n">01</div><div><b>앱 컨테이너를 끄면 502가 아니라 504가 났다.</b> 컨테이너 IP가 사라져 SYN에 "없어요"(RST)라고 답할 OS조차 없다. <b>거절당하면 502, 대답이 없으면 504.</b> Q17의 정답(프로세스가 죽으면 502)은 그대로 맞다.</div></div>
+    <div class="row"><div class="n">02</div><div><b>nginx가 GET을 스스로 한 번 더 보냈다.</b> 재사용하던 keepalive 연결이 끊기자 새 연결로 재시도. keepalive를 빼니 재시도도 사라졌다. POST는 다시 보내지 않았다.</div></div>
+    <div class="row"><div class="n">03</div><div><b>504가 나도 앱은 일을 계속한다.</b> nginx는 2초에 포기했지만 앱은 4초를 다 채우고 아무도 안 받는 응답을 보냈다.</div></div>
+    <div class="row hl-t"><div class="n">04</div><div><b>오늘 주제로 이어진다.</b> 멱등 키는 "같은 요청엔 저장된 응답". 캐시도 "같은 요청엔 저장된 응답"이다. 차이는 <b>누가 저장하고, 언제까지 믿느냐</b>.</div></div>
+  </div>
+</section>
+
+<!-- 4 퀴즈 다시 풀기 -->
+<section class="slide">
+  <div class="eyebrow">진단 퀴즈 다시 풀기</div>
+  <h1>오늘 답할 수 있어야 하는 세 문제</h1>
+  <div class="rows" style="gap:18px">
+    <div class="quiz"><div class="id">Q20</div><div class="q">응답 헤더 <code>Cache-Control: no-cache</code>의 의미는?</div><div class="a">저장은 해도 된다.<br>쓰기 전에 매번 서버에 확인.</div></div>
+    <div class="quiz"><div class="id">Q21</div><div class="q">브라우저가 <code>If-None-Match: "abc123"</code>을 붙여 요청했고 리소스는 그대로다. 서버의 응답은?</div><div class="a">304 Not Modified,<br>본문 없음</div></div>
+    <div class="quiz"><div class="id">Q23</div><div class="q">같은 URL인데 <code>Accept-Language</code>에 따라 한국어·영어 페이지를 돌려주는 것은?</div><div class="a">콘텐츠 협상</div></div>
+  </div>
+  <p class="muted" style="margin-top:30px;font-size:22px">세 문제 모두 "같은 주소에 대한 응답을 언제, 무엇으로 재사용하나"라는 하나의 이야기다.</p>
+</section>
+
+<!-- 5 배경 1/3 -->
+<section class="slide">
+  <div class="eyebrow">배경 지식 1 / 3</div>
+  <h1>응답을 저장해 두는 곳은 여러 군데다</h1>
+  <div class="layers">
+    <div class="layer priv"><div class="nm">브라우저 캐시</div><div class="sub">나만 쓰는 캐시<br>(private)</div></div>
+    <div class="layer shared"><div class="nm">CDN</div><div class="sub">모두가 같이 쓰는 캐시<br>(shared)</div></div>
+    <div class="layer shared"><div class="nm">nginx·프록시</div><div class="sub">설정하면 shared 캐시</div></div>
+    <div class="layer origin"><div class="nm">앱 서버</div><div class="sub">원본 (origin)</div></div>
+  </div>
+  <div class="arrow-row" style="margin:16px 0 30px">요청 →→→　가까운 곳에 저장된 게 있으면 거기서 멈춘다</div>
+  <div class="grid g2">
+    <div class="card"><div class="k" style="color:var(--teal)">private</div><p>내 로그인 화면, 내 장바구니. <b>나에게만</b> 맞는 응답. 브라우저만 저장해야 한다.</p></div>
+    <div class="card"><div class="k" style="color:var(--purple)">shared</div><p>로고, JS 번들, 공지 페이지. 누구에게나 같은 응답. CDN이 저장하면 원본까지 안 와도 된다.</p></div>
+  </div>
+</section>
+
+<!-- 6 배경 2/3 -->
+<section class="slide">
+  <div class="eyebrow">배경 지식 2 / 3</div>
+  <h1>저장한 응답에는 유통기한이 있다</h1>
+  <div class="grid g2" style="align-items:start">
+    <div class="code"><span class="lab">응답 (MDN, 오늘 받은 것)</span>HTTP/2 200
+cache-control: public, <span class="hl">max-age=3600</span>
+<span class="hl">age: 1254</span>
+etag: "5db9819de628…"</div>
+    <div>
+      <p style="margin-top:0"><b class="t">max-age=3600</b>: 받은 뒤 1시간 동안은 <b>신선(fresh)</b>하다. 서버에 묻지 않고 그냥 쓴다.</p>
+      <p><b class="o">age: 1254</b>: CDN이 이 응답을 들고 있은 지 1254초. 남은 신선 시간은 3600 − 1254 = 약 39분.</p>
+      <p>기한이 지나면 <b>상했다(stale)</b>. 바로 버리지 않고, 다음 장의 "확인"을 거친다.</p>
+    </div>
+  </div>
+  <div class="box t" style="margin-top:34px">우유 유통기한과 같다. 기한 안이면 그냥 마시고, 지나면 냄새를 맡아 보고(<b>재검증</b>) 괜찮으면 또 마신다.</div>
+</section>
+
+<!-- 7 배경 3/3 -->
+<section class="slide">
+  <div class="eyebrow">배경 지식 3 / 3</div>
+  <h1>캐시가 하는 판단은 세 갈래다</h1>
+  <table>
+    <tr><th style="width:26%">상황</th><th style="width:32%">브라우저가 하는 일</th><th>DevTools Network에서 보이는 것</th></tr>
+    <tr class="hl"><td>신선하다</td><td>서버에 안 묻고 바로 쓴다</td><td><code>200</code>, Size 열에 <code>(memory cache)</code>·<code>(disk cache)</code> · 서버로 안 나감</td></tr>
+    <tr><td>상했다, 검증 값이 있다</td><td>"이거 아직 맞아요?" 하고 물어본다</td><td><code>304</code> · 헤더만 오가고 본문 0바이트</td></tr>
+    <tr class="hl-o"><td>상했다, 검증 값이 없다</td><td>처음부터 다시 받는다</td><td><code>200</code> · 본문 전체</td></tr>
+  </table>
+  <p class="muted" style="margin-top:34px">"검증 값"이 오늘 볼 <b>ETag</b>(내용의 지문)와 <b>Last-Modified</b>(마지막 수정 시각)다.</p>
+</section>
+
+<!-- 8 Q20 -->
+<section class="slide">
+  <div class="eyebrow">Q20</div>
+  <h1><code style="font-size:.9em">no-cache</code>는 "저장 금지"가 아니다</h1>
+  <div class="grid g2">
+    <div class="card top-t">
+      <div class="k">no-cache</div>
+      <div class="h">저장 OK, 쓰기 전에 매번 확인</div>
+      <p>신선 기간 0과 같다. 매번 서버에 묻지만, 안 바뀌었으면 <b>304로 본문을 아낀다</b>. "항상 최신이어야 하는" HTML에 맞다.</p>
+    </div>
+    <div class="card top-o">
+      <div class="k">no-store</div>
+      <div class="h">아예 저장하지 마</div>
+      <p>디스크에도 남기지 않는다. 매번 본문 전체를 받는다. 계좌 내역, 개인정보 화면처럼 <b>남으면 안 되는</b> 응답에만.</p>
+    </div>
+  </div>
+  <div class="box o" style="margin-top:34px"><b>함정:</b> 이름 때문에 "캐시 끄기 = no-cache"로 쓰는 경우가 많다. 진짜로 끄려면 <code>no-store</code>, 항상 최신만 원하면 <code>no-cache</code>가 304 덕분에 더 싸다.</div>
+</section>
+
+<!-- 9 Cache-Control 값 -->
+<section class="slide">
+  <div class="eyebrow">Cache-Control</div>
+  <h1>자주 쓰는 값 여덟 개</h1>
+  <table>
+    <tr><th style="width:34%">값</th><th>뜻</th></tr>
+    <tr><td><code>max-age=N</code></td><td>N초 동안 신선. 묻지 않고 쓴다</td></tr>
+    <tr><td><code>s-maxage=N</code></td><td>CDN 같은 shared 캐시에만 적용되는 max-age</td></tr>
+    <tr><td><code>public</code> · <code>private</code></td><td>shared 캐시도 저장해도 되나 · 브라우저만 저장</td></tr>
+    <tr class="hl"><td><code>no-cache</code></td><td>저장은 하되 매번 재검증</td></tr>
+    <tr class="hl-o"><td><code>no-store</code></td><td>저장 금지</td></tr>
+    <tr><td><code>must-revalidate</code></td><td>상한 뒤엔 반드시 확인. 서버가 죽어도 상한 걸 몰래 쓰지 마</td></tr>
+    <tr><td><code>immutable</code></td><td>기간 안엔 새로고침해도 묻지 마. 파일 이름에 해시가 붙은 번들용</td></tr>
+    <tr><td><code>stale-while-revalidate=N</code></td><td>상한 뒤 N초까지는 일단 옛것을 주고, 뒤에서 몰래 새로 받아 둔다</td></tr>
+  </table>
+</section>
+
+<!-- 10 Q21 흐름 -->
+<section class="slide">
+  <div class="eyebrow">Q21</div>
+  <h1>ETag → If-None-Match → 304</h1>
+  <div class="flow">
+    <div class="actor">브라우저</div>
+    <div class="msgs">
+      <div class="msg"><span class="arr">→</span> GET /orders/7</div>
+      <div class="msg r t">200 OK · <b>ETag: "v3"</b> · 본문 2KB <span class="arr">←</span></div>
+      <div class="msg" style="background:none;color:var(--muted);font-family:var(--font);text-align:center">… 신선 기간이 지났다 …</div>
+      <div class="msg"><span class="arr">→</span> GET /orders/7 · <b>If-None-Match: "v3"</b></div>
+      <div class="msg r o"><b>304 Not Modified</b> · 본문 없음 <span class="arr">←</span></div>
+    </div>
+    <div class="actor">서버</div>
+  </div>
+  <div class="grid g2" style="margin-top:36px">
+    <div class="card"><div class="k" style="color:var(--teal)">ETag</div><p>서버가 응답에 붙이는 <b>내용의 지문</b>. 내용이 바뀌면 값도 바뀐다. 해시나 버전 번호로 만든다.</p></div>
+    <div class="card"><div class="k" style="color:var(--orange)">If-None-Match</div><p>"내가 가진 건 이 지문인데, <b>이것과 다르면</b> 보내 줘." 같으면 서버는 304로 "가진 거 써"라고만 한다.</p></div>
+  </div>
+</section>
+
+<!-- 11 실제로 보기 -->
+<section class="slide">
+  <div class="eyebrow">직접 보기 · curl</div>
+  <h1>MDN 첫 화면: 117KB가 0바이트로</h1>
+  <div class="grid g2" style="grid-template-columns:1fr 1fr">
+    <div class="code" style="font-size:20px;padding:28px 28px"><span class="lab">① 처음 받기</span>$ curl -s -o /dev/null -D - \
+    https://developer.mozilla.org/en-US/
+HTTP/2 200
+etag: <span class="ok">"5db9819d…"</span>
+cache-control: public, max-age=3600
+
+<span class="c">본문 116,977 B (gzip이면 16,430 B)</span></div>
+    <div class="code" style="font-size:20px;padding:28px 28px"><span class="lab">② 지문을 들고 다시 묻기</span>$ curl -s -o /dev/null -D - \
+    -H 'If-None-Match: <span class="ok">"5db9819d…"</span>' \
+    https://developer.mozilla.org/en-US/
+HTTP/2 <span class="hl">304</span>
+etag: "5db9819d…"
+
+<span class="c">본문 0 B · 0.03초</span></div>
+  </div>
+  <p class="muted" style="margin-top:30px">연결·왕복은 그대로 든다. 아끼는 건 <b>본문 전송</b>이다. 그래서 "아예 안 묻는" max-age와 같이 쓴다.</p>
+</section>
+
+<!-- 12 Q23 콘텐츠 협상 -->
+<section class="slide">
+  <div class="eyebrow">Q23</div>
+  <h1>같은 주소, 다른 응답: 콘텐츠 협상</h1>
+  <table>
+    <tr><th style="width:28%">브라우저가 보내는 것</th><th style="width:30%">서버가 고른 결과</th><th>예</th></tr>
+    <tr><td><code>Accept</code></td><td><code>Content-Type</code></td><td>JSON이냐 HTML이냐, 이미지면 AVIF·WebP 중 무엇</td></tr>
+    <tr class="hl"><td><code>Accept-Language</code></td><td><code>Content-Language</code></td><td>한국어 페이지냐 영어 페이지냐</td></tr>
+    <tr><td><code>Accept-Encoding</code></td><td><code>Content-Encoding</code></td><td>gzip·br로 압축해서 줄까. MDN은 117KB → 16KB</td></tr>
+  </table>
+  <div class="code" style="margin-top:30px;font-size:21px"><span class="lab">MDN 첫 주소에 언어만 바꿔 요청 (오늘)</span>Accept-Language: ko  →  302  Location: /ko/
+Accept-Language: ja  →  302  Location: /ja/
+Accept-Language: en  →  302  Location: /en-US/</div>
+</section>
+
+<!-- 13 Vary -->
+<section class="slide">
+  <div class="eyebrow">협상 + 캐시</div>
+  <h1>Vary: 캐시에게 "이 헤더도 보고 구분해"</h1>
+  <div class="grid g2" style="align-items:start">
+    <div>
+      <p style="margin-top:0">캐시는 기본으로 <b>주소</b>만 보고 같은 응답인지 판단한다. 그런데 협상을 하면 같은 주소에 응답이 여러 개다.</p>
+      <p><code>Vary: Accept-Language</code>를 붙이면 캐시가 <b>주소 + 그 헤더 값</b>을 묶어 따로 저장한다.</p>
+      <p class="muted" style="font-size:21px">거의 모든 사이트가 <code>Vary: Accept-Encoding</code>을 붙인다. 압축 응답과 비압축 응답을 섞지 않기 위해서다.</p>
+    </div>
+    <div class="box o" style="margin-top:0"><b>Vary를 빼먹으면</b><br>
+      · 한국인이 먼저 받은 한국어 페이지가 CDN에 저장되고, 다음 미국인도 한국어를 받는다<br>
+      · gzip 못 읽는 클라이언트가 압축된 본문을 받는다<br>
+      · 로그인 사용자 화면이 남에게 간다 → 이건 Vary가 아니라 <code>private</code>로 막는다</div>
+  </div>
+  <div class="code" style="margin-top:30px;font-size:20px"><span class="lab">오늘 받은 Vary</span>MDN·jQuery   vary: Accept-Encoding
+GitHub       vary: X-PJAX, …, <span class="hl">Accept-Language</span>, Sec-Fetch-Site, Accept-Encoding, Accept, …</div>
+</section>
+
+<!-- 14 사이트 비교 -->
+<section class="slide">
+  <div class="eyebrow">직접 보기 · 오늘 받은 헤더</div>
+  <h1>사이트마다 정책이 다르고, 다 이유가 있다</h1>
+  <table>
+    <tr><th style="width:24%">무엇</th><th style="width:44%">Cache-Control</th><th>왜</th></tr>
+    <tr class="hl-o"><td>네이버 첫 화면</td><td><code>no-cache, no-store, must-revalidate</code></td><td>로그인·개인화. 남기지 않는다</td></tr>
+    <tr><td>GitHub 첫 화면</td><td><code>max-age=0, private, must-revalidate</code><br><span class="muted" style="font-size:19px">+ ETag(약한 W/) · Vary에 Accept-Language 포함 10여 개</span></td><td>나만 저장, 매번 확인. 304로 아낀다</td></tr>
+    <tr><td>MDN 문서</td><td><code>public, max-age=3600</code> + ETag</td><td>누구에게나 같다. CDN이 1시간 들고 있음</td></tr>
+    <tr class="hl"><td>jQuery 3.7.1 파일</td><td><code>public, max-age=31536000,</code><br><code>stale-while-revalidate=604800</code></td><td>주소에 버전이 있어 내용이 절대 안 바뀐다 → 1년</td></tr>
+  </table>
+  <p class="muted" style="margin-top:28px;font-size:22px">규칙 하나: <b>내용이 바뀌면 주소가 바뀌는 파일</b>(해시·버전)은 길게, <b>주소는 그대로인데 내용이 바뀌는 HTML·API</b>는 짧게 + ETag.</p>
+</section>
+
+<!-- 15 정리 -->
+<section class="slide dark">
+  <h1 style="color:#fff">정리</h1>
+  <ol class="sum">
+    <li>캐시는 신선하면 묻지 않고, 상하면 지문(ETag)을 들고 묻고, 안 바뀌었으면 304를 받는다.</li>
+    <li><code style="background:#24333f;color:#e9eef1">no-cache</code>는 매번 확인, <code style="background:#24333f;color:#e9eef1">no-store</code>는 저장 금지. 내 것이면 <code style="background:#24333f;color:#e9eef1">private</code>.</li>
+    <li>같은 주소에 다른 응답(협상)을 주면 <code style="background:#24333f;color:#e9eef1">Vary</code>를 붙인다.</li>
+    <li>버전이 박힌 파일은 1년, HTML·API는 짧게 + ETag.</li>
+  </ol>
+  <div class="box us">
+    <div class="lbl">우리 서비스에서는</div>
+    [API 응답에 Cache-Control이 붙어 있나 · 로그인 API에 private 또는 no-store가 있나 · 프론트 번들 파일명에 해시가 있고 1년 캐시인가]
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+앱 서버 대기 중: 0.0.0.0:3000
+[orders] key=key-001 → 주문 #1 생성
+[orders] key=key-001 → 처음 응답을 다시 보냄 (새 주문 없음)
+[error] requestId=2ab93a596c2a716814c234677b97973b Error: 일부러 던진 예외 (/boom)
+    at route (/app/server.js:153:13)
+    at Server.<anonymous> (/app/server.js:169:13)
+    at Server.emit (node:events:514:28)
+    at parserOnIncoming (node:_http_server:1293:12)
+    at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)
+[slow] 4000ms 기다리는 중
+[slow] 4000ms 끝, 응답 보냄
+[orders] key=key-002 → 주문 #2 생성
+[orders] key=key-002 → 처음 응답을 다시 보냄 (새 주문 없음)
+[crash] 응답 없이 연결을 끊음
+[crash] 응답 없이 연결을 끊음
