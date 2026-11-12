@@ -1,0 +1,16 @@
+services:
+  app:
+    image: python:3.13-alpine
+    # 파이썬이 죽어도 컨테이너는 살아 있게 한다 (502 재현용)
+    command: sh -c "python -u /app/app.py; echo '앱 프로세스 종료됨'; sleep infinity"
+    volumes:
+      - ./app.py:/app/app.py:ro
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "9200:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
