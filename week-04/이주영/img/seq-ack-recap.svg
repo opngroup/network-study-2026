@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 420" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+<rect width="1160" height="420" fill="#fff"/>
+<text x="20" y="28" font-size="18" fill="#44546a">3주차 와이어샤크 캡처 113~116번: 과제 A 서버에 nc 로 hello 를 보냈을 때</text>
+<rect x="40" y="44" width="160" height="38" rx="8" fill="#eef1f5" stroke="#9aa7b8" stroke-width="2"/><text x="120" y="69" font-size="17" font-weight="700" fill="#222" text-anchor="middle">nc (보내는 쪽)</text>
+<line x1="120" y1="82" x2="120" y2="330" stroke="#9aa7b8" stroke-width="2"/>
+<rect x="480" y="44" width="160" height="38" rx="8" fill="#eef1f5" stroke="#9aa7b8" stroke-width="2"/><text x="560" y="69" font-size="17" font-weight="700" fill="#222" text-anchor="middle">서버 (받는 쪽)</text>
+<line x1="560" y1="82" x2="560" y2="330" stroke="#9aa7b8" stroke-width="2"/>
+<line x1="120" y1="118" x2="560" y2="118" stroke="#e5484d" stroke-width="4"/>
+<polygon points="544,110 560,118 544,126" fill="#e5484d"/>
+<text x="340" y="108" font-size="17" font-weight="700" fill="#e5484d" text-anchor="middle">113번  Seq 1 · 길이 6  "hello\n"</text>
+<line x1="560" y1="174" x2="120" y2="174" stroke="#2f7fe0" stroke-width="4"/>
+<polygon points="136,166 120,174 136,182" fill="#2f7fe0"/>
+<text x="340" y="164" font-size="17" font-weight="700" fill="#2f7fe0" text-anchor="middle">114번  Ack 7  — 6바이트 받았어, 다음은 7번</text>
+<line x1="560" y1="230" x2="120" y2="230" stroke="#30a46c" stroke-width="4"/>
+<polygon points="136,222 120,230 136,238" fill="#30a46c"/>
+<text x="340" y="220" font-size="17" font-weight="700" fill="#30a46c" text-anchor="middle">115번  Seq 1 · 길이 6  에코</text>
+<line x1="120" y1="286" x2="560" y2="286" stroke="#2f7fe0" stroke-width="4"/>
+<polygon points="544,278 560,286 544,294" fill="#2f7fe0"/>
+<text x="340" y="276" font-size="17" font-weight="700" fill="#2f7fe0" text-anchor="middle">116번  Ack 7  — 에코 받았어</text>
+<text x="660" y="70" font-size="20" font-weight="700" fill="#222">Seq · Ack 가 하는 일</text>
+<text x="660" y="104" font-size="17" fill="#222"><tspan font-weight="700" fill="#e5484d">Seq</tspan> = 이 조각의 첫 바이트가 몇 번째인지</text>
+<text x="660" y="134" font-size="17" fill="#222"><tspan font-weight="700" fill="#2f7fe0">Ack</tspan> = 여기까지 빠짐없이 받았고, 다음에 받을 번호</text>
+<text x="660" y="190" font-size="20" font-weight="700" fill="#222">왜 보낸 순서 그대로 올리나</text>
+<text x="660" y="224" font-size="17" fill="#222">· 앱은 TCP 에서 "바이트 한 줄"을 읽는다</text>
+<text x="660" y="252" font-size="17" fill="#222">· hello 가 hlelo 로 올라가면 안 된다</text>
+<text x="660" y="280" font-size="17" fill="#222">· 그래서 중간이 비면, 뒤에 온 것은 받아만 두고</text>
+<text x="660" y="308" font-size="17" fill="#222">· 빈 자리가 채워질 때까지 위로 올리지 않는다</text>
+<rect x="20" y="350" width="1120" height="56" rx="10" fill="#f0f6ff" stroke="#2f7fe0" stroke-width="2"/>
+<text x="40" y="385" font-size="19" font-weight="700" fill="#2f7fe0">Ack 는 "빈 자리의 번호"에 멈춘다 → 그 뒤에 도착한 바이트는 누구 것이든 기다린다 = TCP 병목</text>
+</svg>

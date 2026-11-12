@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 400" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+<rect width="1160" height="400" fill="#fff"/>
+<text x="20" y="30" font-size="20" fill="#44546a">같은 예시: HTTP/2 프레임들이 TCP 세그먼트 4개에 실려 오는데, 2번 세그먼트를 잃었다</text>
+<text x="20" y="74" font-size="18" font-weight="700" fill="#222">TCP 세그먼트</text><text x="20" y="96" font-size="14" fill="#6b7785">(Seq 순서)</text>
+<rect x="200" y="52" width="170" height="56" rx="8" fill="#30a46c"/>
+<text x="285" y="76" font-size="15" fill="#fff" text-anchor="middle">세그먼트 #1</text>
+<text x="285" y="98" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">스트림 3 · 로고</text>
+<rect x="390" y="52" width="170" height="56" rx="8" fill="#fff" stroke="#e5484d" stroke-width="3" stroke-dasharray="8 6"/>
+<text x="475" y="76" font-size="15" fill="#e5484d" text-anchor="middle">세그먼트 #2 ✗ 손실</text>
+<text x="475" y="98" font-size="17" font-weight="700" fill="#e5484d" text-anchor="middle">스트림 1 · 검색 ①</text>
+<rect x="580" y="52" width="170" height="56" rx="8" fill="#4c8bf5"/>
+<text x="665" y="76" font-size="15" fill="#fff" text-anchor="middle">세그먼트 #3</text>
+<text x="665" y="98" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">스트림 5 · 스타일</text>
+<rect x="770" y="52" width="170" height="56" rx="8" fill="#e5484d"/>
+<text x="855" y="76" font-size="15" fill="#fff" text-anchor="middle">세그먼트 #4</text>
+<text x="855" y="98" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">스트림 1 · 검색 ②</text>
+<rect x="190" y="150" width="770" height="96" rx="12" fill="#f3f6fa" stroke="#9aa7b8" stroke-width="2"/>
+<text x="20" y="190" font-size="18" font-weight="700" fill="#222">TCP 수신 버퍼</text><text x="20" y="212" font-size="14" fill="#6b7785">순서대로만 위로 올림</text>
+<rect x="200" y="170" width="170" height="56" rx="8" fill="#d5dbe3"/><text x="285" y="204" font-size="16" fill="#44546a" text-anchor="middle">#1 → 위로 올림 ✓</text>
+<rect x="390" y="170" width="170" height="56" rx="8" fill="#fff" stroke="#e5484d" stroke-width="3" stroke-dasharray="8 6"/><text x="475" y="204" font-size="16" fill="#e5484d" font-weight="700" text-anchor="middle">#2 빈 자리</text>
+<rect x="580" y="170" width="170" height="56" rx="8" fill="#4c8bf5" opacity="0.55"/><text x="665" y="204" font-size="16" fill="#fff" font-weight="700" text-anchor="middle">#3 도착했지만 대기</text>
+<rect x="770" y="170" width="170" height="56" rx="8" fill="#e5484d" opacity="0.55"/><text x="855" y="204" font-size="16" fill="#fff" font-weight="700" text-anchor="middle">#4 도착했지만 대기</text>
+<text x="975" y="194" font-size="15" fill="#e5484d" font-weight="700">← #2 가 다시</text><text x="975" y="216" font-size="15" fill="#e5484d" font-weight="700">올 때까지 못 올림</text>
+<text x="20" y="300" font-size="18" font-weight="700" fill="#222">브라우저 (HTTP/2)</text><text x="20" y="322" font-size="14" fill="#6b7785">받은 것만 쓸 수 있음</text>
+<rect x="200" y="278" width="170" height="56" rx="8" fill="#30a46c"/><text x="285" y="312" font-size="17" fill="#fff" font-weight="700" text-anchor="middle">로고 ✓</text>
+<line x1="285" y1="230" x2="285" y2="270" stroke="#44546a" stroke-width="3"/><polygon points="277,268 285,282 293,268" fill="#44546a"/>
+<text x="400" y="304" font-size="18" fill="#222">스타일(스트림 5)은 <tspan font-weight="700">이미 다 도착했는데도</tspan> 받지 못한다</text>
+<text x="400" y="330" font-size="15" fill="#6b7785">TCP 는 스트림을 모른다. 그저 "바이트를 순서대로"만 지킨다</text>
+<text x="20" y="384" font-size="20" font-weight="700" fill="#2f7fe0">TCP 병목: 잃은 건 검색 결과의 조각인데, 멀쩡한 스타일까지 멈춘다</text>
+</svg>

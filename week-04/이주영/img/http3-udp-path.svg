@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 450" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+<rect width="1160" height="450" fill="#fff"/>
+<text x="20" y="62" font-size="20" font-weight="700" fill="#222">평소</text><text x="20" y="86" font-size="14" fill="#6b7785">HTTP/3 로 통신하는 동안</text>
+<rect x="330" y="40" width="130" height="50" rx="8" fill="#eef1f5" stroke="#9aa7b8" stroke-width="2"/><text x="395.0" y="71" font-size="18" font-weight="700" fill="#222" text-anchor="middle">브라우저</text>
+<rect x="1010" y="40" width="130" height="50" rx="8" fill="#eef1f5" stroke="#9aa7b8" stroke-width="2"/><text x="1075.0" y="71" font-size="18" font-weight="700" fill="#222" text-anchor="middle">서버</text>
+<line x1="470" y1="65" x2="990" y2="65" stroke="#30a46c" stroke-width="5"/>
+<polygon points="990,56 1006,65 990,74" fill="#30a46c"/>
+<text x="730.0" y="53" font-size="17" font-weight="700" fill="#30a46c" text-anchor="middle">UDP 443 · QUIC · HTTP/3   (TCP 는 전혀 안 씀)</text>
+<text x="20" y="172" font-size="20" font-weight="700" fill="#222">처음 가는 사이트</text><text x="20" y="196" font-size="14" fill="#6b7785">HTTP/3 를 지원하는지 아직 모름</text>
+<rect x="330" y="150" width="130" height="50" rx="8" fill="#eef1f5" stroke="#9aa7b8" stroke-width="2"/><text x="395.0" y="181" font-size="18" font-weight="700" fill="#222" text-anchor="middle">브라우저</text>
+<rect x="1010" y="150" width="130" height="50" rx="8" fill="#eef1f5" stroke="#9aa7b8" stroke-width="2"/><text x="1075.0" y="181" font-size="18" font-weight="700" fill="#222" text-anchor="middle">서버</text>
+<line x1="470" y1="165" x2="990" y2="165" stroke="#2f7fe0" stroke-width="5"/>
+<polygon points="990,156 1006,165 990,174" fill="#2f7fe0"/>
+<text x="730.0" y="153" font-size="17" font-weight="700" fill="#2f7fe0" text-anchor="middle">① TCP 443 · HTTP/2 로 먼저 접속</text>
+<line x1="486" y1="205" x2="1006" y2="205" stroke="#6b7785" stroke-width="5"/>
+<polygon points="486,196 470,205 486,214" fill="#6b7785"/>
+<text x="746.0" y="193" font-size="17" font-weight="700" fill="#6b7785" text-anchor="middle">② 응답 헤더  alt-svc: h3=":443"  — "UDP 443 으로 와도 돼"</text>
+<rect x="330" y="225" width="130" height="50" rx="8" fill="#eef1f5" stroke="#9aa7b8" stroke-width="2"/><text x="395.0" y="256" font-size="18" font-weight="700" fill="#222" text-anchor="middle">브라우저</text>
+<rect x="1010" y="225" width="130" height="50" rx="8" fill="#eef1f5" stroke="#9aa7b8" stroke-width="2"/><text x="1075.0" y="256" font-size="18" font-weight="700" fill="#222" text-anchor="middle">서버</text>
+<line x1="470" y1="250" x2="990" y2="250" stroke="#30a46c" stroke-width="5"/>
+<polygon points="990,241 1006,250 990,259" fill="#30a46c"/>
+<text x="730.0" y="238" font-size="17" font-weight="700" fill="#30a46c" text-anchor="middle">③ 다음 요청부터 UDP 443 · HTTP/3</text>
+<text x="20" y="352" font-size="20" font-weight="700" fill="#222">UDP 가 막힌 망</text><text x="20" y="376" font-size="14" fill="#6b7785">일부 방화벽 등</text>
+<rect x="330" y="330" width="130" height="50" rx="8" fill="#eef1f5" stroke="#9aa7b8" stroke-width="2"/><text x="395.0" y="361" font-size="18" font-weight="700" fill="#222" text-anchor="middle">브라우저</text>
+<rect x="1010" y="330" width="130" height="50" rx="8" fill="#eef1f5" stroke="#9aa7b8" stroke-width="2"/><text x="1075.0" y="361" font-size="18" font-weight="700" fill="#222" text-anchor="middle">서버</text>
+<line x1="470" y1="345" x2="720" y2="345" stroke="#e5484d" stroke-width="5" stroke-dasharray="8 6"/>
+<polygon points="720,336 736,345 720,354" fill="#e5484d"/>
+<text x="595.0" y="333" font-size="17" font-weight="700" fill="#e5484d" text-anchor="middle">UDP 443 ✗ 막힘</text>
+<text x="745" y="351" font-size="22" fill="#e5484d" font-weight="700">✗</text>
+<line x1="470" y1="385" x2="990" y2="385" stroke="#2f7fe0" stroke-width="5"/>
+<polygon points="990,376 1006,385 990,394" fill="#2f7fe0"/>
+<text x="730.0" y="373" font-size="17" font-weight="700" fill="#2f7fe0" text-anchor="middle">TCP 443 · HTTP/2 로 되돌아감</text>
+<rect x="330" y="350" width="130" height="0" fill="none"/>
+<text x="20" y="436" font-size="19" font-weight="700" fill="#222">UDP 가 본래 길이고, TCP 는 대비책이다 — "TCP 가 실패하면 UDP" 가 아니다</text>
+</svg>

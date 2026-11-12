@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 350" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+  <rect width="1100" height="350" fill="#ffffff"/>
+
+  <text x="20" y="30" font-size="20" fill="#44546a">예시: 병원 검색 페이지를 연결 1개(keep-alive)로 받을 때 — 응답은 요청한 순서대로만</text>
+
+  <!-- 연결 하나 -->
+  <rect x="330" y="48" width="740" height="214" rx="14" fill="#f3f6fa" stroke="#9aa7b8" stroke-width="2" stroke-dasharray="8 6"/>
+
+  <!-- 행 라벨 -->
+  <text x="20" y="92" font-size="20" font-weight="700" fill="#222">① GET /api/hospitals</text>
+  <text x="20" y="114" font-size="16" fill="#6b7785">검색 결과 (DB 조회 3초)</text>
+  <text x="20" y="156" font-size="20" font-weight="700" fill="#222">② GET /logo.svg</text>
+  <text x="20" y="178" font-size="16" fill="#6b7785">로고 5KB (0.01초면 충분)</text>
+  <text x="20" y="220" font-size="20" font-weight="700" fill="#222">③ GET /style.css</text>
+  <text x="20" y="242" font-size="16" fill="#6b7785">스타일 (0.01초면 충분)</text>
+
+  <!-- ① 느린 응답 -->
+  <rect x="350" y="72" width="480" height="44" rx="6" fill="#e5484d"/>
+  <text x="590" y="101" font-size="20" fill="#fff" text-anchor="middle" font-weight="700">검색 결과 응답 — 3초</text>
+
+  <!-- ② 기다림 + 응답 -->
+  <rect x="350" y="136" width="480" height="44" rx="6" fill="#ffffff" stroke="#9aa7b8" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="590" y="165" font-size="19" fill="#6b7785" text-anchor="middle">로고는 벌써 준비됐지만 기다림</text>
+  <rect x="834" y="136" width="100" height="44" rx="6" fill="#30a46c"/>
+  <text x="884" y="165" font-size="19" fill="#fff" text-anchor="middle" font-weight="700">로고</text>
+
+  <!-- ③ 기다림 + 응답 -->
+  <rect x="350" y="200" width="584" height="44" rx="6" fill="#ffffff" stroke="#9aa7b8" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="642" y="229" font-size="19" fill="#6b7785" text-anchor="middle">기다림</text>
+  <rect x="938" y="200" width="100" height="44" rx="6" fill="#30a46c"/>
+  <text x="988" y="229" font-size="19" fill="#fff" text-anchor="middle" font-weight="700">스타일</text>
+
+  <!-- 시간 축 -->
+  <line x1="350" y1="290" x2="1040" y2="290" stroke="#44546a" stroke-width="2"/>
+  <polygon points="1040,284 1054,290 1040,296" fill="#44546a"/>
+  <text x="350" y="312" font-size="16" fill="#44546a">0초</text>
+  <text x="818" y="312" font-size="16" fill="#e5484d" font-weight="700">3초</text>
+  <text x="1058" y="296" font-size="16" fill="#44546a">시간</text>
+
+  <!-- HOL 표시 -->
+  <line x1="832" y1="60" x2="832" y2="290" stroke="#e5484d" stroke-width="2" stroke-dasharray="4 4"/>
+  <text x="20" y="338" font-size="20" fill="#e5484d" font-weight="700">HOL 블로킹: 사용자는 3초 동안 로고도 스타일도 없는 화면을 본다</text>
+</svg>

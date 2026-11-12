@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 400" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+<rect width="1120" height="400" fill="#fff"/>
+<text x="20" y="34" font-size="20" fill="#44546a">실측: www.opndoctor.com/robots.txt 에 curl 로 10번씩 (중앙값, 2026-11-12, 이 맥)</text>
+<text x="20" y="106" font-size="22" font-weight="700" fill="#222">새 커넥션</text><text x="20" y="130" font-size="16" fill="#6b7785">매번 새로 맺음</text>
+<rect x="230" y="80" width="27.55" height="56" fill="#9aa7b8"/>
+<rect x="257.55" y="80" width="77.89999999999999" height="56" fill="#e5484d"/><text x="296.5" y="114" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">TCP 8ms</text>
+<rect x="335.45" y="80" width="162.45000000000002" height="56" fill="#c2410c"/><text x="416.675" y="114" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">TLS 17ms</text>
+<rect x="497.9" y="80" width="517.75" height="56" fill="#4c8bf5"/><text x="756.775" y="114" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">요청 → 첫 바이트 55ms</text>
+<text x="1027.65" y="116" font-size="22" font-weight="700" fill="#222">86ms</text>
+<text x="230" y="158" font-size="15" fill="#6b7785">DNS 3ms</text>
+<line x1="257.55" y1="70" x2="497.90000000000003" y2="70" stroke="#e5484d" stroke-width="3"/>
+<text x="377.725" y="62" font-size="17" font-weight="700" fill="#e5484d" text-anchor="middle">핸드셰이크 25ms — 요청을 보내기도 전</text>
+<text x="20" y="256" font-size="22" font-weight="700" fill="#222">커넥션 재사용</text><text x="20" y="280" font-size="16" fill="#6b7785">keep-alive</text>
+<rect x="230" y="230" width="526.3" height="56" fill="#30a46c"/><text x="493.15" y="264" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">요청 → 첫 바이트 55ms</text>
+<text x="768.3" y="266" font-size="22" font-weight="700" fill="#222">55ms</text>
+<text x="230" y="308" font-size="15" fill="#30a46c" font-weight="700">DNS · TCP · TLS = 0</text>
+<text x="20" y="356" font-size="18" font-weight="700" fill="#222">왜 이렇게 빠른가: 서울의 맥 → 서울의 Vercel 엣지(icn1), 왕복 6ms 로 가깝기 때문</text>
+<text x="20" y="386" font-size="18" font-weight="700" fill="#e5484d">핸드셰이크는 왕복 횟수만큼 든다 → 모바일·해외처럼 왕복이 길면 몇 배로 커진다</text>
+</svg>

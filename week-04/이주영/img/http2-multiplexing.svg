@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 350" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+  <rect width="1100" height="350" fill="#ffffff"/>
+  <text x="20" y="30" font-size="20" fill="#44546a">같은 예시: 병원 검색 페이지를 HTTP/2 커넥션 1개로 받을 때 — 응답마다 스트림 번호가 붙는다</text>
+
+  <rect x="330" y="48" width="740" height="214" rx="14" fill="#f3f6fa" stroke="#9aa7b8" stroke-width="2" stroke-dasharray="8 6"/>
+
+  <text x="20" y="92" font-size="20" font-weight="700" fill="#222">스트림 1 · /api/hospitals</text>
+  <text x="20" y="114" font-size="16" fill="#6b7785">검색 결과 (DB 조회 3초)</text>
+  <text x="20" y="156" font-size="20" font-weight="700" fill="#222">스트림 3 · /logo.svg</text>
+  <text x="20" y="178" font-size="16" fill="#6b7785">로고 5KB</text>
+  <text x="20" y="220" font-size="20" font-weight="700" fill="#222">스트림 5 · /style.css</text>
+  <text x="20" y="242" font-size="16" fill="#6b7785">스타일</text>
+
+  <rect x="350" y="72" width="480" height="44" rx="6" fill="#e5484d"/>
+  <text x="590" y="101" font-size="20" fill="#fff" text-anchor="middle" font-weight="700">검색 결과 응답 — 3초 (여전히 느림)</text>
+
+  <rect x="350" y="136" width="100" height="44" rx="6" fill="#30a46c"/>
+  <text x="400" y="165" font-size="19" fill="#fff" text-anchor="middle" font-weight="700">로고</text>
+  <text x="466" y="165" font-size="18" fill="#30a46c" font-weight="700">← 기다리지 않고 바로 도착</text>
+
+  <rect x="350" y="200" width="100" height="44" rx="6" fill="#30a46c"/>
+  <text x="400" y="229" font-size="19" fill="#fff" text-anchor="middle" font-weight="700">스타일</text>
+  <text x="466" y="229" font-size="18" fill="#30a46c" font-weight="700">← 바로 도착</text>
+
+  <line x1="350" y1="290" x2="1040" y2="290" stroke="#44546a" stroke-width="2"/>
+  <polygon points="1040,284 1054,290 1040,296" fill="#44546a"/>
+  <text x="350" y="312" font-size="16" fill="#44546a">0초</text>
+  <text x="818" y="312" font-size="16" fill="#44546a">3초</text>
+  <text x="1058" y="296" font-size="16" fill="#44546a">시간</text>
+
+  <text x="20" y="338" font-size="20" fill="#30a46c" font-weight="700">멀티플렉싱: 느린 응답이 있어도, 로고와 스타일은 먼저 그려진다</text>
+</svg>

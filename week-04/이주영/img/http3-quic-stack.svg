@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 480" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+<rect width="1160" height="480" fill="#fff"/>
+<text x="20" y="30" font-size="20" font-weight="700" fill="#222">"순서 지키기"를 누가 하나</text>
+<text x="145" y="64" font-size="18" font-weight="700" fill="#222" text-anchor="middle">HTTP/2</text>
+<rect x="20" y="76" width="250" height="60" rx="8" fill="#6b7785"/>
+<text x="145.0" y="102.0" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">HTTP/2</text>
+<text x="145.0" y="126.0" font-size="14" fill="#fff" text-anchor="middle">스트림을 나눔</text>
+<rect x="20" y="142" width="250" height="44" rx="8" fill="#9aa7b8"/>
+<text x="145.0" y="171.0" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">TLS</text>
+<rect x="20" y="192" width="250" height="96" rx="8" fill="#fff" stroke="#2f7fe0" stroke-width="4"/>
+<text x="145.0" y="236.0" font-size="20" font-weight="700" fill="#2f7fe0" text-anchor="middle">TCP</text>
+<text x="145.0" y="260.0" font-size="14" fill="#2f7fe0" text-anchor="middle">순서 보장 — 전체가 한 줄</text>
+<rect x="20" y="294" width="250" height="44" rx="8" fill="#c9d1dc"/>
+<text x="145.0" y="323.0" font-size="20" font-weight="700" fill="#222" text-anchor="middle">IP</text>
+<text x="145" y="366" font-size="15" fill="#2f7fe0" font-weight="700" text-anchor="middle">TCP 는 OS 커널 안 · 스트림을 모름</text>
+<text x="435" y="64" font-size="18" font-weight="700" fill="#222" text-anchor="middle">HTTP/3</text>
+<rect x="310" y="76" width="250" height="60" rx="8" fill="#6b7785"/>
+<text x="435.0" y="113.0" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">HTTP/3</text>
+<rect x="310" y="142" width="250" height="146" rx="8" fill="#fff" stroke="#30a46c" stroke-width="4"/>
+<text x="435.0" y="211.0" font-size="20" font-weight="700" fill="#1f7a4d" text-anchor="middle">QUIC</text>
+<text x="435.0" y="235.0" font-size="14" fill="#1f7a4d" text-anchor="middle">스트림 나눔 + 스트림별 순서 + 암호화</text>
+<rect x="310" y="294" width="250" height="44" rx="8" fill="#c9d1dc"/>
+<text x="435.0" y="323.0" font-size="20" font-weight="700" fill="#222" text-anchor="middle">UDP  (전달만)</text>
+<text x="435" y="366" font-size="15" fill="#1f7a4d" font-weight="700" text-anchor="middle">QUIC 은 앱(브라우저·서버) 안 · 스트림을 앎</text>
+<line x1="282" y1="240" x2="300" y2="240" stroke="#44546a" stroke-width="3"/><polygon points="298,233 310,240 298,247" fill="#44546a"/>
+<line x1="590" y1="20" x2="590" y2="400" stroke="#e3e8ef" stroke-width="2"/>
+<text x="620" y="30" font-size="20" font-weight="700" fill="#222">같은 상황: 패킷 #2 를 잃었다</text>
+<rect x="620" y="50" width="122" height="50" rx="8" fill="#30a46c"/><text x="681" y="72" font-size="13" fill="#fff" text-anchor="middle">패킷 #1</text><text x="681" y="91" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">3 · 로고</text>
+<rect x="752" y="50" width="122" height="50" rx="8" fill="#fff" stroke="#e5484d" stroke-width="3" stroke-dasharray="8 6"/><text x="813" y="72" font-size="13" fill="#e5484d" text-anchor="middle">패킷 #2 ✗</text><text x="813" y="91" font-size="15" font-weight="700" fill="#e5484d" text-anchor="middle">1 · 검색①</text>
+<rect x="884" y="50" width="122" height="50" rx="8" fill="#4c8bf5"/><text x="945" y="72" font-size="13" fill="#fff" text-anchor="middle">패킷 #3</text><text x="945" y="91" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">5 · 스타일</text>
+<rect x="1016" y="50" width="122" height="50" rx="8" fill="#e5484d"/><text x="1077" y="72" font-size="13" fill="#fff" text-anchor="middle">패킷 #4</text><text x="1077" y="91" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">1 · 검색②</text>
+<text x="620" y="140" font-size="16" fill="#6b7785">QUIC 은 스트림마다 따로 순서를 센다</text>
+<rect x="620" y="160" width="520" height="54" rx="8" fill="#fff" stroke="#30a46c" stroke-width="3"/>
+<rect x="620" y="160" width="14" height="54" rx="4" fill="#30a46c"/>
+<text x="648" y="193" font-size="17" font-weight="700" fill="#222">스트림 3 · 로고</text>
+<text x="1128" y="193" font-size="16" font-weight="700" fill="#30a46c" text-anchor="end">✓ 바로 전달</text>
+<rect x="620" y="226" width="520" height="54" rx="8" fill="#fff" stroke="#4c8bf5" stroke-width="3"/>
+<rect x="620" y="226" width="14" height="54" rx="4" fill="#4c8bf5"/>
+<text x="648" y="259" font-size="17" font-weight="700" fill="#222">스트림 5 · 스타일</text>
+<text x="1128" y="259" font-size="16" font-weight="700" fill="#4c8bf5" text-anchor="end">✓ 바로 전달 (안 기다림)</text>
+<rect x="620" y="292" width="520" height="54" rx="8" fill="#fff" stroke="#e5484d" stroke-width="3"/>
+<rect x="620" y="292" width="14" height="54" rx="4" fill="#e5484d"/>
+<text x="648" y="325" font-size="17" font-weight="700" fill="#222">스트림 1 · 검색 결과</text>
+<text x="1128" y="325" font-size="16" font-weight="700" fill="#e5484d" text-anchor="end">#2 재전송 대기 — 이 스트림만</text>
+<text x="620" y="380" font-size="15" fill="#6b7785">4.2 에서는 스타일도 함께 멈췄다 → 여기서는 검색 결과만 기다린다</text>
+<text x="20" y="440" font-size="20" font-weight="700" fill="#1f7a4d">순서 지키기를 TCP(전체 한 줄)에서 QUIC(스트림별)로 옮겼다 → TCP 병목이 사라진다</text>
+<text x="20" y="466" font-size="15" fill="#6b7785">UDP 는 순서도 재전송도 안 한다. 그 일을 QUIC 이 직접 한다</text>
+</svg>

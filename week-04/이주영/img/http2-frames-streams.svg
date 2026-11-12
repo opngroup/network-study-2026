@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 480" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+<rect width="1160" height="480" fill="#fff"/>
+<text x="20" y="34" font-size="21" font-weight="700" fill="#222">① 프레임으로 쪼개고 번호를 붙인다</text>
+<text x="20" y="58" font-size="15" fill="#6b7785">서버: 응답마다 스트림 번호</text>
+<text x="20" y="100" font-size="16" fill="#222"><tspan font-weight="700">스트림 1</tspan> · 검색 결과 (큼, 느림)</text>
+<rect x="20" y="110" width="58" height="46" rx="6" fill="#e5484d"/>
+<rect x="20" y="110" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="31" y="140.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<text x="60.0" y="138.0" font-size="13" fill="#fff" text-anchor="middle">조각</text>
+<rect x="84" y="110" width="58" height="46" rx="6" fill="#e5484d"/>
+<rect x="84" y="110" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="95" y="140.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<text x="124.0" y="138.0" font-size="13" fill="#fff" text-anchor="middle">조각</text>
+<rect x="148" y="110" width="58" height="46" rx="6" fill="#e5484d"/>
+<rect x="148" y="110" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="159" y="140.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<text x="188.0" y="138.0" font-size="13" fill="#fff" text-anchor="middle">조각</text>
+<text x="20" y="210" font-size="16" fill="#222"><tspan font-weight="700">스트림 3</tspan> · 로고</text>
+<rect x="20" y="220" width="58" height="46" rx="6" fill="#30a46c"/>
+<rect x="20" y="220" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="31" y="250.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+<text x="60.0" y="248.0" font-size="13" fill="#fff" text-anchor="middle">조각</text>
+<text x="20" y="320" font-size="16" fill="#222"><tspan font-weight="700">스트림 5</tspan> · 스타일</text>
+<rect x="20" y="330" width="58" height="46" rx="6" fill="#4c8bf5"/>
+<rect x="20" y="330" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="31" y="360.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+<text x="60.0" y="358.0" font-size="13" fill="#fff" text-anchor="middle">조각</text>
+<line x1="250" y1="240" x2="330" y2="240" stroke="#44546a" stroke-width="3"/><polygon points="330,232 346,240 330,248" fill="#44546a"/>
+<text x="370" y="34" font-size="21" font-weight="700" fill="#222">② 커넥션 1개에 섞어 보낸다</text>
+<text x="370" y="58" font-size="15" fill="#6b7785">준비된 조각부터, 순서 상관없이</text>
+<rect x="370" y="196" width="400" height="88" rx="44" fill="#f3f6fa" stroke="#9aa7b8" stroke-width="2"/>
+<rect x="396" y="217" width="58" height="46" rx="6" fill="#e5484d"/>
+<rect x="396" y="217" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="407" y="247.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<rect x="466" y="217" width="58" height="46" rx="6" fill="#e5484d"/>
+<rect x="466" y="217" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="477" y="247.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<rect x="536" y="217" width="58" height="46" rx="6" fill="#4c8bf5"/>
+<rect x="536" y="217" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="547" y="247.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+<rect x="606" y="217" width="58" height="46" rx="6" fill="#e5484d"/>
+<rect x="606" y="217" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="617" y="247.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<rect x="676" y="217" width="58" height="46" rx="6" fill="#30a46c"/>
+<rect x="676" y="217" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="687" y="247.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+<text x="570" y="310" font-size="15" fill="#6b7785" text-anchor="middle">TCP 커넥션 하나 → 진행 방향 →</text>
+<text x="570" y="180" font-size="15" fill="#44546a" text-anchor="middle">앞의 숫자 = 스트림 번호 (프레임 머리표에 들어 있음)</text>
+<line x1="780" y1="240" x2="840" y2="240" stroke="#44546a" stroke-width="3"/><polygon points="840,232 856,240 840,248" fill="#44546a"/>
+<text x="880" y="34" font-size="21" font-weight="700" fill="#222">③ 번호별로 다시 모은다</text>
+<text x="880" y="58" font-size="15" fill="#6b7785">브라우저: 같은 번호끼리</text>
+<rect x="880" y="102" width="260" height="62" rx="8" fill="#fff" stroke="#30a46c" stroke-width="2"/>
+<rect x="890" y="110" width="36" height="46" rx="6" fill="#30a46c"/>
+<rect x="890" y="110" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="901" y="140.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+<text x="938" y="129" font-size="15" font-weight="700" fill="#222">로고</text>
+<text x="938" y="149" font-size="13" fill="#30a46c" font-weight="700">✓ 먼저 완성</text>
+<rect x="880" y="212" width="260" height="62" rx="8" fill="#fff" stroke="#4c8bf5" stroke-width="2"/>
+<rect x="890" y="220" width="36" height="46" rx="6" fill="#4c8bf5"/>
+<rect x="890" y="220" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="901" y="250.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+<text x="938" y="239" font-size="15" font-weight="700" fill="#222">스타일</text>
+<text x="938" y="259" font-size="13" fill="#4c8bf5" font-weight="700">✓ 완성</text>
+<rect x="880" y="322" width="260" height="62" rx="8" fill="#fff" stroke="#e5484d" stroke-width="2"/>
+<rect x="890" y="330" width="36" height="46" rx="6" fill="#e5484d"/>
+<rect x="890" y="330" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="901" y="360.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<rect x="930" y="330" width="36" height="46" rx="6" fill="#e5484d"/>
+<rect x="930" y="330" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="941" y="360.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<rect x="970" y="330" width="36" height="46" rx="6" fill="#e5484d"/>
+<rect x="970" y="330" width="22" height="46" rx="6" fill="#00000033"/>
+<text x="981" y="360.0" font-size="19" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<text x="1018" y="349" font-size="15" font-weight="700" fill="#222">검색 결과</text>
+<text x="1018" y="369" font-size="13" fill="#e5484d" font-weight="700">조각이 다 오면 완성</text>
+<text x="20" y="440" font-size="20" font-weight="700" fill="#222">멀티플렉싱 = 커넥션 하나에 여러 스트림의 조각을 섞어 싣는 것</text>
+<text x="20" y="466" font-size="16" fill="#6b7785">HTTP/1.1 은 번호가 없어 "온 순서"로 짝을 맞췄다 → HTTP/2 는 번호로 맞추니 순서에서 자유롭다</text>
+</svg>

@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+<rect width="1200" height="560" fill="#fff"/>
+<text x="20" y="30" font-size="22" font-weight="700" fill="#222">최적화 전: 요청 18개</text>
+<text x="20" y="56" font-size="16" fill="#6b7785">커넥션 6개 → 6개씩 3번에 나눠 받음</text>
+<rect x="20" y="70" width="570" height="26" fill="#eef1f5" stroke="#c9d1dc"/>
+<text x="28" y="88" font-size="14" fill="#44546a">Name</text><text x="198" y="88" font-size="14" fill="#44546a">Waterfall</text>
+<rect x="20" y="96" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="112" font-size="13" fill="#222" font-family="Menlo, monospace">icon-01.png</text>
+<rect x="190.0" y="100" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="20" y="118" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="134" font-size="13" fill="#222" font-family="Menlo, monospace">icon-02.png</text>
+<rect x="190.0" y="122" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="20" y="140" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="156" font-size="13" fill="#222" font-family="Menlo, monospace">icon-03.png</text>
+<rect x="190.0" y="144" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="20" y="162" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="178" font-size="13" fill="#222" font-family="Menlo, monospace">icon-04.png</text>
+<rect x="190.0" y="166" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="20" y="184" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="200" font-size="13" fill="#222" font-family="Menlo, monospace">icon-05.png</text>
+<rect x="190.0" y="188" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="20" y="206" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="222" font-size="13" fill="#222" font-family="Menlo, monospace">icon-06.png</text>
+<rect x="190.0" y="210" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="20" y="228" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="244" font-size="13" fill="#222" font-family="Menlo, monospace">icon-07.png</text>
+<rect x="190" y="235" width="121.875" height="8" fill="#d5dbe3"/>
+<rect x="311.875" y="232" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="20" y="250" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="266" font-size="13" fill="#222" font-family="Menlo, monospace">icon-08.png</text>
+<rect x="190" y="257" width="121.875" height="8" fill="#d5dbe3"/>
+<rect x="311.875" y="254" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="20" y="272" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="288" font-size="13" fill="#222" font-family="Menlo, monospace">icon-09.png</text>
+<rect x="190" y="279" width="121.875" height="8" fill="#d5dbe3"/>
+<rect x="311.875" y="276" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="20" y="294" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="310" font-size="13" fill="#222" font-family="Menlo, monospace">icon-10.png</text>
+<rect x="190" y="301" width="121.875" height="8" fill="#d5dbe3"/>
+<rect x="311.875" y="298" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="20" y="316" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="332" font-size="13" fill="#222" font-family="Menlo, monospace">icon-11.png</text>
+<rect x="190" y="323" width="121.875" height="8" fill="#d5dbe3"/>
+<rect x="311.875" y="320" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="20" y="338" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="354" font-size="13" fill="#222" font-family="Menlo, monospace">icon-12.png</text>
+<rect x="190" y="345" width="121.875" height="8" fill="#d5dbe3"/>
+<rect x="311.875" y="342" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="20" y="360" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="376" font-size="13" fill="#222" font-family="Menlo, monospace">a.js</text>
+<rect x="190" y="367" width="243.75" height="8" fill="#d5dbe3"/>
+<rect x="433.75" y="364" width="115.875" height="14" rx="2" fill="#f5a623"/>
+<rect x="20" y="382" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="398" font-size="13" fill="#222" font-family="Menlo, monospace">b.js</text>
+<rect x="190" y="389" width="243.75" height="8" fill="#d5dbe3"/>
+<rect x="433.75" y="386" width="115.875" height="14" rx="2" fill="#f5a623"/>
+<rect x="20" y="404" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="420" font-size="13" fill="#222" font-family="Menlo, monospace">c.js</text>
+<rect x="190" y="411" width="243.75" height="8" fill="#d5dbe3"/>
+<rect x="433.75" y="408" width="115.875" height="14" rx="2" fill="#f5a623"/>
+<rect x="20" y="426" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="442" font-size="13" fill="#222" font-family="Menlo, monospace">d.js</text>
+<rect x="190" y="433" width="243.75" height="8" fill="#d5dbe3"/>
+<rect x="433.75" y="430" width="115.875" height="14" rx="2" fill="#f5a623"/>
+<rect x="20" y="448" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="464" font-size="13" fill="#222" font-family="Menlo, monospace">e.js</text>
+<rect x="190" y="455" width="243.75" height="8" fill="#d5dbe3"/>
+<rect x="433.75" y="452" width="115.875" height="14" rx="2" fill="#f5a623"/>
+<rect x="20" y="470" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="28" y="486" font-size="13" fill="#222" font-family="Menlo, monospace">f.js</text>
+<rect x="190" y="477" width="243.75" height="8" fill="#d5dbe3"/>
+<rect x="433.75" y="474" width="115.875" height="14" rx="2" fill="#f5a623"/>
+<line x1="190" y1="70" x2="190" y2="492" stroke="#c9d1dc"/>
+<line x1="308.875" y1="96" x2="308.875" y2="492" stroke="#e5484d" stroke-width="1.5" stroke-dasharray="4 4"/>
+<line x1="430.75" y1="96" x2="430.75" y2="492" stroke="#e5484d" stroke-width="1.5" stroke-dasharray="4 4"/>
+<line x1="552.625" y1="96" x2="552.625" y2="492" stroke="#e5484d" stroke-width="1.5" stroke-dasharray="4 4"/>
+<text x="20" y="518" font-size="16" fill="#6b7785">회색 = 빈 커넥션을 기다리는 시간 (Queued / Stalled)</text>
+<text x="20" y="544" font-size="18" font-weight="700" fill="#e5484d">7번째 요청부터는 앞 6개가 끝나야 출발</text>
+<text x="610" y="30" font-size="22" font-weight="700" fill="#222">최적화 후: 요청 2개</text>
+<text x="610" y="56" font-size="16" fill="#6b7785">스프라이트 + 번들링 → 한 번에 받음</text>
+<rect x="610" y="70" width="570" height="26" fill="#eef1f5" stroke="#c9d1dc"/>
+<text x="618" y="88" font-size="14" fill="#44546a">Name</text><text x="788" y="88" font-size="14" fill="#44546a">Waterfall</text>
+<rect x="610" y="96" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="618" y="112" font-size="13" fill="#222" font-family="Menlo, monospace">sprite.png</text>
+<rect x="780.0" y="100" width="115.875" height="14" rx="2" fill="#4c8bf5"/>
+<rect x="610" y="118" width="570" height="22" fill="#fff" stroke="#e3e8ef"/>
+<text x="618" y="134" font-size="13" fill="#222" font-family="Menlo, monospace">main.js</text>
+<rect x="780.0" y="122" width="115.875" height="14" rx="2" fill="#f5a623"/>
+<line x1="780" y1="70" x2="780" y2="140" stroke="#c9d1dc"/>
+<line x1="898.875" y1="96" x2="898.875" y2="140" stroke="#30a46c" stroke-width="1.5" stroke-dasharray="4 4"/>
+<text x="610" y="174" font-size="16" fill="#222">· 아이콘 12개 → <tspan font-weight="700">sprite.png</tspan> 1장 (이미지 스프라이트)</text>
+<text x="610" y="202" font-size="16" fill="#222">· JS 6개 → <tspan font-weight="700">main.js</tspan> 1개 (번들링)</text>
+<text x="610" y="240" font-size="18" font-weight="700" fill="#30a46c">기다리는 요청이 없다 → 3칸 걸리던 것이 1칸</text>
+<text x="610" y="280" font-size="15" fill="#6b7785">확인하는 곳: DevTools → Network → Waterfall 열,</text>
+<text x="610" y="302" font-size="15" fill="#6b7785">막대에 마우스를 올리면 Queueing · Stalled 시간이 보입니다</text>
+<text x="610" y="540" font-size="14" fill="#9aa7b8">개념도입니다 (실제 측정 아님, 파일 크기 차이는 무시)</text>
+</svg>
