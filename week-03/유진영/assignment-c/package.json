@@ -1,0 +1,16 @@
+{
+  "name": "week03-yoojinyoung-assignment-c",
+  "version": "1.0.0",
+  "private": true,
+  "description": "과제 C. 멱등 POST /orders와 nginx 뒤에서 500·502·504 재현 (Node.js 표준 모듈만 사용)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js",
+    "up": "docker compose up -d --build",
+    "down": "docker compose down",
+    "repro": "bash reproduce.sh"
+  }
+}

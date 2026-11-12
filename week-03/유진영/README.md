@@ -16,7 +16,7 @@
 
 ## 과제 C. 멱등 API와 502·504 재현
 
-다음 주까지. 내용은 루트 README의 3주차 항목.
+결과와 코드: [assignment-c/](./assignment-c/) (4주차가 11/12로 밀려 그날 공유)
 
-- [ ] `POST /orders`가 같은 `Idempotency-Key`로 두 번 와도 주문을 한 번만 만들도록 구현
-- [ ] nginx를 앞에 두고 앱을 끄면 502, 핸들러에 sleep을 넣고 `proxy_read_timeout`을 짧게 하면 504, 예외를 던지면 500 재현
+- [x] `POST /orders`가 같은 `Idempotency-Key`로 두 번 와도 주문을 한 번만 만들도록 구현
+- [x] nginx를 앞에 두고 앱을 끄면 502, 핸들러에 sleep을 넣고 `proxy_read_timeout`을 짧게 하면 504, 예외를 던지면 500 재현 (앱 컨테이너를 통째로 끄면 502가 아니라 504가 났다. 이유는 assignment-c README)
