@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 360" font-family="-apple-system, 'Apple SD Gothic Neo', sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#444"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#d1242f"/></marker>
+  </defs>
+
+  <!-- 머리 -->
+  <g font-size="19" font-weight="700" text-anchor="middle" fill="#222">
+    <text x="250" y="26">curl (브라우저)</text>
+    <text x="560" y="26">nginx :9200</text>
+    <text x="870" y="26">앱 :9100</text>
+  </g>
+  <g stroke="#bbb" stroke-width="2" stroke-dasharray="5 5">
+    <line x1="250" y1="38" x2="250" y2="350"/>
+    <line x1="560" y1="38" x2="560" y2="350"/>
+    <line x1="870" y1="38" x2="870" y2="350"/>
+  </g>
+
+  <!-- 500 -->
+  <g>
+    <rect x="10" y="52" width="150" height="84" rx="10" fill="#fff" stroke="#444" stroke-width="2"/>
+    <text x="85" y="88" font-size="30" font-weight="800" text-anchor="middle" fill="#222">500</text>
+    <text x="85" y="118" font-size="18" text-anchor="middle" fill="#444">앱이 만듦</text>
+    <line x1="560" y1="76" x2="862" y2="76" stroke="#444" stroke-width="2.5" marker-end="url(#a)"/>
+    <text x="715" y="68" font-size="19" text-anchor="middle" fill="#444">GET /boom</text>
+    <line x1="870" y1="112" x2="568" y2="112" stroke="#444" stroke-width="2.5" marker-end="url(#a)"/>
+    <text x="715" y="104" font-size="19" text-anchor="middle" fill="#444">예외 → 500</text>
+    <line x1="560" y1="112" x2="258" y2="112" stroke="#444" stroke-width="2.5" marker-end="url(#a)"/>
+    <text x="405" y="104" font-size="19" text-anchor="middle" fill="#444">그대로 전달</text>
+  </g>
+
+  <!-- 502 -->
+  <g>
+    <rect x="10" y="156" width="150" height="84" rx="10" fill="#fff" stroke="#d1242f" stroke-width="3"/>
+    <text x="85" y="192" font-size="30" font-weight="800" text-anchor="middle" fill="#d1242f">502</text>
+    <text x="85" y="222" font-size="18" text-anchor="middle" fill="#d1242f">nginx 가 만듦</text>
+    <line x1="560" y1="180" x2="820" y2="180" stroke="#444" stroke-width="2.5" marker-end="url(#a)"/>
+    <text x="846" y="188" font-size="26" font-weight="800" text-anchor="middle" fill="#d1242f">✕</text>
+    <text x="700" y="172" font-size="19" text-anchor="middle" fill="#444">연결 시도</text>
+    <text x="900" y="186" font-size="19" fill="#d1242f">거절당함</text>
+    <line x1="560" y1="216" x2="258" y2="216" stroke="#d1242f" stroke-width="2.5" marker-end="url(#r)"/>
+    <text x="405" y="208" font-size="19" text-anchor="middle" fill="#d1242f">502 Bad Gateway</text>
+  </g>
+
+  <!-- 504 -->
+  <g>
+    <rect x="10" y="260" width="150" height="84" rx="10" fill="#fff" stroke="#d1242f" stroke-width="3"/>
+    <text x="85" y="296" font-size="30" font-weight="800" text-anchor="middle" fill="#d1242f">504</text>
+    <text x="85" y="326" font-size="18" text-anchor="middle" fill="#d1242f">nginx 가 만듦</text>
+    <line x1="560" y1="284" x2="862" y2="284" stroke="#444" stroke-width="2.5" marker-end="url(#a)"/>
+    <text x="715" y="276" font-size="19" text-anchor="middle" fill="#444">GET /slow</text>
+    <text x="900" y="290" font-size="19" fill="#d1242f">대답 없음</text>
+    <line x1="560" y1="320" x2="258" y2="320" stroke="#d1242f" stroke-width="2.5" marker-end="url(#r)"/>
+    <text x="405" y="312" font-size="19" text-anchor="middle" fill="#d1242f">504 Gateway Time-out</text>
+  </g>
+</svg>

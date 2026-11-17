@@ -21,16 +21,16 @@
 <text x="36" y="185" font-size="17" fill="#222" font-weight="700">(브라우저의 대응)</text>
 <rect x="170" y="140" width="320" height="74" fill="#f8f9fb" stroke="#c9d1dc"/>
 <text x="186" y="170" font-size="15" font-weight="700" fill="#e5484d">HTTP 병목</text>
-<text x="186" y="196" font-size="20" fill="#222">병렬로 못 받는다</text>
+<text x="186" y="196" font-size="20" fill="#222">한 커넥션엔 하나씩만</text>
 <rect x="490" y="140" width="270" height="74" fill="#f8f9fb" stroke="#c9d1dc"/>
 <text x="506" y="185" font-size="20" fill="#222" font-weight="400">커넥션 6개</text>
 <rect x="760" y="140" width="380" height="74" fill="#f8f9fb" stroke="#c9d1dc"/>
-<text x="776" y="185" font-size="20" fill="#222" font-weight="400">커넥션 비용, 대역폭 경쟁</text>
+<text x="776" y="170" font-size="15" font-weight="700" fill="#e5484d">HTTP 병목 (줄만 늘림)</text><text x="776" y="196" font-size="20" fill="#222">커넥션마다 여전히 하나씩</text>
 <rect x="20" y="214" width="150" height="74" fill="#fff" stroke="#c9d1dc"/>
 <text x="36" y="259" font-size="20" fill="#222" font-weight="700">HTTP/2</text>
 <rect x="170" y="214" width="320" height="74" fill="#fff" stroke="#c9d1dc"/>
 <text x="186" y="244" font-size="15" font-weight="700" fill="#e5484d">HTTP 병목</text>
-<text x="186" y="270" font-size="20" fill="#222">한 번에 요청 하나씩만</text>
+<text x="186" y="270" font-size="20" fill="#222">커넥션마다 여전히 하나씩</text>
 <rect x="490" y="214" width="270" height="74" fill="#fff" stroke="#c9d1dc"/>
 <text x="506" y="259" font-size="20" fill="#222" font-weight="400">스트림 멀티플렉싱</text>
 <rect x="760" y="214" width="380" height="74" fill="#fff" stroke="#c9d1dc"/>
@@ -47,7 +47,7 @@
 <text x="776" y="333" font-size="20" fill="#222" font-weight="400">—</text>
 <rect x="764" y="70" width="372" height="66" rx="8" fill="none" stroke="#e5484d" stroke-width="4"/>
 <rect x="174" y="144" width="312" height="66" rx="8" fill="none" stroke="#e5484d" stroke-width="4"/>
-<rect x="174" y="218" width="312" height="66" rx="8" fill="none" stroke="#e5484d" stroke-width="4"/>
+<rect x="174" y="218" width="312" height="66" rx="8" fill="none" stroke="#e5484d" stroke-width="4"/><rect x="764" y="144" width="372" height="66" rx="8" fill="none" stroke="#e5484d" stroke-width="4"/>
 <rect x="764" y="218" width="372" height="66" rx="8" fill="none" stroke="#2f7fe0" stroke-width="4"/>
 <rect x="174" y="292" width="312" height="66" rx="8" fill="none" stroke="#2f7fe0" stroke-width="4"/>
 <rect x="20" y="374" width="28" height="28" rx="6" fill="none" stroke="#e5484d" stroke-width="4"/>
