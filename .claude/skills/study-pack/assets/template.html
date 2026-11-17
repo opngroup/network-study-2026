@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* study-pack 템플릿: 위 탭으로 정리 노트(#note)와 암기 카드(#cards, #cards-<묶음>)를 오간다. 색은 잉크·청록·주황·보라 */
+:root {
+  --bg: #eef1f1; --surface: #fbfcfc; --ink: #16212b; --muted: #55636e; --line: #d8dfe2;
+  --teal: #0b6f78; --teal-soft: #d6eef0; --orange: #b0471a; --orange-soft: #f8e4da;
+  --code-bg: #e2e9ec; --shadow: 0 1px 2px rgba(22,33,43,.06), 0 8px 24px rgba(22,33,43,.08);
+  --font: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10181f; --surface: #18232c; --ink: #e6edf1; --muted: #9fb0bb; --line: #2a3843;
+    --teal: #5cc6cf; --teal-soft: #173a3f; --orange: #f0915e; --orange-soft: #3f2619;
+    --code-bg: #24333f; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10181f; --surface: #18232c; --ink: #e6edf1; --muted: #9fb0bb; --line: #2a3843;
+  --teal: #5cc6cf; --teal-soft: #173a3f; --orange: #f0915e; --orange-soft: #3f2619;
+  --code-bg: #24333f; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.6; }
+.wrap { max-width: 860px; margin: 0 auto; padding: 32px 20px 64px; display: grid; gap: 22px; }
+header h1 { font-size: 30px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 4px; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); font-size: 15px; }
+.eyebrow { font-family: var(--mono); font-weight: 700; font-size: 12px; letter-spacing: .12em; color: var(--teal); }
+code { font-family: var(--mono); font-size: .88em; background: var(--code-bg); padding: 1px 6px; border-radius: 4px; overflow-wrap: anywhere; }
+
+/* 덱 고르기 */
+.decks { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 14px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.chip .ct { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.chip[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: var(--surface); }
+.chip[aria-pressed="true"] .ct { color: inherit; opacity: .8; }
+
+/* 진행 */
+.status { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; font-size: 14px; color: var(--muted); }
+.status b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.bar { flex: 1 1 200px; height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; display: flex; }
+.bar i { display: block; height: 100%; }
+.bar .k { background: var(--teal); } .bar .r { background: var(--orange); }
+.opts { display: flex; gap: 14px; flex-wrap: wrap; }
+.opts label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.linkbtn { font: inherit; font-size: 14px; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 0; }
+
+/* 카드 */
+.stage { perspective: 1600px; }
+.card { display: grid; cursor: pointer; transition: transform .45s cubic-bezier(.2,.7,.2,1); transform-style: preserve-3d; position: relative; border-radius: 16px; }
+.card.flipped { transform: rotateY(180deg); }
+.face { grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); padding: 28px 32px 26px; min-height: 340px; display: flex; flex-direction: column; gap: 14px; border-top: 6px solid var(--teal); }
+.back { transform: rotateY(180deg); border-top-color: var(--orange); }
+.face .meta { display: flex; justify-content: space-between; gap: 12px; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--muted); }
+.face .meta .side { color: var(--teal); } .back .meta .side { color: var(--orange); }
+.q { font-size: 24px; font-weight: 700; line-height: 1.5; margin: auto 0; text-wrap: balance; }
+.a { font-size: 21px; font-weight: 800; line-height: 1.5; margin: 0; text-wrap: balance; }
+.n { font-size: 16px; color: var(--muted); margin: 0; }
+.n p { margin: 0 0 6px; }
+pre.c { margin: 0; background: var(--code-bg); border-radius: 8px; padding: 12px 14px; font-family: var(--mono); font-size: 13.5px; line-height: 1.6; overflow-x: auto; white-space: pre; }
+.hint { margin-top: auto; font-size: 13px; color: var(--muted); }
+.mark { position: absolute; top: -10px; right: 18px; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 99px; z-index: 2; }
+.mark.k { background: var(--teal-soft); color: var(--teal); } .mark.r { background: var(--orange-soft); color: var(--orange); }
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; transform: none !important; }
+  .card .back { transform: none; visibility: hidden; }
+  .card.flipped .back { visibility: visible; }
+  .card.flipped .front { visibility: hidden; }
+}
+
+/* 버튼 */
+.controls { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; }
+.controls .left { justify-self: start; } .controls .right { justify-self: end; }
+.grade { display: flex; gap: 10px; justify-content: center; }
+button.b { font: inherit; font-size: 15px; font-weight: 700; border-radius: 10px; padding: 10px 18px; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+button.b:hover { border-color: var(--muted); }
+button.b.again { background: var(--orange-soft); border-color: var(--orange); color: var(--orange); }
+button.b.know { background: var(--teal-soft); border-color: var(--teal); color: var(--teal); }
+button.b:disabled { opacity: .4; cursor: default; }
+button:focus-visible, .card:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+.keys { font-size: 13px; color: var(--muted); text-align: center; }
+kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--surface); }
+.empty { text-align: center; padding: 60px 20px; background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); }
+.empty p { margin: 0 0 14px; }
+
+/* 목록 */
+.list h2 { font-size: 18px; margin: 18px 0 8px; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.list h2 span { font-size: 13px; font-weight: 500; color: var(--muted); }
+.list details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; }
+.list summary { cursor: pointer; padding: 12px 16px; font-weight: 500; display: grid; grid-template-columns: 34px 1fr auto; gap: 8px; align-items: baseline; }
+.list summary .no { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.list summary .st { font-size: 12px; font-weight: 700; }
+.list summary .st.k { color: var(--teal); } .list summary .st.r { color: var(--orange); }
+.list .body { padding: 0 16px 14px 58px; display: grid; gap: 8px; }
+.list .body .a { font-size: 16px; }
+.list .body .n { font-size: 14.5px; }
+@media (max-width: 520px) {
+  .face { padding: 24px 20px 20px; min-height: 300px; }
+  .q { font-size: 20px; } .a { font-size: 18px; }
+  .controls { grid-template-columns: 1fr 1fr; }
+  .grade { grid-column: 1 / -1; grid-row: 1; }
+  .list .body { padding-left: 16px; }
+}
+
+/* ── 화면 전환: 정리 노트(#study) / 암기 카드(#cards) ── */
+:root { --purple: #6b4fb3; --purple-soft: #ebe5f7; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --purple: #b9a2f0; --purple-soft: #2c2540; } }
+:root[data-theme="dark"] { --purple: #b9a2f0; --purple-soft: #2c2540; }
+[hidden] { display: none !important; }
+.topbar { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); }
+.topbar .in { max-width: 860px; margin: 0 auto; padding: 10px 20px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.topbar .brand { font-weight: 800; font-size: 15px; margin-right: auto; }
+.tab { font: inherit; font-size: 14px; font-weight: 700; text-decoration: none; color: var(--muted); padding: 7px 14px; border-radius: 8px; border: 1px solid transparent; }
+.tab[aria-current="page"] { color: var(--teal); background: var(--teal-soft); }
+.tab:focus-visible, .cta:focus-visible, .mini:focus-visible, .toc a:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+
+/* ── 정리 노트 ── */
+.note { max-width: 860px; margin: 0 auto; padding: 32px 20px 72px; display: grid; gap: 40px; }
+.note .hero h1 { font-size: 34px; font-weight: 800; letter-spacing: -.02em; line-height: 1.3; margin: 6px 0 12px; text-wrap: balance; }
+.note .hero p { margin: 0 0 10px; font-size: 17px; max-width: 64ch; }
+.note .hero .lead { font-size: 19px; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 14px; font-size: 14.5px; }
+.toc a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); }
+.toc a:hover { color: var(--teal); border-color: var(--teal); }
+.cta { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 16px; font-weight: 800; text-decoration: none; background: var(--teal); color: var(--surface); border-radius: 10px; padding: 12px 20px; margin-top: 8px; }
+.cta:hover { filter: brightness(1.08); }
+.mini { display: inline-flex; font-size: 14px; font-weight: 700; text-decoration: none; color: var(--teal); border: 1px solid var(--teal); border-radius: 8px; padding: 6px 12px; justify-self: start; }
+.mini:hover { background: var(--teal-soft); }
+
+.unit { display: grid; gap: 16px; scroll-margin-top: 70px; }
+.unit > .head { display: grid; gap: 4px; border-top: 2px solid var(--ink); padding-top: 14px; }
+.unit > .head .no { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .12em; color: var(--teal); }
+.unit h2 { font-size: 26px; font-weight: 800; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+.unit h3 { font-size: 18px; font-weight: 800; margin: 8px 0 0; }
+.unit p { margin: 0; font-size: 16.5px; max-width: 68ch; }
+.unit ul, .unit ol { margin: 0; padding-left: 22px; font-size: 16.5px; display: grid; gap: 4px; max-width: 68ch; }
+.one { font-size: 19px !important; font-weight: 700; background: var(--surface); border-left: 5px solid var(--teal); border-radius: 0 10px 10px 0; padding: 14px 18px; max-width: none !important; }
+
+.call { border-radius: 10px; padding: 14px 18px; display: grid; gap: 6px; font-size: 16px; }
+.call .lb { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .1em; }
+.call p { font-size: 16px; }
+.call.tip { background: var(--teal-soft); } .call.tip .lb { color: var(--teal); }
+.call.trap { background: var(--orange-soft); } .call.trap .lb { color: var(--orange); }
+.call.mem { background: var(--purple-soft); } .call.mem .lb { color: var(--purple); }
+.call.exam { background: var(--surface); border: 1px dashed var(--muted); } .call.exam .lb { color: var(--muted); }
+.call.exam .qa { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; }
+.call.exam .qa > b { font-family: var(--mono); color: var(--muted); font-size: 14px; padding-top: 2px; }
+
+.tbl { overflow-x: auto; background: var(--surface); border-radius: 10px; border: 1px solid var(--line); }
+.tbl table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 560px; }
+.tbl th { text-align: left; font-weight: 700; padding: 10px 14px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 13.5px; }
+.tbl td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.5; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl td.grp { font-weight: 800; white-space: nowrap; }
+.tbl tr.hl td { background: var(--teal-soft); } .tbl tr.hl-o td { background: var(--orange-soft); }
+
+/* 층 그림 (.layers) */
+.layers { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+.layer { flex: 1 1 140px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 2px; }
+.layer b { font-size: 16px; } .layer span { font-size: 13.5px; color: var(--muted); }
+.layer.p { border-top: 4px solid var(--teal); } .layer.s { border-top: 4px solid var(--orange); } .layer.o { border-top: 4px solid var(--ink); }
+.arrow { align-self: center; font-family: var(--mono); color: var(--muted); }
+
+/* 갈래 그림 (.fork) */
+.fork { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.fork > div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.fork .cond { font-size: 13.5px; color: var(--muted); font-weight: 700; }
+.fork .act { font-size: 16px; font-weight: 800; }
+.fork .code { font-family: var(--mono); font-size: 13.5px; }
+.fork .x1 { border-top: 4px solid var(--teal); } .fork .x2 { border-top: 4px solid var(--purple); } .fork .x3 { border-top: 4px solid var(--orange); }
+
+/* 비교 두 칸 */
+.vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.vs > div { background: var(--surface); border-radius: 10px; padding: 16px; display: grid; gap: 6px; align-content: start; border: 1px solid var(--line); }
+.vs .t { font-family: var(--mono); font-weight: 700; font-size: 17px; }
+.vs .s { font-weight: 800; font-size: 17px; }
+.vs p { font-size: 15px; color: var(--muted); }
+.vs .a1 { border-top: 4px solid var(--teal); } .vs .a1 .t { color: var(--teal); }
+.vs .a2 { border-top: 4px solid var(--orange); } .vs .a2 .t { color: var(--orange); }
+
+/* 주고받기 그림 */
+.seq { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; overflow-x: auto; }
+.seq .hd, .seq .m { display: grid; grid-template-columns: 90px 1fr 90px; gap: 10px; align-items: center; min-width: 520px; }
+.seq .hd { font-weight: 800; font-size: 14px; } .seq .hd span:last-child { text-align: right; }
+.seq .m .msg { font-family: var(--mono); font-size: 13.5px; border-bottom: 2px solid var(--muted); padding-bottom: 3px; position: relative; }
+.seq .m.r .msg { text-align: right; }
+.seq .m.l .msg::after { content: "▶"; position: absolute; right: -6px; bottom: -9px; font-size: 11px; color: var(--muted); }
+.seq .m.r .msg::before { content: "◀"; position: absolute; left: -6px; bottom: -9px; font-size: 11px; color: var(--muted); }
+.seq .m .msg.ok { border-color: var(--teal); color: var(--teal); }
+.seq .gap { text-align: center; font-size: 13px; color: var(--muted); min-width: 520px; }
+.seq .side { font-size: 12.5px; color: var(--muted); }
+
+.final { background: var(--ink); color: var(--bg); border-radius: 14px; padding: 26px 26px; display: grid; gap: 14px; }
+.final h2 { color: var(--bg); }
+.final ol { font-size: 17px; display: grid; gap: 8px; margin: 0; padding-left: 22px; }
+.final code { background: rgba(255,255,255,.12); color: inherit; }
+.final .cta { background: var(--bg); color: var(--ink); justify-self: start; }
+@media (max-width: 620px) {
+  .fork, .vs { grid-template-columns: 1fr; }
+  .arrow { display: none; }
+  .note .hero h1 { font-size: 27px; }
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <span class="brand">{{BRAND}}</span>
+  <a class="tab" id="tabStudy" href="#note" aria-current="page">정리 노트</a>
+  <a class="tab" id="tabCards" href="#cards" aria-current="false">암기 카드</a>
+</div></header>
+<main class="note" id="viewStudy">
+{{STUDY}}
+</main>
+
+<main id="viewCards" hidden>
+<div class="wrap">
+  <header class="cardhead">
+    <div class="eyebrow">{{CARD_EYEBROW}}</div>
+    <h1>{{CARD_TITLE}}</h1>
+    <p>카드를 눌러 뒤집고, 답을 맞혔으면 "알아요", 헷갈렸으면 "다시"를 누릅니다. 표시는 이 브라우저에만 남습니다.</p>
+  </header>
+
+  <nav class="decks" id="decks" aria-label="카드 묶음"></nav>
+
+  <div class="status">
+    <span id="pos"></span>
+    <div class="bar" aria-hidden="true"><i class="k" id="barK"></i><i class="r" id="barR"></i></div>
+    <span>알아요 <b id="nK">0</b> · 다시 <b id="nR">0</b></span>
+  </div>
+  <div class="status opts">
+    <label><input type="checkbox" id="optShuffle"> 섞기</label>
+    <label><input type="checkbox" id="optHide"> "알아요" 카드 빼기</label>
+    <label><input type="checkbox" id="optBackFirst"> 뒷면 먼저 (답 보고 질문 떠올리기)</label>
+    <button class="linkbtn" id="reset" type="button">이 묶음 표시 지우기</button>
+  </div>
+
+  <section id="study" aria-live="polite"></section>
+
+  <div class="controls" id="controls">
+    <button class="b left" id="prev" type="button">← 이전</button>
+    <div class="grade">
+      <button class="b again" id="again" type="button">다시</button>
+      <button class="b know" id="know" type="button">알아요</button>
+    </div>
+    <button class="b right" id="next" type="button">다음 →</button>
+  </div>
+  <div class="keys"><kbd>Space</kbd> 뒤집기 · <kbd>←</kbd> <kbd>→</kbd> 이동 · <kbd>1</kbd> 다시 · <kbd>2</kbd> 알아요</div>
+
+  <section class="list" id="list" aria-label="전체 카드 목록"></section>
+</div>
+</main>
+<script>
+const DECKS = {{DECKS_JSON}};
+
+// q: 앞면 질문, a: 뒷면 한 줄 답, n: 덧붙임(문단 배열), c: 코드, s: 출처
+const CARDS = {{CARDS_JSON}};
+
+const KEY = {{STORAGE_KEY_JSON}};
+let marks = {};
+try { marks = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { marks = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(marks)); } catch (e) {} };
+CARDS.forEach((c, i) => c.id = c.d + "-" + i);
+
+const state = { deck: "all", order: [], i: 0, flipped: false };
+const $ = id => document.getElementById(id);
+const deckName = id => (DECKS.find(d => d.id === id) || {}).name;
+const inDeck = c => state.deck === "all" || c.d === state.deck;
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function rebuild(keepCurrent) {
+  const cur = state.order[state.i];
+  let list = CARDS.filter(inDeck);
+  if ($("optHide").checked) list = list.filter(c => marks[c.id] !== "k");
+  if ($("optShuffle").checked) shuffle(list);
+  state.order = list;
+  const at = keepCurrent && cur ? list.indexOf(cur) : -1;
+  state.i = at >= 0 ? at : 0;
+  state.flipped = false;
+  render();
+}
+
+function backHTML(c) {
+  let h = `<p class="a">${c.a}</p>`;
+  if (c.n) h += `<div class="n">${c.n.map(p => `<p>${p}</p>`).join("")}</div>`;
+  if (c.c) h += `<pre class="c">${c.c.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>`;
+  return h;
+}
+
+function renderDecks() {
+  const all = [{ id: "all", name: "전체" }, ...DECKS];
+  $("decks").innerHTML = all.map(d => {
+    const n = CARDS.filter(c => d.id === "all" || c.d === d.id).length;
+    return `<button class="chip" type="button" data-deck="${d.id}" aria-pressed="${state.deck === d.id}">${d.name}<span class="ct">${n}</span></button>`;
+  }).join("");
+}
+
+function renderStatus() {
+  const pool = CARDS.filter(inDeck);
+  const k = pool.filter(c => marks[c.id] === "k").length;
+  const r = pool.filter(c => marks[c.id] === "r").length;
+  $("nK").textContent = k; $("nR").textContent = r;
+  $("barK").style.width = (k / pool.length * 100) + "%";
+  $("barR").style.width = (r / pool.length * 100) + "%";
+  $("pos").innerHTML = state.order.length ? `<b>${state.i + 1}</b> / ${state.order.length}장` : `0장`;
+}
+
+function render() {
+  renderDecks(); renderStatus();
+  const c = state.order[state.i];
+  const ctl = ["prev", "next", "again", "know"];
+  if (!c) {
+    $("study").innerHTML = `<div class="empty"><p>이 묶음은 모두 "알아요"로 표시했습니다.</p><button class="b" type="button" id="showAll">"알아요" 카드도 다시 보기</button></div>`;
+    $("showAll").onclick = () => { $("optHide").checked = false; rebuild(false); };
+    ctl.forEach(id => $(id).disabled = true);
+    renderList(); return;
+  }
+  ctl.forEach(id => $(id).disabled = false);
+  $("prev").disabled = state.i === 0;
+  $("next").disabled = state.i === state.order.length - 1;
+  const backFirst = $("optBackFirst").checked;
+  const front = backFirst ? `<p class="q" style="font-size:20px">${c.a}</p>` : `<p class="q">${c.q}</p>`;
+  const back = backFirst ? `<p class="a">${c.q}</p>${c.n ? `<div class="n">${c.n.map(p => `<p>${p}</p>`).join("")}</div>` : ""}` : backHTML(c);
+  const mk = marks[c.id] === "k" ? `<span class="mark k">알아요</span>` : marks[c.id] === "r" ? `<span class="mark r">다시</span>` : "";
+  $("study").innerHTML = `
+    <div class="stage">
+      <div class="card${state.flipped ? " flipped" : ""}" id="card" tabindex="0" role="button" aria-label="카드 뒤집기">
+        ${mk}
+        <div class="face front" aria-hidden="${state.flipped}">
+          <div class="meta"><span class="side">${backFirst ? "답" : "질문"}</span><span>${deckName(c.d)}</span></div>
+          ${front}
+          <div class="hint">눌러서 뒤집기</div>
+        </div>
+        <div class="face back" aria-hidden="${!state.flipped}">
+          <div class="meta"><span class="side">${backFirst ? "질문" : "답"}</span><span>${c.s || ""}</span></div>
+          ${back}
+        </div>
+      </div>
+    </div>`;
+  $("card").onclick = flip;
+  renderList();
+}
+
+function renderList() {
+  const groups = state.deck === "all" ? DECKS : DECKS.filter(d => d.id === state.deck);
+  let n = 0;
+  $("list").innerHTML = `<div class="eyebrow" style="margin-top:20px">전체 목록 · 눌러서 답 보기</div>` + groups.map(g => {
+    const cs = CARDS.filter(c => c.d === g.id);
+    const k = cs.filter(c => marks[c.id] === "k").length;
+    return `<h2>${g.name}<span>알아요 ${k} / ${cs.length}</span></h2>` + cs.map(c => {
+      n++;
+      const st = marks[c.id] === "k" ? `<span class="st k">알아요</span>` : marks[c.id] === "r" ? `<span class="st r">다시</span>` : `<span></span>`;
+      return `<details><summary><span class="no">${String(n).padStart(2, "0")}</span><span>${c.q}</span>${st}</summary><div class="body">${backHTML(c)}</div></details>`;
+    }).join("");
+  }).join("");
+}
+
+function flip() { state.flipped = !state.flipped; const el = $("card"); if (!el) return; el.classList.toggle("flipped", state.flipped); el.querySelector(".front").setAttribute("aria-hidden", state.flipped); el.querySelector(".back").setAttribute("aria-hidden", !state.flipped); }
+function go(d) { const j = state.i + d; if (j < 0 || j >= state.order.length) return; state.i = j; state.flipped = false; render(); }
+function grade(v) {
+  const c = state.order[state.i]; if (!c) return;
+  marks[c.id] = v; save();
+  if ($("optHide").checked && v === "k") { state.order.splice(state.i, 1); if (state.i >= state.order.length) state.i = Math.max(0, state.order.length - 1); state.flipped = false; render(); }
+  else if (state.i < state.order.length - 1) go(1);
+  else render();
+}
+
+$("decks").addEventListener("click", e => { const b = e.target.closest("[data-deck]"); if (!b) return; state.deck = b.dataset.deck; try { history.replaceState(null, "", state.deck === "all" ? "#cards" : "#cards-" + state.deck); } catch (err) {} rebuild(false); });
+$("prev").onclick = () => go(-1);
+$("next").onclick = () => go(1);
+$("again").onclick = () => grade("r");
+$("know").onclick = () => grade("k");
+$("optShuffle").onchange = () => rebuild(false);
+$("optHide").onchange = () => rebuild(true);
+$("optBackFirst").onchange = () => { state.flipped = false; render(); };
+$("reset").onclick = () => { CARDS.filter(inDeck).forEach(c => delete marks[c.id]); save(); rebuild(false); };
+document.addEventListener("keydown", e => {
+  if ($("viewCards").hidden) return;
+  if (e.target.closest("input, summary, button:not(#card)") && e.key === " ") return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === " " || (e.key === "Enter" && e.target.id === "card")) { e.preventDefault(); flip(); }
+  else if (e.key === "ArrowRight") go(1);
+  else if (e.key === "ArrowLeft") go(-1);
+  else if (e.key === "1") grade("r");
+  else if (e.key === "2") grade("k");
+});
+
+// 화면 전환: #cards, #cards-<묶음>은 카드, 나머지(#u1 등)는 정리 노트
+function route() {
+  const h = location.hash.slice(1);
+  const cards = h === "cards" || h.startsWith("cards-");
+  const wasCards = !$("viewCards").hidden;
+  $("viewStudy").hidden = cards; $("viewCards").hidden = !cards;
+  $("tabStudy").setAttribute("aria-current", cards ? "false" : "page");
+  $("tabCards").setAttribute("aria-current", cards ? "page" : "false");
+  if (cards) {
+    const d = h.slice(6);
+    const want = DECKS.some(x => x.id === d) ? d : "all";
+    if (want !== state.deck || !wasCards) { state.deck = want; rebuild(false); }
+    window.scrollTo(0, 0);
+  } else {
+    const el = h && document.getElementById(h);
+    if (el && h !== "study") el.scrollIntoView(); else if (wasCards || h === "note") window.scrollTo(0, 0);
+  }
+}
+window.addEventListener("hashchange", route);
+rebuild(false);
+route();
+
+</script>
+</body>
+</html>
