@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
 <style>
-/* 3주차 장표와 같은 틀: 1440×810, 어두운 표지·정리, 밝은 본문. PDF: Chrome으로 인쇄 (README 참고) */
+/* study-pack 장표 템플릿: 1440×810, 어두운 표지·정리, 밝은 본문. slides.py가 장표 조각을 body에 채우고 PDF로 뽑는다 */
 :root {
   --ink: #16212b; --muted: #4d5b67; --bg: #f3f4f3; --card: #fbfbfb; --line: #dfe3e5;
   --teal: #0b6f78; --teal-soft: #d6eef0; --orange: #b0471a; --orange-soft: #f8e4da;
@@ -99,17 +99,17 @@ ol.sum { margin: 0 0 40px; padding-left: 34px; } ol.sum li { font-size: 26px; li
 </head>
 <body>
 
-<!-- 1 표지 -->
+<!-- 1 cover -->
 <section class="slide dark">
   <div class="eyebrow">NETWORK STUDY · WEEK 4</div>
   <div style="margin-top:150px">
     <h1 class="big">캐시, ETag,<br>콘텐츠 협상</h1>
-    <p class="muted" style="font-size:32px;margin-top:28px;line-height:1.45">같은 것을 또 받지 않는 법,<br>같은 주소에서 다른 것을 받는 법</p>
+    <p class="muted" style="font-size:32px;margin-top:28px;line-height:1.45">캐시가 뭔지부터 차근차근.<br>같은 것을 또 받지 않는 법, 같은 주소에서 다른 것을 받는 법</p>
   </div>
-  <div class="foot">유진영 · 2026년 11월 12일 · 《혼자 공부하는 네트워크》 05-3</div>
+  <div class="foot">유진영 · 4주차 (11/16 주) · 《혼자 공부하는 네트워크》 05-3</div>
 </section>
 
-<!-- 2 과제 C 1/2 -->
+<!-- 2 hwc1 -->
 <section class="slide">
   <div class="eyebrow">지난주 과제 C 1 / 2</div>
   <h1>멱등 API를 만들고, 5xx를 일부러 냈다</h1>
@@ -133,7 +133,7 @@ ol.sum { margin: 0 0 40px; padding-left: 34px; } ol.sum li { font-size: 26px; li
   <div class="foot">코드와 결과: week-03/유진영/assignment-c · node:http + nginx 1.27 · docker compose · 시험 17개</div>
 </section>
 
-<!-- 3 과제 C 2/2 -->
+<!-- 3 hwc2 -->
 <section class="slide">
   <div class="eyebrow">지난주 과제 C 2 / 2</div>
   <h1>해 보고 알게 된 것</h1>
@@ -145,7 +145,7 @@ ol.sum { margin: 0 0 40px; padding-left: 34px; } ol.sum li { font-size: 26px; li
   </div>
 </section>
 
-<!-- 4 퀴즈 다시 풀기 -->
+<!-- 4 quiz -->
 <section class="slide">
   <div class="eyebrow">진단 퀴즈 다시 풀기</div>
   <h1>오늘 답할 수 있어야 하는 세 문제</h1>
@@ -157,9 +157,63 @@ ol.sum { margin: 0 0 40px; padding-left: 34px; } ol.sum li { font-size: 26px; li
   <p class="muted" style="margin-top:30px;font-size:22px">세 문제 모두 "같은 주소에 대한 응답을 언제, 무엇으로 재사용하나"라는 하나의 이야기다.</p>
 </section>
 
-<!-- 5 배경 1/3 -->
+<!-- 5 reqres -->
 <section class="slide">
-  <div class="eyebrow">배경 지식 1 / 3</div>
+  <div class="eyebrow">바탕 1 / 2</div>
+  <h1>웹은 요청과 응답을 주고받는다</h1>
+  <div class="grid g2" style="grid-template-columns:1.15fr 1fr;align-items:start">
+    <div class="code" style="font-size:20px;padding:24px 28px;line-height:1.55"><span class="lab">요청 · 브라우저 → 서버</span>GET /logo.png HTTP/1.1
+<span class="ok">Host: example.com</span>
+<span class="ok">Accept-Language: ko</span>
+
+<span class="lab">응답 · 서버 → 브라우저</span>HTTP/1.1 <span class="hl">200 OK</span>
+<span class="ok">Content-Type: image/png</span>
+<span class="ok">Cache-Control: max-age=3600</span>
+<span class="ok">ETag: "v3"</span>
+
+<span class="c">(그림 파일 내용)</span></div>
+    <div>
+      <p style="margin-top:0"><b class="t">헤더</b>: "이름: 값" 꼴의 메모 여러 줄. 택배 상자에 붙인 <b>송장</b>.</p>
+      <p><b class="o">본문</b>: 실제 내용물. 상자 안의 <b>물건</b>.</p>
+      <p><b>요청에도, 응답에도</b> 헤더가 붙는다. 헤더마다 어느 쪽에 싣는지 정해져 있다.</p>
+      <p class="muted" style="font-size:21px">응답 첫 줄의 상태 코드<br>200 여기 있어요 · 404 그런 거 없어요<br>304 <b>네가 가진 거 그대로 써</b> (오늘의 주인공)</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 headers -->
+<section class="slide">
+  <div class="eyebrow">바탕 2 / 2</div>
+  <h1>오늘 나오는 헤더는 누가 보내나</h1>
+  <table>
+    <tr><th style="width:34%">헤더</th><th style="width:24%">어디에 싣나</th><th>한 줄 뜻</th></tr>
+    <tr class="hl"><td><code>Cache-Control</code></td><td><b>요청과 응답 둘 다</b></td><td>응답: 서버의 보관 규칙 · 요청: 브라우저의 이번 한 번 부탁</td></tr>
+    <tr><td><code>ETag</code></td><td>응답</td><td>내용의 지문. 내용이 바뀌면 값도 바뀐다</td></tr>
+    <tr><td><code>If-None-Match</code></td><td>요청</td><td>"내 지문은 이건데, 이것과 다르면 보내 줘"</td></tr>
+    <tr><td><code>Age</code></td><td>응답 (CDN이 붙임)</td><td>"이 응답을 들고 있은 지 몇 초째"</td></tr>
+    <tr><td><code>Accept</code> · <code>Accept-Language</code></td><td>요청</td><td>"이런 형식·언어로 주면 좋겠어"</td></tr>
+    <tr><td><code>Content-Type</code> · <code>Content-Language</code></td><td>응답</td><td>"실제로 이걸로 줬어"</td></tr>
+    <tr><td><code>Vary</code></td><td>응답</td><td>"캐시야, 이 요청 헤더도 보고 구분해"</td></tr>
+  </table>
+  <p class="muted" style="margin-top:24px;font-size:22px">이름으로 방향 알기: <b>If-</b>·<b>Accept-</b>로 시작하면 요청, <b>Content-</b>는 응답. <b>Cache-Control만 양쪽 다.</b></p>
+</section>
+
+<!-- 7 whatcache -->
+<section class="slide">
+  <div class="eyebrow">캐시가 뭔가</div>
+  <h1>캐시: 한 번 받은 걸 또 받지 않기</h1>
+  <div class="box t" style="font-size:26px"><b>캐시</b>는 한 번 받은 응답을 가까운 곳에 복사해 두고, 다음에 같은 요청이 오면 <b>그 복사본을 쓰는 것</b>. 우유를 매번 공장에서 사지 않고 냉장고에 넣어 두는 것과 같다.</div>
+  <div class="grid g3" style="margin-top:26px">
+    <div class="card top-t"><div class="k">왜 ①</div><div class="h">빨라진다</div><p>서버는 멀다. 내 컴퓨터의 복사본은 0초.</p></div>
+    <div class="card top-t"><div class="k">왜 ②</div><div class="h">서버가 덜 힘들다</div><p>같은 로고를 수백만 명에게 매번 보내지 않아도 된다.</p></div>
+    <div class="card top-t"><div class="k">왜 ③</div><div class="h">데이터를 아낀다</div><p>휴대폰 요금, 서버 전송 비용.</p></div>
+  </div>
+  <div class="box o" style="margin-top:26px"><b>대신 복사본이 낡을 수 있다.</b> 그래서 규칙 두 개가 필요하다: <b>얼마 동안 그냥 믿나</b>(max-age) · <b>기한이 지나면 어떻게 확인하나</b>(ETag)</div>
+</section>
+
+<!-- 8 where -->
+<section class="slide">
+  <div class="eyebrow">캐시는 어디에</div>
   <h1>응답을 저장해 두는 곳은 여러 군데다</h1>
   <div class="layers">
     <div class="layer priv"><div class="nm">브라우저 캐시</div><div class="sub">나만 쓰는 캐시<br>(private)</div></div>
@@ -174,12 +228,12 @@ ol.sum { margin: 0 0 40px; padding-left: 34px; } ol.sum li { font-size: 26px; li
   </div>
 </section>
 
-<!-- 6 배경 2/3 -->
+<!-- 9 fresh -->
 <section class="slide">
-  <div class="eyebrow">배경 지식 2 / 3</div>
+  <div class="eyebrow">얼마나 믿나</div>
   <h1>저장한 응답에는 유통기한이 있다</h1>
   <div class="grid g2" style="align-items:start">
-    <div class="code"><span class="lab">응답 (MDN, 오늘 받은 것)</span>HTTP/2 200
+    <div class="code"><span class="lab">응답 (MDN, 11/12 실측)</span>HTTP/2 200
 cache-control: public, <span class="hl">max-age=3600</span>
 <span class="hl">age: 1254</span>
 etag: "5db9819de628…"</div>
@@ -192,9 +246,9 @@ etag: "5db9819de628…"</div>
   <div class="box t" style="margin-top:34px">우유 유통기한과 같다. 기한 안이면 그냥 마시고, 지나면 냄새를 맡아 보고(<b>재검증</b>) 괜찮으면 또 마신다.</div>
 </section>
 
-<!-- 7 배경 3/3 -->
+<!-- 10 fork -->
 <section class="slide">
-  <div class="eyebrow">배경 지식 3 / 3</div>
+  <div class="eyebrow">캐시의 판단</div>
   <h1>캐시가 하는 판단은 세 갈래다</h1>
   <table>
     <tr><th style="width:26%">상황</th><th style="width:32%">브라우저가 하는 일</th><th>DevTools Network에서 보이는 것</th></tr>
@@ -205,45 +259,9 @@ etag: "5db9819de628…"</div>
   <p class="muted" style="margin-top:34px">"검증 값"이 오늘 볼 <b>ETag</b>(내용의 지문)와 <b>Last-Modified</b>(마지막 수정 시각)다.</p>
 </section>
 
-<!-- 8 Q20 -->
+<!-- 11 etag -->
 <section class="slide">
-  <div class="eyebrow">Q20</div>
-  <h1><code style="font-size:.9em">no-cache</code>는 "저장 금지"가 아니다</h1>
-  <div class="grid g2">
-    <div class="card top-t">
-      <div class="k">no-cache</div>
-      <div class="h">저장 OK, 쓰기 전에 매번 확인</div>
-      <p>신선 기간 0과 같다. 매번 서버에 묻지만, 안 바뀌었으면 <b>304로 본문을 아낀다</b>. "항상 최신이어야 하는" HTML에 맞다.</p>
-    </div>
-    <div class="card top-o">
-      <div class="k">no-store</div>
-      <div class="h">아예 저장하지 마</div>
-      <p>디스크에도 남기지 않는다. 매번 본문 전체를 받는다. 계좌 내역, 개인정보 화면처럼 <b>남으면 안 되는</b> 응답에만.</p>
-    </div>
-  </div>
-  <div class="box o" style="margin-top:34px"><b>함정:</b> 이름 때문에 "캐시 끄기 = no-cache"로 쓰는 경우가 많다. 진짜로 끄려면 <code>no-store</code>, 항상 최신만 원하면 <code>no-cache</code>가 304 덕분에 더 싸다.</div>
-</section>
-
-<!-- 9 Cache-Control 값 -->
-<section class="slide">
-  <div class="eyebrow">Cache-Control</div>
-  <h1>자주 쓰는 값 여덟 개</h1>
-  <table>
-    <tr><th style="width:34%">값</th><th>뜻</th></tr>
-    <tr><td><code>max-age=N</code></td><td>N초 동안 신선. 묻지 않고 쓴다</td></tr>
-    <tr><td><code>s-maxage=N</code></td><td>CDN 같은 shared 캐시에만 적용되는 max-age</td></tr>
-    <tr><td><code>public</code> · <code>private</code></td><td>shared 캐시도 저장해도 되나 · 브라우저만 저장</td></tr>
-    <tr class="hl"><td><code>no-cache</code></td><td>저장은 하되 매번 재검증</td></tr>
-    <tr class="hl-o"><td><code>no-store</code></td><td>저장 금지</td></tr>
-    <tr><td><code>must-revalidate</code></td><td>상한 뒤엔 반드시 확인. 서버가 죽어도 상한 걸 몰래 쓰지 마</td></tr>
-    <tr><td><code>immutable</code></td><td>기간 안엔 새로고침해도 묻지 마. 파일 이름에 해시가 붙은 번들용</td></tr>
-    <tr><td><code>stale-while-revalidate=N</code></td><td>상한 뒤 N초까지는 일단 옛것을 주고, 뒤에서 몰래 새로 받아 둔다</td></tr>
-  </table>
-</section>
-
-<!-- 10 Q21 흐름 -->
-<section class="slide">
-  <div class="eyebrow">Q21</div>
+  <div class="eyebrow">Q21 · 아직 맞는지 묻기</div>
   <h1>ETag → If-None-Match → 304</h1>
   <div class="flow">
     <div class="actor">브라우저</div>
@@ -262,32 +280,85 @@ etag: "5db9819de628…"</div>
   </div>
 </section>
 
-<!-- 11 실제로 보기 -->
+<!-- 12 curl -->
 <section class="slide">
   <div class="eyebrow">직접 보기 · curl</div>
-  <h1>MDN 첫 화면: 117KB가 0바이트로</h1>
+  <h1>MDN 첫 화면: 119KB가 0바이트로</h1>
   <div class="grid g2" style="grid-template-columns:1fr 1fr">
     <div class="code" style="font-size:20px;padding:28px 28px"><span class="lab">① 처음 받기</span>$ curl -s -o /dev/null -D - \
     https://developer.mozilla.org/en-US/
 HTTP/2 200
-etag: <span class="ok">"5db9819d…"</span>
+etag: <span class="ok">"3a8ce56f…"</span>
 cache-control: public, max-age=3600
 
-<span class="c">본문 116,977 B (gzip이면 16,430 B)</span></div>
+<span class="c">본문 118,790 B (gzip이면 16,521 B)</span></div>
     <div class="code" style="font-size:20px;padding:28px 28px"><span class="lab">② 지문을 들고 다시 묻기</span>$ curl -s -o /dev/null -D - \
-    -H 'If-None-Match: <span class="ok">"5db9819d…"</span>' \
+    -H 'If-None-Match: <span class="ok">"3a8ce56f…"</span>' \
     https://developer.mozilla.org/en-US/
 HTTP/2 <span class="hl">304</span>
-etag: "5db9819d…"
+etag: "3a8ce56f…"
 
-<span class="c">본문 0 B · 0.03초</span></div>
+<span class="c">본문 0 B · 11/17 실측</span></div>
   </div>
   <p class="muted" style="margin-top:30px">연결·왕복은 그대로 든다. 아끼는 건 <b>본문 전송</b>이다. 그래서 "아예 안 묻는" max-age와 같이 쓴다.</p>
 </section>
 
-<!-- 12 Q23 콘텐츠 협상 -->
+<!-- 13 q20 -->
 <section class="slide">
-  <div class="eyebrow">Q23</div>
+  <div class="eyebrow">Q20 · 응답의 Cache-Control = 서버가 정하는 보관 규칙</div>
+  <h1><code style="font-size:.9em">no-cache</code>는 "저장 금지"가 아니다</h1>
+  <div class="grid g2">
+    <div class="card top-t">
+      <div class="k">no-cache</div>
+      <div class="h">저장 OK, 쓰기 전에 매번 확인</div>
+      <p>신선 기간 0과 같다. 매번 서버에 묻지만, 안 바뀌었으면 <b>304로 본문을 아낀다</b>. "항상 최신이어야 하는" HTML에 맞다.</p>
+    </div>
+    <div class="card top-o">
+      <div class="k">no-store</div>
+      <div class="h">아예 저장하지 마</div>
+      <p>디스크에도 남기지 않는다. 매번 본문 전체를 받는다. 계좌 내역, 개인정보 화면처럼 <b>남으면 안 되는</b> 응답에만.</p>
+    </div>
+  </div>
+  <div class="box o" style="margin-top:34px"><b>함정:</b> 이름 때문에 "캐시 끄기 = no-cache"로 쓰는 경우가 많다. 진짜로 끄려면 <code>no-store</code>, 항상 최신만 원하면 <code>no-cache</code>가 304 덕분에 더 싸다.</div>
+</section>
+
+<!-- 14 values -->
+<section class="slide">
+  <div class="eyebrow">응답의 Cache-Control</div>
+  <h1>자주 쓰는 값 여덟 개</h1>
+  <table>
+    <tr><th style="width:34%">값</th><th>뜻</th></tr>
+    <tr><td><code>max-age=N</code></td><td>N초 동안 신선. 묻지 않고 쓴다</td></tr>
+    <tr><td><code>s-maxage=N</code></td><td>CDN 같은 shared 캐시에만 적용되는 max-age</td></tr>
+    <tr><td><code>public</code> · <code>private</code></td><td>shared 캐시도 저장해도 되나 · 브라우저만 저장</td></tr>
+    <tr class="hl"><td><code>no-cache</code></td><td>저장은 하되 매번 재검증</td></tr>
+    <tr class="hl-o"><td><code>no-store</code></td><td>저장 금지</td></tr>
+    <tr><td><code>must-revalidate</code></td><td>상한 뒤엔 반드시 확인. 서버가 죽어도 상한 걸 몰래 쓰지 마</td></tr>
+    <tr><td><code>immutable</code></td><td>기간 안엔 새로고침해도 묻지 마. 파일 이름에 해시가 붙은 번들용</td></tr>
+    <tr><td><code>stale-while-revalidate=N</code></td><td>상한 뒤 N초까지는 일단 옛것을 주고, 뒤에서 몰래 새로 받아 둔다</td></tr>
+  </table>
+</section>
+
+<!-- 15 reload -->
+<section class="slide">
+  <div class="eyebrow">요청의 Cache-Control</div>
+  <h1>Cache-Control은 요청에도 실린다: 새로고침</h1>
+  <div class="grid g2">
+    <div class="card top-t"><div class="k">응답의 Cache-Control</div><div class="h">서버가 적는 보관 규칙</div><p>"1시간 보관해도 돼", "공용 캐시는 저장 마". 모든 캐시가 따른다.</p></div>
+    <div class="card top-o"><div class="k">요청의 Cache-Control</div><div class="h">브라우저의 이번 한 번 부탁</div><p>"이번엔 확인받은 걸로 줘". 새로고침할 때 브라우저가 스스로 붙인다.</p></div>
+  </div>
+  <table style="margin-top:22px">
+    <tr><th style="width:30%">내가 한 것 (크롬)</th><th style="width:34%">브라우저가 요청에 붙이는 것</th><th>결과</th></tr>
+    <tr><td>주소창 Enter · 링크</td><td>없음</td><td>신선하면 서버에 안 묻고 그대로</td></tr>
+    <tr class="hl"><td>새로고침 F5</td><td>페이지 요청에 <code>max-age=0</code></td><td>"확인받은 걸로" → 안 바뀌었으면 <b>304</b></td></tr>
+    <tr class="hl-o"><td>강력 새로고침<br>Ctrl+Shift+R</td><td>모든 요청에 <code>no-cache</code>, 지문은 뺌</td><td>확인도 없이 <b>전부 200</b>으로 새로 받음</td></tr>
+  </table>
+  <p class="muted" style="margin-top:20px;font-size:21px">같은 <code>no-cache</code>도 응답에선 "저장하되 매번 확인", 요청에선 "이번엔 저장본 그냥 주지 마". <b>어느 쪽 헤더인지 먼저 본다.</b></p>
+</section>
+
+<!-- 16 nego -->
+<section class="slide">
+  <div class="eyebrow">Q23 · 카페 주문처럼: "따뜻한 걸로, 없으면 아이스"</div>
   <h1>같은 주소, 다른 응답: 콘텐츠 협상</h1>
   <table>
     <tr><th style="width:28%">브라우저가 보내는 것</th><th style="width:30%">서버가 고른 결과</th><th>예</th></tr>
@@ -295,12 +366,12 @@ etag: "5db9819d…"
     <tr class="hl"><td><code>Accept-Language</code></td><td><code>Content-Language</code></td><td>한국어 페이지냐 영어 페이지냐</td></tr>
     <tr><td><code>Accept-Encoding</code></td><td><code>Content-Encoding</code></td><td>gzip·br로 압축해서 줄까. MDN은 117KB → 16KB</td></tr>
   </table>
-  <div class="code" style="margin-top:30px;font-size:21px"><span class="lab">MDN 첫 주소에 언어만 바꿔 요청 (오늘)</span>Accept-Language: ko  →  302  Location: /ko/
+  <div class="code" style="margin-top:30px;font-size:21px"><span class="lab">MDN 첫 주소에 언어만 바꿔 요청 (11/17 실측)</span>Accept-Language: ko  →  302  Location: /ko/
 Accept-Language: ja  →  302  Location: /ja/
 Accept-Language: en  →  302  Location: /en-US/</div>
 </section>
 
-<!-- 13 Vary -->
+<!-- 17 vary -->
 <section class="slide">
   <div class="eyebrow">협상 + 캐시</div>
   <h1>Vary: 캐시에게 "이 헤더도 보고 구분해"</h1>
@@ -315,13 +386,13 @@ Accept-Language: en  →  302  Location: /en-US/</div>
       · gzip 못 읽는 클라이언트가 압축된 본문을 받는다<br>
       · 로그인 사용자 화면이 남에게 간다 → 이건 Vary가 아니라 <code>private</code>로 막는다</div>
   </div>
-  <div class="code" style="margin-top:30px;font-size:20px"><span class="lab">오늘 받은 Vary</span>MDN·jQuery   vary: Accept-Encoding
+  <div class="code" style="margin-top:30px;font-size:20px"><span class="lab">11/17 실측 Vary</span>MDN·jQuery   vary: Accept-Encoding
 GitHub       vary: X-PJAX, …, <span class="hl">Accept-Language</span>, Sec-Fetch-Site, Accept-Encoding, Accept, …</div>
 </section>
 
-<!-- 14 사이트 비교 -->
+<!-- 18 sites -->
 <section class="slide">
-  <div class="eyebrow">직접 보기 · 오늘 받은 헤더</div>
+  <div class="eyebrow">직접 보기 · 11/17 실측</div>
   <h1>사이트마다 정책이 다르고, 다 이유가 있다</h1>
   <table>
     <tr><th style="width:24%">무엇</th><th style="width:44%">Cache-Control</th><th>왜</th></tr>
@@ -333,18 +404,19 @@ GitHub       vary: X-PJAX, …, <span class="hl">Accept-Language</span>, Sec-Fet
   <p class="muted" style="margin-top:28px;font-size:22px">규칙 하나: <b>내용이 바뀌면 주소가 바뀌는 파일</b>(해시·버전)은 길게, <b>주소는 그대로인데 내용이 바뀌는 HTML·API</b>는 짧게 + ETag.</p>
 </section>
 
-<!-- 15 정리 -->
+<!-- 19 sum -->
 <section class="slide dark">
-  <h1 style="color:#fff">정리</h1>
-  <ol class="sum">
-    <li>캐시는 신선하면 묻지 않고, 상하면 지문(ETag)을 들고 묻고, 안 바뀌었으면 304를 받는다.</li>
-    <li><code style="background:#24333f;color:#e9eef1">no-cache</code>는 매번 확인, <code style="background:#24333f;color:#e9eef1">no-store</code>는 저장 금지. 내 것이면 <code style="background:#24333f;color:#e9eef1">private</code>.</li>
-    <li>같은 주소에 다른 응답(협상)을 주면 <code style="background:#24333f;color:#e9eef1">Vary</code>를 붙인다.</li>
-    <li>버전이 박힌 파일은 1년, HTML·API는 짧게 + ETag.</li>
+  <h1 style="color:#fff">정리: 이 다섯 줄</h1>
+  <ol class="sum" style="margin-bottom:28px">
+    <li>캐시는 한 번 받은 응답의 복사본. <b>기한 안이면 묻지 않고, 지나면 지문을 들고 묻는다.</b></li>
+    <li>응답의 <code style="background:#24333f;color:#e9eef1">no-cache</code>는 저장하되 매번 확인, <code style="background:#24333f;color:#e9eef1">no-store</code>는 저장 금지. (Q20)</li>
+    <li><code style="background:#24333f;color:#e9eef1">If-None-Match</code>로 물었는데 그대로면 <b>304, 본문 없음</b>. (Q21)</li>
+    <li>같은 주소에서 Accept-*로 고르면 <b>콘텐츠 협상</b>, 그러면 <code style="background:#24333f;color:#e9eef1">Vary</code>. 내 것이면 <code style="background:#24333f;color:#e9eef1">private</code>. (Q23)</li>
+    <li>Cache-Control은 <b>응답에선 서버의 보관 규칙, 요청에선 브라우저의 한 번 부탁</b>.</li>
   </ol>
   <div class="box us">
     <div class="lbl">우리 서비스에서는</div>
-    [API 응답에 Cache-Control이 붙어 있나 · 로그인 API에 private 또는 no-store가 있나 · 프론트 번들 파일명에 해시가 있고 1년 캐시인가]
+    [API 응답에 Cache-Control이 붙어 있나 · 로그인 API에 private 또는 no-store가 있나 · JS·CSS 파일명에 지문이 있고 1년 캐시, index.html은 no-cache인가]
   </div>
 </section>
 
