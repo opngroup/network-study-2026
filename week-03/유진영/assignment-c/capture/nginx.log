@@ -1,0 +1,20 @@
+192.168.65.1 "GET /health HTTP/1.1" status=200 upstream_status=200 request_time=0.002 upstream_time=0.002 req_id=b3a884e382bb88eaa3246618de69bda6
+192.168.65.1 "POST /orders HTTP/1.1" status=201 upstream_status=201 request_time=0.003 upstream_time=0.003 req_id=72451cd5b7815e9b78af791dcf1426f5
+192.168.65.1 "POST /orders HTTP/1.1" status=201 upstream_status=201 request_time=0.001 upstream_time=0.001 req_id=dd669cd78e7a68f49260d80c9c679f1d
+192.168.65.1 "GET /orders HTTP/1.1" status=200 upstream_status=200 request_time=0.001 upstream_time=0.001 req_id=8e419ceb938bf5bc7d87758a5154a379
+192.168.65.1 "GET /boom HTTP/1.1" status=500 upstream_status=500 request_time=0.000 upstream_time=0.000 req_id=2ab93a596c2a716814c234677b97973b
+2026/11/12 02:25:47 [error] 30#30: *7 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 192.168.65.1, server: , request: "GET /slow?ms=4000 HTTP/1.1", upstream: "http://172.29.0.2:3000/slow?ms=4000", host: "localhost:8080"
+192.168.65.1 "GET /slow?ms=4000 HTTP/1.1" status=504 upstream_status=504 request_time=2.003 upstream_time=2.003 req_id=2ef5eaad5529fc3648210c9dcaef3e73
+2026/11/12 02:25:49 [error] 30#30: *8 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 192.168.65.1, server: , request: "POST /orders?delayMs=4000 HTTP/1.1", upstream: "http://172.29.0.2:3000/orders?delayMs=4000", host: "localhost:8080"
+192.168.65.1 "POST /orders?delayMs=4000 HTTP/1.1" status=504 upstream_status=504 request_time=2.003 upstream_time=2.003 req_id=69c5d0ede214f6da6474f49f93e515b9
+192.168.65.1 "POST /orders HTTP/1.1" status=201 upstream_status=201 request_time=0.002 upstream_time=0.002 req_id=2e1be24600d44427e98bde8858435749
+192.168.65.1 "GET /orders HTTP/1.1" status=200 upstream_status=200 request_time=0.000 upstream_time=0.000 req_id=81db4d811b49e9cecefc180b5fec0487
+2026/11/12 02:25:52 [error] 30#30: *13 upstream prematurely closed connection while reading response header from upstream, client: 192.168.65.1, server: , request: "GET /crash HTTP/1.1", upstream: "http://172.29.0.2:3000/crash", host: "localhost:8080"
+2026/11/12 02:25:52 [error] 30#30: *13 upstream prematurely closed connection while reading response header from upstream, client: 192.168.65.1, server: , request: "GET /crash HTTP/1.1", upstream: "http://172.29.0.2:3000/crash", host: "localhost:8080"
+192.168.65.1 "GET /crash HTTP/1.1" status=502 upstream_status=502, 502 request_time=0.002 upstream_time=0.001, 0.001 req_id=de8d9c771c574fd49d44a21ae34167e8
+2026/11/12 02:25:54 [error] 30#30: *15 upstream timed out (110: Operation timed out) while connecting to upstream, client: 192.168.65.1, server: , request: "GET /health HTTP/1.1", upstream: "http://172.29.0.2:3000/health", host: "localhost:8080"
+192.168.65.1 "GET /health HTTP/1.1" status=504 upstream_status=504 request_time=2.005 upstream_time=2.005 req_id=f0bdea362ffcdfa10f41382e5a63d17b
+192.168.65.1 "GET /health HTTP/1.1" status=200 upstream_status=200 request_time=0.002 upstream_time=0.002 req_id=dd03ae2a1b4d890292df6b25e672d13f
+192.168.65.1 "GET /health HTTP/1.1" status=502 upstream_status=502 request_time=0.001 upstream_time=0.001 req_id=256e9a134b0e1c3439dbc91669cd7689
+2026/11/12 02:25:56 [error] 30#30: *19 connect() failed (111: Connection refused) while connecting to upstream, client: 192.168.65.1, server: , request: "GET /health HTTP/1.1", upstream: "http://172.29.0.2:3000/health", host: "localhost:8080"
+192.168.65.1 "GET /health HTTP/1.1" status=200 upstream_status=200 request_time=0.002 upstream_time=0.002 req_id=276d57bb86965afe4a404d9d339c5ea1

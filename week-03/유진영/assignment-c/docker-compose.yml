@@ -1,0 +1,19 @@
+# 과제 C: nginx 뒤에 앱 하나
+#   docker compose up -d --build   → http://localhost:8080
+#   앱은 ports를 열지 않는다. 바깥에서는 nginx를 거쳐서만 들어온다 (3주차 장표 12)
+services:
+  app:
+    build: .
+    environment:
+      HOST: ${APP_HOST:-0.0.0.0}   # APP_HOST=127.0.0.1로 띄우면 바인딩 실수 → 502 재현
+      PORT: "3000"
+    restart: "no"
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app
