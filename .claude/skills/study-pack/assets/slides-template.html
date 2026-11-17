@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
+<style>
+/* study-pack 장표 템플릿: 1440×810, 어두운 표지·정리, 밝은 본문. slides.py가 장표 조각을 body에 채우고 PDF로 뽑는다 */
+:root {
+  --ink: #16212b; --muted: #4d5b67; --bg: #f3f4f3; --card: #fbfbfb; --line: #dfe3e5;
+  --teal: #0b6f78; --teal-soft: #d6eef0; --orange: #b0471a; --orange-soft: #f8e4da;
+  --purple: #6b4fb3; --purple-soft: #ebe5f7; --cyan: #4cc2cc; --code: #16212b; --code-ink: #e6edf2;
+  --font: "Noto Sans KR", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  --mono: "D2Coding", "SFMono-Regular", Menlo, monospace;
+}
+@page { size: 1440px 810px; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #888; font-family: var(--font); color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.slide { width: 1440px; height: 810px; padding: 96px 96px 72px; background: var(--bg); position: relative; overflow: hidden; page-break-after: always; break-after: page; margin: 0 auto 24px; }
+@media print { .slide { margin: 0; } body { background: none; } }
+.slide.dark { background: var(--ink); color: #e9eef1; }
+.eyebrow { font-family: var(--mono); font-weight: 700; font-size: 20px; letter-spacing: .12em; color: var(--teal); margin-bottom: 14px; }
+.dark .eyebrow { color: var(--cyan); }
+h1 { font-size: 46px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 36px; line-height: 1.25; }
+h1.big { font-size: 96px; line-height: 1.12; margin: 0; }
+p, li { font-size: 24px; line-height: 1.6; }
+.muted { color: var(--muted); }
+.dark .muted { color: #aab7c1; }
+.foot { position: absolute; left: 96px; bottom: 64px; font-size: 21px; color: var(--muted); }
+.dark .foot { color: #aab7c1; }
+b.t { color: var(--teal); } b.o { color: var(--orange); } b.p { color: var(--purple); }
+code { white-space: nowrap; font-family: var(--mono); font-size: .92em; background: #e4e9ec; padding: 1px 7px; border-radius: 5px; }
+
+/* 카드 */
+.grid { display: grid; gap: 24px; }
+.g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); }
+.card { background: var(--card); border-radius: 10px; padding: 30px 30px; border: 1px solid #eceeef; }
+.card.top-t { border-top: 6px solid var(--teal); } .card.top-o { border-top: 6px solid var(--orange); } .card.top-p { border-top: 6px solid var(--purple); }
+.card .k { font-weight: 700; font-size: 21px; margin-bottom: 14px; }
+.card .h { font-weight: 800; font-size: 29px; line-height: 1.35; margin-bottom: 12px; }
+.card p { font-size: 21px; color: var(--muted); margin: 0; line-height: 1.6; }
+.top-t .k { color: var(--teal); } .top-o .k { color: var(--orange); } .top-p .k { color: var(--purple); }
+
+/* 번호 줄 */
+.rows { display: grid; gap: 14px; }
+.row { display: grid; grid-template-columns: 70px 1fr; align-items: center; background: var(--card); border-radius: 10px; padding: 20px 28px; font-size: 22px; line-height: 1.55; }
+.row .n { font-family: var(--mono); font-weight: 700; font-size: 32px; color: var(--teal); }
+.row.hl-o { background: var(--orange-soft); } .row.hl-o .n { color: var(--orange); }
+.row.hl-t { background: var(--teal-soft); }
+
+/* 코드 상자 */
+.code { background: var(--code); color: var(--code-ink); border-radius: 12px; padding: 30px 34px; font-family: var(--mono); font-size: 23px; line-height: 1.65; white-space: pre; }
+.code .c { color: #8fa1ae; } .code .hl { color: #f2a65a; } .code .ok { color: #6fd3dc; } .code .lab { color: #8fa1ae; font-size: 19px; display: block; margin-bottom: 10px; }
+
+/* 표 */
+table { width: 100%; border-collapse: collapse; font-size: 22px; }
+th { text-align: left; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+td { padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.45; }
+td code, th code { font-size: .88em; }
+tr.hl td { background: var(--teal-soft); }
+tr.hl-o td { background: var(--orange-soft); }
+
+.box { border-radius: 12px; padding: 24px 32px; font-size: 23px; line-height: 1.6; }
+.box.t { background: var(--teal-soft); } .box.o { background: var(--orange-soft); border: 2px solid var(--orange); }
+.box b { font-weight: 800; }
+
+/* 퀴즈 */
+.quiz { background: var(--card); border-radius: 10px; padding: 22px 28px; display: grid; grid-template-columns: 90px 1fr 330px; gap: 20px; align-items: center; }
+.quiz .id { font-family: var(--mono); font-weight: 700; font-size: 28px; color: var(--orange); }
+.quiz .q { font-size: 22px; line-height: 1.5; }
+.quiz .a { font-size: 21px; font-weight: 700; color: var(--teal); line-height: 1.45; }
+
+/* 흐름도 */
+.flow { display: grid; grid-template-columns: 250px 1fr 250px; gap: 0; align-items: stretch; }
+.actor { background: var(--ink); color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 24px; text-align: center; padding: 14px; }
+.msgs { display: grid; gap: 12px; padding: 0 22px; }
+.msg { position: relative; font-family: var(--mono); font-size: 20px; padding: 10px 14px; border-radius: 8px; background: var(--card); line-height: 1.45; }
+.msg.r { text-align: right; }
+.msg .arr { color: var(--teal); font-weight: 700; }
+.msg.o { background: var(--orange-soft); }
+.msg.t { background: var(--teal-soft); }
+
+/* 계층 그림 */
+.layers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; align-items: stretch; }
+.layer { border-radius: 10px; padding: 22px; text-align: center; border: 2px solid var(--line); background: var(--card); }
+.layer .nm { font-weight: 800; font-size: 26px; }
+.layer .sub { font-size: 19px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+.layer.priv { border-color: var(--teal); background: var(--teal-soft); }
+.layer.shared { border-color: var(--purple); background: var(--purple-soft); }
+.layer.origin { border-color: var(--ink); }
+.arrow-row { text-align: center; font-size: 30px; color: var(--muted); }
+
+.dark .box.us { border: 2px solid var(--cyan); background: #1f2c38; color: #e9eef1; }
+.dark .box.us .lbl { color: var(--cyan); font-weight: 700; font-size: 22px; margin-bottom: 8px; }
+ol.sum { margin: 0 0 40px; padding-left: 34px; } ol.sum li { font-size: 26px; line-height: 1.75; }
+</style>
+</head>
+<body>
+
+{{SLIDES}}
+
+</body>
+</html>

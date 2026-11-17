@@ -222,214 +222,354 @@ kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--line); 
 </div></header>
 <main class="note" id="viewStudy">
   <section class="hero">
-    <div class="eyebrow">NETWORK STUDY · WEEK 4 · 정리 노트</div>
-    <h1>캐시, ETag, 콘텐츠 협상: 이것만 알면 된다</h1>
-    <p class="lead">오늘 범위는 문제 세 개로 정리됩니다. 저장해 둔 응답을 <b>언제</b> 다시 쓰나(Q20), 아직 맞는지 <b>어떻게</b> 확인하나(Q21), 같은 주소에서 <b>무엇을</b> 줄지 어떻게 고르나(Q23).</p>
-    <p>단원마다 "쪽집게"는 꼭 외울 것, "함정"은 다들 틀리는 것, "출제 예상"은 질문으로 나올 만한 것입니다. 끝까지 읽고 카드로 복습하세요. 20분이면 됩니다.</p>
+    <div class="eyebrow">NETWORK STUDY · WEEK 4 · 정리 노트 · 처음 배우는 사람용</div>
+    <h1>캐시, ETag, 콘텐츠 협상: 처음부터 차근차근</h1>
+    <p class="lead">웹 브라우저가 같은 그림을 열 번 열어도 열 번 다 내려받지 않는 이유가 오늘 주제입니다. 끝까지 읽으면 진단 퀴즈 세 문제에 답할 수 있습니다. 저장해 둔 걸 <b>언제</b> 다시 쓰나(Q20), 아직 맞는지 <b>어떻게</b> 확인하나(Q21), 같은 주소에서 <b>무엇을</b> 줄지 어떻게 고르나(Q23).</p>
+    <p>용어는 처음 나올 때 다 풀어 씁니다. 단원 1은 바탕이 되는 "요청·응답·헤더" 이야기라, 이미 알아도 표 하나는 꼭 보고 가세요. 상자 읽는 법: <b>쪽집게</b>는 꼭 외울 것, <b>함정</b>은 다들 헷갈리는 것, <b>외우는 법</b>은 비유와 요령, <b>출제 예상</b>은 질문으로 나올 만한 것입니다. 30분이면 됩니다.</p>
     <a class="cta" href="#cards">암기 카드로 복습하기 →</a>
     <nav class="toc" aria-label="단원">
-      <a href="#u1">1. 캐시는 어디에, 언제까지</a>
-      <a href="#u2">2. Cache-Control과 Q20</a>
-      <a href="#u3">3. ETag와 304, Q21</a>
-      <a href="#u4">4. 콘텐츠 협상과 Vary, Q23</a>
-      <a href="#u5">5. 실무에서는</a>
-      <a href="#u6">6. 과제 C와 이어지는 곳</a>
-      <a href="#u7">마지막 정리</a>
+      <a href="#u1">1. 준비: 요청, 응답, 헤더</a>
+      <a href="#u2">2. 캐시가 뭔가</a>
+      <a href="#u3">3. 아직 맞는지 묻기: ETag와 304</a>
+      <a href="#u4">4. 서버가 정하는 보관 규칙: Cache-Control</a>
+      <a href="#u5">5. 브라우저의 부탁: 새로고침</a>
+      <a href="#u6">6. 같은 주소, 다른 응답: 콘텐츠 협상</a>
+      <a href="#u7">7. 실무에서는</a>
+      <a href="#u8">8. 지난주 과제 C와 이어지는 곳</a>
+      <a href="#u9">마지막 정리</a>
     </nav>
   </section>
 
   <!-- 1 -->
   <section class="unit" id="u1">
-    <div class="head"><span class="no">UNIT 1</span><h2>캐시는 어디에 있고, 언제까지 믿나</h2></div>
-    <p class="one">요청은 가까운 곳에 저장된 응답이 있으면 거기서 멈춘다. 그 응답은 max-age 동안만 확인 없이 쓴다.</p>
+    <div class="head"><span class="no">UNIT 1 · 바탕</span><h2>준비: 웹은 요청과 응답을 주고받는다</h2></div>
+    <p class="one">브라우저가 요청을 보내고 서버가 응답을 돌려준다. 둘 다 앞에 "헤더"라는 메모를 붙이고, 헤더는 요청에도 응답에도 있다.</p>
 
-    <h3>어디에: 저장소는 두 종류다</h3>
+    <h3>요청과 응답</h3>
+    <p>웹페이지를 연다는 건 브라우저가 서버에 "<b>이 주소의 것을 주세요</b>"라고 묻고(요청, request), 서버가 "<b>여기 있어요</b>"라고 답하는(응답, response) 일입니다. 페이지 하나를 열 때도 HTML, 그림, CSS, JS마다 요청과 응답이 한 쌍씩 오갑니다.</p>
     <div class="layers">
-      <div class="layer p"><b>브라우저 캐시</b><span>private · 나만 쓴다</span></div>
-      <span class="arrow">→</span>
-      <div class="layer s"><b>CDN</b><span>shared · 모두 같이</span></div>
-      <span class="arrow">→</span>
-      <div class="layer s"><b>nginx·프록시</b><span>설정하면 shared</span></div>
-      <span class="arrow">→</span>
-      <div class="layer o"><b>앱 서버</b><span>원본(origin)</span></div>
-    </div>
-    <p>private은 내 냉장고이고, shared는 동네 마트 진열대입니다. 진열대에 놓인 것은 다음 사람도 가져갑니다.</p>
-    <div class="call trap"><span class="lb">함정</span><p>개인 정보가 담긴 응답이 shared 캐시에 들어가면 <b>남에게 내 화면이 갑니다.</b> 막는 방법은 <code>Cache-Control: private</code>입니다.</p></div>
-
-    <h3>언제까지: fresh와 stale</h3>
-    <ul>
-      <li><b>fresh(신선)</b>: <code>max-age</code> 안. 서버에 묻지도 않고 바로 씁니다.</li>
-      <li><b>stale(상함)</b>: 기한이 지남. 버리지 않고 "아직 맞아요?" 하고 재검증합니다.</li>
-    </ul>
-    <div class="call exam"><span class="lb">출제 예상 · 계산</span>
-      <div class="qa"><b>Q</b><span>응답에 <code>max-age=3600</code>, <code>age: 1254</code>. 내 브라우저에서 남은 신선 시간은?</span>
-      <b>A</b><span><b>3600 − 1254 = 2346초(약 39분).</b> <code>age</code>는 CDN이 이미 들고 있던 시간입니다. CDN에서 온 응답은 갓 만든 게 아닐 수 있습니다.</span></div>
+      <div class="layer p"><b>브라우저</b><span>요청을 보낸다 (클라이언트)</span></div>
+      <span class="arrow">⇄</span>
+      <div class="layer o"><b>서버</b><span>응답을 돌려준다</span></div>
     </div>
 
-    <h3>캐시의 판단은 딱 세 갈래</h3>
-    <div class="fork">
-      <div class="x1"><span class="cond">신선하다</span><span class="act">그냥 쓴다</span><span class="code">200 (disk cache)</span><p style="font-size:14px;color:var(--muted)">요청이 아예 안 나감. 서버 로그에도 없음</p></div>
-      <div class="x2"><span class="cond">상했고, 검증 값이 있다</span><span class="act">물어본다</span><span class="code">304 · 본문 0B</span><p style="font-size:14px;color:var(--muted)">헤더만 오감</p></div>
-      <div class="x3"><span class="cond">상했고, 검증 값이 없다</span><span class="act">다시 받는다</span><span class="code">200 · 본문 전체</span><p style="font-size:14px;color:var(--muted)">처음 받는 것과 같음</p></div>
-    </div>
-    <p>검증 값은 두 가지입니다. <b>ETag</b>(내용의 지문)와 <b>Last-Modified</b>(마지막 수정 시각).</p>
-    <div class="call tip"><span class="lb">쪽집게</span><p>DevTools Size 열의 <code>(disk cache)</code>는 "서버에 안 갔다"는 뜻입니다. <b>"배포했는데 화면이 안 바뀌어요"</b>의 단골 원인이고, 서버 로그를 아무리 봐도 안 나옵니다.</p></div>
-    <div class="call trap"><span class="lb">함정 · 휴리스틱 캐시</span><p>Cache-Control이 <b>없으면</b> 캐시를 안 하는 게 아닙니다. Last-Modified만 있으면 브라우저가 기한을 <b>추측</b>해서 캐시합니다. 그래서 API 응답에는 Cache-Control을 꼭 적습니다.</p></div>
-    <div class="call exam"><span class="lb">출제 예상</span>
-      <div class="qa"><b>Q</b><span>F5와 Ctrl+Shift+R은 뭐가 달라요?</span>
-      <b>A</b><span>F5는 신선한 것도 재검증합니다(<code>max-age=0</code>을 붙여 보냄). 강력 새로고침은 캐시를 무시하고 처음부터 받습니다(<code>no-cache</code>를 붙여 보냄).</span></div>
-    </div>
-    <a class="mini" href="#cards-basic">이 단원 카드 10장 →</a>
+    <h3>헤더와 본문: 택배 상자에 붙인 송장</h3>
+    <p>요청과 응답은 둘 다 두 부분으로 되어 있습니다. 앞쪽 <b>헤더</b>(header)는 "이름: 값" 꼴의 짧은 메모 여러 줄이고, 뒤쪽 <b>본문</b>(body)은 실제 내용물(HTML, 그림 파일)입니다. 택배로 치면 헤더는 상자에 붙인 송장, 본문은 상자 안의 물건입니다.</p>
+    <pre class="c">GET /logo.png HTTP/1.1        ← 요청: "logo.png 주세요"
+Host: example.com             ← 요청 헤더들
+Accept-Language: ko
+
+HTTP/1.1 200 OK               ← 응답: "200, 잘 찾았어요"
+Content-Type: image/png       ← 응답 헤더들
+Cache-Control: max-age=3600
+ETag: "v3"
+                              ← 빈 줄 다음부터 본문
+(그림 파일 내용)</pre>
+    <p>응답 첫 줄의 <b>상태 코드</b>는 결과 요약입니다. 200은 "여기 있어요", 404는 "그런 거 없어요", 오늘 나올 304는 "<b>네가 가진 거 그대로 써</b>"입니다.</p>
+
+    <h3>오늘 나오는 헤더는 누가 보내나</h3>
+    <p>오늘 공부의 절반은 이 표입니다. 헤더마다 <b>요청에 싣는 것</b>(브라우저가 보냄)과 <b>응답에 싣는 것</b>(서버나 캐시가 보냄)이 정해져 있습니다. 헷갈리면 여기로 돌아오세요.</p>
+    <div class="tbl"><table>
+      <tr><th style="width:30%">헤더</th><th style="width:22%">어디에 싣나</th><th>한 줄 뜻</th></tr>
+      <tr class="hl"><td><code>Cache-Control</code></td><td><b>요청과 응답 둘 다</b></td><td>응답에서는 "이 응답을 이렇게 보관해"(서버의 보관 규칙), 요청에서는 "이번엔 이렇게 해 줘"(브라우저의 부탁). 단원 4·5</td></tr>
+      <tr><td><code>ETag</code></td><td>응답</td><td>이 내용의 지문. 내용이 바뀌면 값도 바뀐다. 단원 3</td></tr>
+      <tr><td><code>If-None-Match</code></td><td>요청</td><td>"내가 가진 지문은 이건데, 이것과 다르면 보내 줘." 단원 3</td></tr>
+      <tr><td><code>Last-Modified</code></td><td>응답</td><td>이 내용을 마지막으로 고친 시각</td></tr>
+      <tr><td><code>If-Modified-Since</code></td><td>요청</td><td>"이 시각 뒤로 바뀌었으면 보내 줘"</td></tr>
+      <tr><td><code>Age</code></td><td>응답 (중간 캐시가 붙임)</td><td>"내가 이 응답을 들고 있은 지 몇 초째야." 단원 2</td></tr>
+      <tr><td><code>Accept</code>, <code>Accept-Language</code>, <code>Accept-Encoding</code></td><td>요청</td><td>"이런 형식·언어·압축으로 주면 좋겠어." 단원 6</td></tr>
+      <tr><td><code>Content-Type</code>, <code>Content-Language</code>, <code>Content-Encoding</code></td><td>응답</td><td>"실제로 이 형식·언어·압축으로 줬어." 단원 6</td></tr>
+      <tr><td><code>Vary</code></td><td>응답</td><td>"캐시야, 주소만 보지 말고 이 요청 헤더도 보고 구분해." 단원 6</td></tr>
+    </table></div>
+    <div class="call mem"><span class="lb">외우는 법 · 이름만 보고 방향 알기</span><p><code>If-</code>로 시작하면 <b>요청</b>입니다(조건을 거는 쪽은 받는 사람). <code>Accept-</code>도 <b>요청</b>(원하는 걸 말하는 쪽). <code>Content-</code>는 <b>응답</b>(실제로 보낸 본문 설명). <code>Cache-Control</code>만 양쪽에 다 나옵니다.</p></div>
+    <div class="call trap"><span class="lb">함정</span><p>"Cache-Control은 서버가 보내는 헤더"라고만 알면 단원 5에서 막힙니다. <b>응답의 Cache-Control은 서버가 정한 보관 규칙</b>이고, <b>요청의 Cache-Control은 브라우저가 이번 한 번만 하는 부탁</b>입니다. 같은 이름, 다른 역할입니다.</p></div>
+    <div class="call tip"><span class="lb">쪽집게 · 눈으로 보는 법</span><p>DevTools(F12) → Network 탭 → 요청 하나 클릭 → Headers에 <b>Request Headers</b>(내가 보낸 것)와 <b>Response Headers</b>(받은 것)가 따로 나옵니다. 터미널에서는 <code>curl -v 주소</code>의 <code>&gt;</code> 줄이 요청, <code>&lt;</code> 줄이 응답입니다.</p></div>
+    <a class="mini" href="#cards-basics">이 단원 카드 9장 →</a>
   </section>
 
   <!-- 2 -->
   <section class="unit" id="u2">
-    <div class="head"><span class="no">UNIT 2 · Q20</span><h2>Cache-Control: no-cache는 저장 금지가 아니다</h2></div>
-    <p class="one">no-cache는 저장하되 매번 확인, no-store는 저장 금지.</p>
-    <div class="vs">
-      <div class="a1"><span class="t">no-cache</span><span class="s">저장 OK, 쓰기 전에 매번 확인</span><p>신선 기간 0과 같습니다. 매번 묻지만 안 바뀌었으면 304로 본문을 아낍니다.</p><p><b>예:</b> SPA의 <code>index.html</code></p></div>
-      <div class="a2"><span class="t">no-store</span><span class="s">아예 저장하지 마</span><p>디스크에도 안 남깁니다. 매번 본문 전체를 받습니다.</p><p><b>예:</b> 계좌 내역, 개인정보 화면, 1회용 토큰</p></div>
-    </div>
-    <div class="call mem"><span class="lb">외우는 법</span><p>no-cache는 "캐시 쓰지 마"가 아니라 <b>"확인 없이 쓰지 마"</b>입니다. 저장을 막는 건 이름에 store가 들어간 쪽입니다.</p></div>
-    <div class="call trap"><span class="lb">함정 두 개</span><p>① "캐시 끄기"라고 no-cache를 넣었는데 개인정보가 디스크에 남는 경우. ② "확실히 하려고" 모든 응답에 no-store를 넣어 304의 이득을 다 버리는 경우. <b>항상 최신이면 되는 곳은 no-cache가 더 쌉니다.</b></p></div>
+    <div class="head"><span class="no">UNIT 2</span><h2>캐시가 뭔가: 한 번 받은 걸 또 받지 않기</h2></div>
+    <p class="one">캐시는 한 번 받은 응답을 가까운 곳에 복사해 두고, 다음에 같은 요청이 오면 그 복사본을 쓰는 것이다.</p>
 
-    <h3>자주 쓰는 여덟 개는 다섯 묶음으로 외운다</h3>
-    <div class="tbl"><table>
-      <tr><th>묶음</th><th>값</th><th>뜻</th></tr>
-      <tr><td class="grp" rowspan="2">기한</td><td><code>max-age=N</code></td><td>N초 동안 신선. 묻지 않고 쓴다</td></tr>
-      <tr><td><code>s-maxage=N</code></td><td>CDN 같은 shared 캐시에만 주는 기한. <code>max-age=60, s-maxage=3600</code>이면 브라우저 1분, CDN 1시간</td></tr>
-      <tr><td class="grp" rowspan="2">누가</td><td><code>public</code></td><td>shared 캐시도 저장해도 된다</td></tr>
-      <tr><td><code>private</code></td><td>브라우저만 저장</td></tr>
-      <tr class="hl"><td class="grp" rowspan="2">확인 방식</td><td><code>no-cache</code></td><td>저장은 하되 매번 재검증</td></tr>
-      <tr><td><code>must-revalidate</code></td><td>상한 뒤엔 반드시 확인. 원본이 죽어도 상한 걸 몰래 주지 말고 504</td></tr>
-      <tr class="hl-o"><td class="grp">저장 금지</td><td><code>no-store</code></td><td>저장 금지</td></tr>
-      <tr><td class="grp" rowspan="2">최적화</td><td><code>immutable</code></td><td>기간 안엔 새로고침해도 묻지 마. 파일명에 해시가 붙은 번들에만</td></tr>
-      <tr><td><code>stale-while-revalidate=N</code></td><td>상한 뒤 N초까지는 옛것을 즉시 주고 뒤에서 새로 받아 둔다. React SWR 이름의 유래</td></tr>
-    </table></div>
-    <div class="call exam"><span class="lb">출제 예상</span>
-      <div class="qa"><b>Q</b><span>네이버는 왜 <code>no-cache, no-store, must-revalidate</code>를 다 넣었어요?</span>
-      <b>A</b><span>지시어 일부를 모르는 옛 브라우저·프록시 대비입니다. 실제로 이기는 건 <b>no-store</b>. 참고로 <code>Pragma: no-cache</code>는 HTTP/1.0 헤더라 지금은 안 써도 됩니다.</span></div>
+    <h3>왜 필요한가</h3>
+    <p>네이버 첫 화면을 열 때마다 로고 그림을 서버에서 새로 받는다고 생각해 보세요. 로고는 몇 달씩 안 바뀌는데 매번 받으면 셋 다 손해입니다.</p>
+    <ul>
+      <li><b>느리다</b>: 서버는 멀리 있습니다. 내 컴퓨터에 있는 복사본은 0초입니다.</li>
+      <li><b>서버가 힘들다</b>: 같은 걸 수백만 명에게 계속 보내야 합니다.</li>
+      <li><b>데이터가 든다</b>: 휴대폰 요금, 서버 전송 비용.</li>
+    </ul>
+    <p>그래서 받은 응답을 저장해 두고 다시 씁니다. 이 저장소, 또는 저장해 두는 일을 <b>캐시</b>(cache)라고 합니다.</p>
+    <div class="call mem"><span class="lb">외우는 법 · 냉장고</span><p>우유를 마실 때마다 공장에 가지 않고 냉장고에 넣어 두는 것과 같습니다. 냉장고가 캐시, 공장이 서버(원본, origin)입니다.</p></div>
+
+    <h3>대신 생기는 문제: 복사본이 낡는다</h3>
+    <p>서버의 내용이 바뀌었는데 내 복사본은 옛것이면, 사용자는 틀린 화면을 봅니다. 그래서 캐시에는 두 가지 규칙이 꼭 필요합니다.</p>
+    <ol>
+      <li><b>얼마 동안 그냥 믿고 쓸까?</b> → 유통기한(<code>max-age</code>). 이 단원 아래.</li>
+      <li><b>기한이 지나면 어떻게 확인할까?</b> → 지문(<code>ETag</code>)을 들고 묻기. 단원 3.</li>
+    </ol>
+    <div class="call tip"><span class="lb">쪽집게</span><p>캐시 이야기는 전부 "<b>빨라지고 싶다</b>"와 "<b>낡은 걸 보여 주면 안 된다</b>" 사이의 줄다리기입니다. 오늘 나오는 헤더는 모두 이 둘의 균형을 맞추는 도구입니다.</p></div>
+
+    <h3>캐시는 어디에 있나</h3>
+    <div class="layers">
+      <div class="layer p"><b>브라우저 캐시</b><span>내 컴퓨터 안 · 나만 씀</span></div>
+      <span class="arrow">→</span>
+      <div class="layer s"><b>CDN</b><span>세계 곳곳의 복사 서버 · 모두 같이</span></div>
+      <span class="arrow">→</span>
+      <div class="layer s"><b>프록시 (nginx 등)</b><span>서버 앞 문지기 · 설정하면</span></div>
+      <span class="arrow">→</span>
+      <div class="layer o"><b>원본 서버</b><span>진짜 내용을 만드는 곳</span></div>
     </div>
-    <a class="mini" href="#cards-cc">이 단원 카드 12장 →</a>
+    <p>요청은 왼쪽에서 오른쪽으로 갑니다. 가는 길에 쓸 만한 복사본이 있으면 <b>거기서 멈추고</b> 그 복사본이 응답으로 돌아옵니다.</p>
+    <ul>
+      <li><b>CDN</b>(Content Delivery Network): 원본 서버 대신 세계 곳곳에 둔 "대리점" 서버입니다. 서울 사용자는 미국 원본 대신 서울 대리점에서 받습니다. Cloudflare, CloudFront가 그 예입니다.</li>
+      <li><b>private 캐시</b>(개인용): 브라우저 캐시. 내 장바구니처럼 나에게만 맞는 응답도 둬도 됩니다.</li>
+      <li><b>shared 캐시</b>(공용): CDN, 프록시. 한 사람이 받은 응답을 <b>다른 사람에게도</b> 줍니다.</li>
+    </ul>
+    <div class="call trap"><span class="lb">함정</span><p>"내 정보" 화면이 shared 캐시에 들어가면 다음 사람이 내 화면을 받습니다. 서버가 응답에 <code>Cache-Control: private</code>를 붙여 "공용 캐시는 저장하지 마"라고 막습니다.</p></div>
+
+    <h3>얼마나 믿나: 유통기한 max-age</h3>
+    <p>서버는 응답에 <code>Cache-Control: max-age=3600</code>처럼 기한을 적어 보냅니다. "받은 뒤 3600초(1시간) 동안은 나한테 묻지 말고 그냥 써"라는 뜻입니다.</p>
+    <div class="vs">
+      <div class="a1"><span class="t">fresh (신선)</span><span class="s">기한 안: 그냥 쓴다</span><p>서버에 요청을 보내지도 않습니다. DevTools Size 열에 <code>(disk cache)</code>나 <code>(memory cache)</code>로 보입니다.</p></div>
+      <div class="a2"><span class="t">stale (상함)</span><span class="s">기한 지남: 확인한다</span><p>바로 버리지 않습니다. 내용은 아직 맞을 수도 있으니, 서버에 "이거 아직 맞아요?" 하고 묻습니다(재검증). 단원 3.</p></div>
+    </div>
+    <div class="call exam"><span class="lb">출제 예상 · 계산</span>
+      <div class="qa"><b>Q</b><span>CDN에서 받은 응답에 <code>max-age=3600</code>과 <code>Age: 1254</code>가 있다. 내 브라우저에서 남은 신선 시간은?</span>
+      <b>A</b><span><b>3600 − 1254 = 2346초, 약 39분.</b> <code>Age</code>는 CDN이 이 응답을 이미 들고 있던 시간입니다. 기한은 원본 서버가 만든 순간부터 세기 때문에, CDN에서 받은 응답은 그만큼 덜 남아 있습니다.</span></div>
+    </div>
+    <div class="call trap"><span class="lb">함정 · Cache-Control이 없으면?</span><p>"규칙이 없으니 저장 안 하겠지"가 아닙니다. <code>Last-Modified</code>만 있으면 브라우저가 기한을 <b>스스로 추측</b>합니다(휴리스틱 캐시). 이때 브라우저가 짐작하는 건 "지금 최신인가"가 아니라(방금 받았으니 최신입니다) <b>"앞으로 얼마 동안 안 바뀔까"</b>입니다.</p>
+      <p>1년 동안 안 고친 파일은 앞으로도 한동안 안 바뀔 테니 길게, 1시간 전에 고친 파일은 곧 또 바뀔 수 있으니 짧게 씁니다. 보통 <b>마지막으로 고친 뒤 지난 시간의 10%</b>를 기한으로 잡습니다. 1년 전에 고친 파일이면 약 36일, 1시간 전이면 6분입니다.</p>
+      <p>개발자가 정하지 않은 기한이 생기는 셈이라, API 응답에는 Cache-Control을 꼭 적습니다.</p></div>
+    <div class="call tip"><span class="lb">쪽집게</span><p><code>(disk cache)</code>로 받은 요청은 <b>서버에 가지도 않았으니 서버 로그에도 없습니다.</b> "배포했는데 사용자 화면이 안 바뀌어요"의 단골 원인입니다.</p></div>
+    <a class="mini" href="#cards-cache">이 단원 카드 12장 →</a>
   </section>
 
   <!-- 3 -->
   <section class="unit" id="u3">
-    <div class="head"><span class="no">UNIT 3 · Q21</span><h2>ETag → If-None-Match → 304</h2></div>
-    <p class="one">서버가 지문(ETag)을 주고, 브라우저가 그 지문을 들고 다시 물으면, 안 바뀌었을 때 304와 빈 본문이 온다.</p>
-    <div class="seq" role="img" aria-label="ETag 재검증 흐름">
+    <div class="head"><span class="no">UNIT 3 · Q21</span><h2>아직 맞는지 묻기: ETag → If-None-Match → 304</h2></div>
+    <p class="one">서버가 내용의 지문(ETag)을 주고, 기한이 지나면 브라우저가 그 지문을 들고 묻는다. 안 바뀌었으면 서버는 본문 없이 304만 보낸다.</p>
+
+    <h3>지문이 왜 필요한가</h3>
+    <p>기한이 지난 복사본이 아직 맞는지 확인하려면, 내용 전체를 다시 받아 비교하는 건 의미가 없습니다(그럼 그냥 다시 받는 것과 같으니까요). 그래서 서버는 응답마다 <b>내용을 대표하는 짧은 값</b>을 붙여 줍니다. 이게 <b>ETag</b>(Entity Tag)입니다. 우유팩에 찍힌 제조 번호처럼, 내용이 바뀌면 값도 바뀝니다.</p>
+
+    <h3>흐름</h3>
+    <div class="seq" role="img" aria-label="ETag로 재검증하는 흐름">
       <div class="hd"><span>브라우저</span><span></span><span>서버</span></div>
-      <div class="m l"><span class="side">① 첫 요청</span><span class="msg">GET /orders/7</span><span></span></div>
-      <div class="m r"><span></span><span class="msg">200 · ETag: "v3" · 본문</span><span class="side">지문과 함께 저장</span></div>
-      <div class="gap">… max-age가 지나 상함 …</div>
+      <div class="m l"><span class="side">① 처음</span><span class="msg">GET /orders/7</span><span></span></div>
+      <div class="m r"><span></span><span class="msg">200 OK · ETag: "v3" · max-age=60 · 본문</span><span class="side">셋 다 저장</span></div>
+      <div class="gap">… 60초 동안은 묻지 않고 복사본을 씀. 60초가 지나 상함 …</div>
       <div class="m l"><span class="side">② 지문 들고</span><span class="msg">GET /orders/7 · If-None-Match: "v3"</span><span></span></div>
       <div class="m r"><span></span><span class="msg ok">304 Not Modified · 본문 없음</span><span class="side">③ 그대로면</span></div>
     </div>
-    <p>바뀌었으면 ③에서 <code>200</code>과 새 ETag, 새 본문이 옵니다. If-None-Match는 "내가 가진 건 이 지문이니, <b>이것과 다르면</b> 보내 줘"라는 뜻입니다.</p>
-    <div class="call tip"><span class="lb">쪽집게 · 실측</span><p>MDN 첫 화면: 처음엔 <b>200, 본문 118,790B</b>. 같은 지문을 들고 다시 물으니 <b>304, 본문 0B</b>(11/17). 발표 때는 <code>bash demo.sh etag</code>로 그대로 보여 줍니다.</p></div>
-    <div class="call trap"><span class="lb">함정 · 304는 공짜가 아니다</span><p>아끼는 건 <b>본문 전송</b>뿐입니다. 요청과 왕복은 그대로 들고, 서버도 지문을 계산하려고 DB를 읽을 수 있습니다. 그래서 "아예 안 묻는" max-age와 같이 씁니다.</p></div>
+    <ol>
+      <li>서버가 <b>응답</b>에 <code>ETag: "v3"</code>를 붙여 보내고, 브라우저가 본문과 함께 저장합니다.</li>
+      <li>기한이 지나면 브라우저가 <b>요청</b>에 <code>If-None-Match: "v3"</code>를 붙입니다. "내 지문은 v3인데, <b>이것과 다르면</b>(None-Match) 새 걸 보내 줘."</li>
+      <li>서버가 지금 지문을 계산해 비교합니다. 같으면 <b>304, 본문 없음</b>. 브라우저는 저장해 둔 본문을 씁니다. 다르면 200과 새 ETag, 새 본문.</li>
+    </ol>
+    <div class="call exam"><span class="lb">출제 예상 · Q21</span>
+      <div class="qa"><b>Q</b><span>브라우저가 <code>If-None-Match: "abc123"</code>을 붙여 요청했고 리소스는 그대로다. 서버의 응답은?</span>
+      <b>A</b><span><b>304 Not Modified, 본문 없음.</b></span></div>
+    </div>
+    <div class="call trap"><span class="lb">함정 · 304는 에러가 아니다</span><p>4xx·5xx처럼 무언가 잘못된 게 아닙니다. 3xx는 "다른 곳을 봐"라는 묶음이고, 304는 "<b>네가 이미 가진 걸 봐</b>"입니다. 사용자 화면은 정상으로 나옵니다.</p></div>
 
-    <h3>더 물어볼 만한 것</h3>
+    <h3>실제로 해 보면</h3>
+    <pre class="c">① 처음 받기
+HTTP/2 200   etag: "3a8ce56f…"   cache-control: public, max-age=3600   본문 118,790B
+② 같은 지문을 If-None-Match에 넣어 다시 묻기
+HTTP/2 304   etag: "3a8ce56f…"   본문 0B</pre>
+    <p>MDN 첫 화면을 curl로 받은 실제 값입니다(11/17). 저장소의 <code>bash demo.sh etag</code>로 똑같이 볼 수 있습니다.</p>
+    <div class="call trap"><span class="lb">함정 · 304도 공짜는 아니다</span><p>아끼는 건 <b>본문 전송</b>뿐입니다. 요청을 보내고 답을 기다리는 왕복 시간은 그대로 들고, 서버도 지문을 계산해야 합니다. 그래서 "아예 안 묻는" max-age와 같이 씁니다.</p></div>
+
+    <h3>한 걸음 더</h3>
     <div class="tbl"><table>
-      <tr><th style="width:30%">주제</th><th>알아 둘 것</th></tr>
-      <tr><td>ETag 만드는 법</td><td>본문 해시, DB의 <code>updated_at</code>, 버전 번호. <b>싼 값으로 만들면</b> DB 한 칸만 읽고 304를 줄 수 있다</td></tr>
-      <tr><td>강한 vs 약한</td><td><code>"abc"</code>는 바이트까지 같음, <code>W/"abc"</code>는 의미만 같음. 304 판단엔 둘 다 됨. jQuery는 gzip으로 받으면 <code>W/</code>가 붙는다(압축으로 바이트가 달라져서)</td></tr>
-      <tr><td>Last-Modified</td><td><code>If-Modified-Since</code>로 묻는 옛 방식. 1초 단위라 1초 안에 두 번 바뀌면 못 잡는다. 둘 다 있으면 ETag 우선</td></tr>
-      <tr class="hl"><td>If-Match</td><td>PUT 때 "내가 본 게 v3일 때만 바꿔 줘". 어긋나면 <b>412 Precondition Failed</b>. 동시 수정을 막는 낙관적 잠금</td></tr>
-      <tr><td>304에 Cache-Control이 오면</td><td>저장된 응답의 헤더를 갱신하고 신선 기간을 새로 시작한다</td></tr>
+      <tr><th style="width:28%">주제</th><th>알아 둘 것</th></tr>
+      <tr><td>ETag는 무엇으로 만드나</td><td>본문의 해시, DB의 <code>updated_at</code>, 버전 번호. 해시는 본문을 다 만들어야 나오니, 버전 칼럼처럼 <b>싼 값</b>으로 만들면 DB 한 칸만 읽고 304를 줄 수 있습니다</td></tr>
+      <tr><td>강한 vs 약한 ETag</td><td><code>"abc"</code>는 바이트까지 같음, <code>W/"abc"</code>(weak)는 뜻만 같음. jQuery 파일은 압축해서 받으면 바이트가 달라져 <code>W/</code>가 붙습니다. 304 판단엔 둘 다 됩니다</td></tr>
+      <tr><td>Last-Modified 방식</td><td>지문 대신 "마지막으로 고친 시각"으로 묻는 옛 방식(<code>If-Modified-Since</code>). 1초 단위라 1초 안에 두 번 바뀌면 못 잡습니다. 둘 다 있으면 ETag가 우선</td></tr>
+      <tr class="hl"><td>If-Match (수정할 때)</td><td>PUT 요청에 <code>If-Match: "v3"</code>를 붙이면 "내가 본 게 v3일 때만 바꿔 줘". 그사이 누가 바꿨으면 <b>412</b>. 두 사람이 동시에 고쳐 덮어쓰는 걸 막습니다</td></tr>
     </table></div>
-    <div class="call mem"><span class="lb">외우는 법</span><p><b>None</b>-Match는 "안 맞으면 줘"(조회용, 304), <b>Match</b>는 "맞을 때만 해"(수정용, 412). 우유팩 제조 번호를 들고 마트에 전화하는 게 If-None-Match입니다.</p></div>
+    <div class="call mem"><span class="lb">외우는 법</span><p><b>None-Match는 "안 맞으면 줘"</b>(읽을 때, 결과 304). <b>Match는 "맞을 때만 해"</b>(고칠 때, 실패 412).</p></div>
     <a class="mini" href="#cards-etag">이 단원 카드 12장 →</a>
   </section>
 
   <!-- 4 -->
   <section class="unit" id="u4">
-    <div class="head"><span class="no">UNIT 4 · Q23</span><h2>같은 주소, 다른 응답: 콘텐츠 협상과 Vary</h2></div>
-    <p class="one">브라우저가 Accept-*로 원하는 걸 말하고, 서버가 골라서 Content-*로 알린다. 이게 콘텐츠 협상이다.</p>
-    <div class="tbl"><table>
-      <tr><th>브라우저가 보냄</th><th>서버가 알림</th><th>예</th></tr>
-      <tr><td><code>Accept</code></td><td><code>Content-Type</code></td><td>같은 <code>/orders/7</code>을 API엔 JSON, 주소창엔 HTML로. 이미지 CDN이 AVIF·WebP 고르기</td></tr>
-      <tr class="hl"><td><code>Accept-Language</code></td><td><code>Content-Language</code></td><td>한국어 페이지냐 영어 페이지냐</td></tr>
-      <tr><td><code>Accept-Encoding</code></td><td><code>Content-Encoding</code></td><td>gzip·br 압축. MDN은 119KB → 16.5KB</td></tr>
-    </table></div>
-    <p><code>ko-KR,ko;q=0.9,en;q=0.8</code>의 <code>q</code>는 선호도(0~1)입니다. "한국어 제일, 영어는 차선".</p>
-    <ul>
-      <li><b>MDN</b>은 <code>Accept-Language: ko</code>에 <code>302 → /ko/</code>로 답합니다. 같은 주소에서 바로 주지 않고 언어별 주소로 보내면 캐시·검색·공유 링크가 단순해집니다.</li>
-      <li><b>GitHub</b>는 ko를 보내도 <code>content-language: en-US</code>. 협상은 <b>요청</b>일 뿐이고, 없으면 기본값을 줍니다.</li>
-    </ul>
+    <div class="head"><span class="no">UNIT 4 · Q20</span><h2>서버가 정하는 보관 규칙: 응답의 Cache-Control</h2></div>
+    <p class="one">응답의 Cache-Control은 서버가 모든 캐시에게 주는 보관 규칙이다. no-cache는 "저장해도 되지만 매번 확인", no-store는 "저장하지 마".</p>
 
-    <h3>Vary: "주소만 보지 말고 이 헤더도 보고 구분해"</h3>
-    <p>캐시의 기본 열쇠는 메서드 + URL입니다. 협상을 하면 같은 주소에 응답이 여러 개가 되니, <code>Vary: Accept-Language</code>로 열쇠에 언어 값을 더하게 합니다.</p>
-    <div class="call trap"><span class="lb">함정 · Vary를 빼먹으면</span><p>한국인이 먼저 받은 한국어 페이지가 CDN에 저장되고, 다음 미국인도 한국어를 받습니다. gzip을 못 읽는 클라이언트가 압축 본문을 받기도 합니다. 그래서 거의 모든 사이트에 <code>Vary: Accept-Encoding</code>이 있습니다(nginx <code>gzip_vary on;</code>).</p></div>
-    <div class="call trap"><span class="lb">함정 · 반대로 너무 많이 붙이면</span><p><code>Vary: Cookie</code>, <code>Vary: User-Agent</code>처럼 값이 제각각인 헤더를 걸면 캐시가 잘게 쪼개져 거의 안 맞습니다. GitHub처럼 열 개 넘게 붙인 응답은 사실상 shared 캐시에 넣을 생각이 없는 것이고, 실제로 private입니다.</p></div>
-    <div class="call tip"><span class="lb">쪽집게</span><p><b>로그인 사용자별 응답은 Vary가 아니라 private로 막는다.</b> 같은 주소에 다른 걸 주면 Vary, 내 것이면 private.</p></div>
-    <a class="mini" href="#cards-nego">이 단원 카드 11장 →</a>
+    <h3>누가 누구에게</h3>
+    <p>서버(개발자)가 응답 헤더에 적고, 그 응답이 지나가는 <b>모든 캐시</b>(CDN, 프록시, 브라우저)가 읽고 따릅니다. 여러 값을 쉼표로 이어 씁니다. 예: <code>Cache-Control: public, max-age=3600</code>.</p>
+
+    <h3>Q20: no-cache는 "캐시하지 마"가 아니다</h3>
+    <div class="vs">
+      <div class="a1"><span class="t">no-cache</span><span class="s">저장 OK, 쓰기 전에 매번 확인</span><p>복사본을 저장해도 됩니다. 다만 쓸 때마다 서버에 "아직 맞아요?"(단원 3)를 물어야 합니다. 안 바뀌었으면 304라 본문은 아낍니다.</p><p><b>예:</b> 늘 최신이어야 하는 웹사이트 첫 HTML</p></div>
+      <div class="a2"><span class="t">no-store</span><span class="s">아예 저장하지 마</span><p>디스크에도 남기지 않습니다. 매번 처음부터 다 받습니다.</p><p><b>예:</b> 계좌 내역, 개인정보 화면. 공용 PC에서 뒤로 가기를 눌러도 남지 않게</p></div>
+    </div>
+    <div class="call exam"><span class="lb">출제 예상 · Q20</span>
+      <div class="qa"><b>Q</b><span>응답 헤더 <code>Cache-Control: no-cache</code>의 의미는?</span>
+      <b>A</b><span><b>저장은 해도 된다. 쓰기 전에 매번 서버에 확인해야 한다.</b></span></div>
+    </div>
+    <div class="call mem"><span class="lb">외우는 법</span><p>no-cache는 "캐시 쓰지 마"가 아니라 <b>"확인 없이 쓰지 마"</b>. 저장을 막는 건 이름에 <b>store</b>(보관)가 들어간 쪽입니다.</p></div>
+    <div class="call trap"><span class="lb">함정 두 개</span><p>① "캐시 끄기"라고 no-cache를 넣었는데 개인정보가 디스크에 남는 경우. ② "확실히 하려고" 모든 응답에 no-store를 넣어 304의 이득을 다 버리는 경우. <b>늘 최신이기만 하면 되는 곳은 no-cache가 더 쌉니다.</b></p></div>
+
+    <h3>자주 쓰는 값 여덟 개, 다섯 묶음</h3>
+    <div class="tbl"><table>
+      <tr><th>묶음</th><th>값</th><th>뜻</th></tr>
+      <tr><td class="grp" rowspan="2">얼마나</td><td><code>max-age=N</code></td><td>N초 동안 신선. 묻지 않고 쓴다</td></tr>
+      <tr><td><code>s-maxage=N</code></td><td>공용 캐시(CDN)에만 주는 기한. <code>max-age=60, s-maxage=3600</code>이면 브라우저 1분, CDN 1시간</td></tr>
+      <tr><td class="grp" rowspan="2">누가</td><td><code>public</code></td><td>공용 캐시도 저장해도 된다</td></tr>
+      <tr><td><code>private</code></td><td>브라우저만 저장. 공용 캐시는 저장 금지</td></tr>
+      <tr class="hl"><td class="grp" rowspan="2">확인</td><td><code>no-cache</code></td><td>저장은 하되 쓸 때마다 확인</td></tr>
+      <tr><td><code>must-revalidate</code></td><td>상한 뒤엔 반드시 확인. 서버가 죽었어도 상한 걸 몰래 주지 말고 에러(504)를 줘</td></tr>
+      <tr class="hl-o"><td class="grp">금지</td><td><code>no-store</code></td><td>저장 금지</td></tr>
+      <tr><td class="grp" rowspan="2">최적화</td><td><code>immutable</code></td><td>"절대 안 바뀜". 기한 안엔 새로고침해도 묻지 마. 파일 이름에 지문이 붙은 파일에만(단원 7)</td></tr>
+      <tr><td><code>stale-while-revalidate=N</code></td><td>상한 뒤 N초까지는 옛것을 바로 보여 주고, 뒤에서 몰래 새것을 받아 둔다. 체감 속도가 좋아진다. React SWR 이름의 유래</td></tr>
+    </table></div>
+    <div class="call exam"><span class="lb">출제 예상</span>
+      <div class="qa"><b>Q</b><span>네이버 첫 화면은 왜 <code>no-cache, no-store, must-revalidate</code>를 다 넣었어요?</span>
+      <b>A</b><span>일부 값을 모르는 옛 브라우저·프록시에 대비한 겹겹이 방어입니다. 실제로 이기는 건 가장 강한 <b>no-store</b>. 참고로 <code>Pragma: no-cache</code>는 HTTP/1.0 시절 헤더라 지금은 안 써도 됩니다.</span></div>
+    </div>
+    <a class="mini" href="#cards-cc">이 단원 카드 12장 →</a>
   </section>
 
   <!-- 5 -->
   <section class="unit" id="u5">
-    <div class="head"><span class="no">UNIT 5</span><h2>실무에서는: 사이트마다 정책이 다르고, 다 이유가 있다</h2></div>
-    <p class="one">내용이 바뀌면 주소가 바뀌는 파일은 길게, 주소는 그대로인데 내용이 바뀌는 HTML·API는 짧게 + ETag.</p>
-    <div class="tbl"><table>
-      <tr><th>무엇</th><th>Cache-Control (11/17 실측)</th><th>읽는 법</th></tr>
-      <tr class="hl-o"><td>네이버 첫 화면</td><td><code>no-cache, no-store, must-revalidate</code></td><td>로그인·개인화. 아예 안 남김</td></tr>
-      <tr><td>GitHub 첫 화면</td><td><code>max-age=0, private, must-revalidate</code> + ETag W/</td><td>나만 저장, 매번 확인, 304로 아낌</td></tr>
-      <tr><td>MDN 문서</td><td><code>public, max-age=3600</code> + ETag</td><td>누구에게나 같음. CDN이 1시간</td></tr>
-      <tr class="hl"><td>jQuery 3.7.1</td><td><code>public, max-age=31536000, stale-while-revalidate=604800</code></td><td>주소에 버전이 있어 내용이 절대 안 바뀜 → 1년</td></tr>
-      <tr><td>example.com</td><td>없음, Last-Modified만</td><td>휴리스틱 캐시 대상</td></tr>
-    </table></div>
-    <ul>
-      <li>Vite·webpack·Next.js가 파일명에 해시(<code>index-3f9a1c.js</code>)를 붙이는 이유: 이름이 바뀌니 1년 캐시가 안전합니다. <b>대신 index.html은 no-cache.</b></li>
-      <li>"배포했는데 화면이 안 바뀐다" = index.html에 긴 캐시가 걸렸거나 CDN이 HTML을 들고 있는 경우.</li>
-    </ul>
-    <div class="call exam"><span class="lb">출제 예상 · 발표 뒤 질문</span>
-      <div class="qa">
-        <b>Q</b><span>POST 응답도 캐시돼요?</span><b>A</b><span>사실상 안 됩니다. GET(과 HEAD)만 캐시된다고 보면 됩니다. 그래서 지난주 멱등 키 저장소는 서버가 직접 만든 것입니다.</span>
-        <b>Q</b><span>Service Worker 캐시도 같은 규칙이에요?</span><b>A</b><span>아닙니다. JS로 직접 관리하는 저장소라 Cache-Control을 따르지 않습니다.</span>
-        <b>Q</b><span>HTTP/2·3에서도 같아요?</span><b>A</b><span>같습니다. 캐시는 HTTP 의미론이라 버전과 상관없습니다. 버전은 실어 나르는 방식의 이야기(주영님 발표)입니다.</span>
-      </div>
+    <div class="head"><span class="no">UNIT 5</span><h2>브라우저의 부탁: 요청의 Cache-Control과 새로고침</h2></div>
+    <p class="one">요청에 실린 Cache-Control은 브라우저가 이번 한 번만 하는 부탁이다. 새로고침할 때 브라우저가 알아서 붙인다.</p>
+
+    <h3>요청에도 Cache-Control이 있다</h3>
+    <p>단원 4의 Cache-Control은 서버가 "이 응답 이렇게 보관해"라고 적은 것이었습니다. 반대로 <b>브라우저가 요청에</b> Cache-Control을 붙이기도 합니다. 그때 뜻은 "<b>이번 요청에는 저장된 복사본을 그냥 주지 말고 이렇게 해 줘</b>"입니다. 듣는 쪽은 주로 가는 길의 캐시들(브라우저 자신의 캐시, CDN)이고, 앱 서버는 보통 신경 쓰지 않습니다.</p>
+    <div class="vs">
+      <div class="a1"><span class="t">응답의 Cache-Control</span><span class="s">서버가 적는 보관 규칙</span><p>"이 응답은 1시간 보관해도 돼", "공용 캐시는 저장 마". 오래 효력이 있고 모든 캐시가 따른다. 개발자가 서버에서 정한다.</p></div>
+      <div class="a2"><span class="t">요청의 Cache-Control</span><span class="s">브라우저가 하는 이번 한 번의 부탁</span><p>"이번엔 확인받은 걸로 줘", "이번엔 처음부터 받아 줘". 그 요청 하나에만 해당한다. 보통 브라우저가 새로고침할 때 스스로 붙인다.</p></div>
     </div>
-    <div class="call tip"><span class="lb">우리 서비스에서 확인할 세 가지</span><p>① API 응답에 Cache-Control이 있나 ② 로그인 API에 private·no-store가 있나 ③ 번들 파일명에 해시 + 긴 캐시, index.html은 no-cache인가. <code>curl -sI 주소 | grep -i cache-control</code> 한 줄이면 됩니다.</p></div>
-    <a class="mini" href="#cards-field">이 단원 카드 9장 →</a>
+    <ul>
+      <li>요청의 <code>max-age=0</code>: "0초보다 오래된 복사본은 싫어." 모든 복사본은 0초보다 오래됐으니, 결국 "<b>서버에 확인받은 걸로 줘</b>"입니다.</li>
+      <li>요청의 <code>no-cache</code>: "저장된 복사본을 확인 없이 쓰지 마." 브라우저의 강력 새로고침은 여기에 더해 지문(If-None-Match)도 안 보내서, 결국 <b>처음부터 다 받습니다</b>.</li>
+    </ul>
+    <div class="call trap"><span class="lb">함정 · 같은 no-cache, 다른 뜻</span><p>응답에 있으면 "저장해도 되지만 쓸 때마다 확인해"(보관 규칙). 요청에 있으면 "이번엔 저장본을 그냥 주지 마"(한 번의 부탁). <b>어느 쪽 헤더인지 먼저 보고</b> 뜻을 읽습니다.</p></div>
+
+    <h3>새로고침 세 가지</h3>
+    <p>크롬 기준입니다. 다른 브라우저도 큰 틀은 같습니다.</p>
+    <div class="fork">
+      <div class="x1"><span class="cond">주소창 Enter · 링크 클릭</span><span class="act">평소대로</span><span class="code">요청에 붙이는 것 없음</span><p style="font-size:14px;color:var(--muted)">신선한 복사본은 서버에 묻지 않고 그대로 씁니다. 상한 것만 지문 들고 확인.</p></div>
+      <div class="x2"><span class="cond">새로고침 (F5, Cmd+R)</span><span class="act">페이지는 확인받기</span><span class="code">Cache-Control: max-age=0</span><p style="font-size:14px;color:var(--muted)">페이지 HTML 요청에 붙여, 신선해도 서버에 확인합니다(304 또는 200). 페이지 안의 그림·JS는 신선하면 그대로.</p></div>
+      <div class="x3"><span class="cond">강력 새로고침 (Ctrl+Shift+R, Cmd+Shift+R)</span><span class="act">처음부터 다 받기</span><span class="code">Cache-Control: no-cache</span><p style="font-size:14px;color:var(--muted)">모든 요청에 붙이고 지문도 안 보냅니다. 전부 200으로 새로 받습니다. 옛 헤더 <code>Pragma: no-cache</code>도 같이 붙습니다.</p></div>
+    </div>
+    <div class="call exam"><span class="lb">출제 예상</span>
+      <div class="qa"><b>Q</b><span>F5와 Ctrl+Shift+R은 뭐가 달라요?</span>
+      <b>A</b><span>F5는 브라우저가 페이지 요청에 <code>Cache-Control: max-age=0</code>을 붙여 "확인받은 걸로 줘"라고 합니다. 안 바뀌었으면 304라 빠릅니다. 강력 새로고침은 모든 요청에 <code>no-cache</code>를 붙이고 지문도 빼서, 캐시를 무시하고 전부 새로 받습니다.</span></div>
+    </div>
+    <div class="call tip"><span class="lb">쪽집게 · "내 화면에선 되는데요"</span><p>남의 화면만 옛것이면 그 사람 캐시에 신선한 복사본이 남아 있는 경우가 많습니다. 확인할 때는 강력 새로고침, 또는 DevTools Network 탭의 <b>Disable cache</b>를 켜고 봅니다. 근본 해결은 서버의 보관 규칙(단원 4·7)을 고치는 것입니다.</p></div>
+    <a class="mini" href="#cards-reload">이 단원 카드 9장 →</a>
   </section>
 
   <!-- 6 -->
   <section class="unit" id="u6">
-    <div class="head"><span class="no">UNIT 6 · 지난주</span><h2>과제 C와 이어지는 곳</h2></div>
-    <p class="one">같은 멱등 키로 두 번 보내도 주문은 1건이었고, 500은 앱이, 502·504는 nginx가 만들었다.</p>
-    <div class="vs">
-      <div class="a2"><span class="t">502</span><span class="s">거절당했다</span><p>OS는 살아 있고 포트를 듣는 프로세스가 없으면 OS가 즉시 RST로 거절. 응답 도중 끊겨도 502.</p></div>
-      <div class="a1"><span class="t">504</span><span class="s">대답이 없다</span><p>앱 컨테이너를 통째로 끄면 IP가 사라져 SYN에 답할 OS조차 없음 → 2초 기다리다 504.</p></div>
+    <div class="head"><span class="no">UNIT 6 · Q23</span><h2>같은 주소, 다른 응답: 콘텐츠 협상과 Vary</h2></div>
+    <p class="one">브라우저가 Accept-* 요청 헤더로 원하는 걸 말하고, 서버가 골라 Content-* 응답 헤더로 알린다. 이게 콘텐츠 협상이다.</p>
+
+    <h3>왜 필요한가</h3>
+    <p>같은 주소 <code>/</code>를 한국 사람은 한국어로, 미국 사람은 영어로 보고 싶습니다. 같은 그림도 최신 브라우저에는 가벼운 AVIF로, 옛 브라우저에는 JPEG로 주고 싶습니다. 주소는 하나인데 줄 수 있는 내용은 여러 개입니다. 그래서 브라우저가 "<b>나는 이런 걸 원해</b>"를 요청 헤더로 말하고, 서버가 그중 하나를 골라 줍니다. 이걸 <b>콘텐츠 협상</b>(content negotiation)이라고 합니다.</p>
+    <div class="call mem"><span class="lb">외우는 법 · 카페 주문</span><p>"커피 주세요(같은 주소). 따뜻한 걸로, 없으면 아이스도 괜찮아요(Accept)." 점원이 "따뜻한 걸로 드렸어요(Content)"라고 알려 줍니다. 원하는 게 없으면 있는 걸 줍니다.</p></div>
+    <div class="tbl"><table>
+      <tr><th>브라우저가 요청에</th><th>서버가 응답에</th><th>예</th></tr>
+      <tr><td><code>Accept</code></td><td><code>Content-Type</code></td><td>같은 <code>/orders/7</code>을 앱에는 JSON, 주소창에는 HTML로. 그림을 AVIF·WebP·JPEG 중에서</td></tr>
+      <tr class="hl"><td><code>Accept-Language</code></td><td><code>Content-Language</code></td><td>한국어 페이지냐 영어 페이지냐</td></tr>
+      <tr><td><code>Accept-Encoding</code></td><td><code>Content-Encoding</code></td><td>gzip·br로 압축해 줄까. MDN 첫 화면은 119KB가 16.5KB로</td></tr>
+    </table></div>
+    <p><code>Accept-Language: ko-KR,ko;q=0.9,en;q=0.8</code>의 <code>q</code>는 선호도(0~1)입니다. "한국어가 제일, 영어는 차선."</p>
+    <div class="call exam"><span class="lb">출제 예상 · Q23</span>
+      <div class="qa"><b>Q</b><span>같은 URL인데 <code>Accept-Language</code>에 따라 한국어·영어 페이지를 돌려주는 것은?</span>
+      <b>A</b><span><b>콘텐츠 협상.</b></span></div>
     </div>
-    <div class="call mem"><span class="lb">외우는 법</span><p><b>거절은 502, 침묵은 504.</b> 더 정확히는 nginx error.log의 <code>while connecting</code>(연결 자체가 안 됨)과 <code>while reading response header</code>(답이 늦음)를 봅니다.</p></div>
     <ul>
-      <li>nginx는 keepalive로 재사용하던 연결이 끊기면 <b>GET은 몰래 한 번 더 보내고</b>, POST는 안 보냅니다.</li>
-      <li>504가 나도 <b>앱은 일을 계속</b>합니다. 아무도 받지 않을 응답을 끝까지 만듭니다.</li>
-      <li>멱등 키는 클라이언트가 버튼을 누른 한 번마다 UUID로 만들고, 재시도에는 같은 키를 씁니다. 서버가 2대면 메모리 저장소는 깨지니 Redis로 옮깁니다.</li>
+      <li><b>MDN</b>은 <code>Accept-Language: ko</code>에 <code>302 → /ko/</code>로 답합니다. 같은 주소에서 바로 주지 않고 언어별 주소로 보냅니다. 주소가 나뉘면 캐시·검색·공유 링크가 단순해집니다.</li>
+      <li><b>GitHub</b>는 ko를 보내도 영어(<code>content-language: en-US</code>)를 줍니다. 협상은 <b>부탁</b>일 뿐, 없으면 기본값을 줍니다.</li>
     </ul>
-    <div class="call tip"><span class="lb">오늘 주제로 넘어가는 다리</span><p>멱등 키 저장소도, 캐시도 <b>"같은 요청엔 저장된 응답"</b>입니다. 차이는 <b>누가 저장하느냐</b>(서버 vs 브라우저·CDN)와 <b>언제까지 믿느냐</b>(키 24시간 vs max-age).</p></div>
-    <a class="mini" href="#cards-hwc">이 단원 카드 9장 →</a>
+
+    <h3>Vary: 협상하면 캐시가 헷갈린다</h3>
+    <p>캐시는 원래 <b>주소</b>만 보고 "같은 요청이네, 저장해 둔 걸 주자"라고 판단합니다. 그런데 협상을 하면 같은 주소에 한국어판과 영어판이 따로 있습니다. 서버가 응답에 <code>Vary: Accept-Language</code>를 붙이면 캐시는 "<b>주소 + 언어</b>"를 묶어 따로 저장합니다.</p>
+    <div class="call trap"><span class="lb">함정 · Vary를 빼먹으면</span><p>한국인이 먼저 받은 한국어판이 CDN에 저장되고, 다음에 온 미국인도 한국어판을 받습니다. 압축을 못 읽는 프로그램이 압축된 본문을 받기도 합니다. 그래서 거의 모든 사이트에 <code>Vary: Accept-Encoding</code>이 붙어 있습니다(nginx는 <code>gzip_vary on;</code>).</p></div>
+    <div class="call trap"><span class="lb">함정 · 너무 많이 붙여도 문제</span><p><code>Vary: User-Agent</code>(브라우저 종류)나 <code>Vary: Cookie</code>처럼 사람마다 값이 다른 헤더를 걸면 복사본이 잘게 쪼개져 거의 다시 쓰이지 않습니다. 캐시가 있으나 마나가 됩니다.</p></div>
+    <div class="call tip"><span class="lb">쪽집게</span><p><b>로그인한 사람마다 다른 응답은 Vary가 아니라 private로 막는다.</b> 같은 주소에서 고르는 거면 Vary, 내 것이면 private.</p></div>
+    <a class="mini" href="#cards-nego">이 단원 카드 12장 →</a>
+  </section>
+
+  <!-- 7 -->
+  <section class="unit" id="u7">
+    <div class="head"><span class="no">UNIT 7</span><h2>실무에서는: 무엇을 얼마나 오래 캐시하나</h2></div>
+    <p class="one">내용이 바뀌면 이름도 바뀌는 파일은 길게, 이름은 그대로인데 내용이 바뀌는 HTML·API는 짧게 + ETag.</p>
+
+    <h3>파일 이름에 지문 붙이기</h3>
+    <p>React·Vue 앱을 빌드하면 <code>index-3f9a1c.js</code>처럼 파일 이름에 이상한 글자가 붙습니다. 내용으로 만든 지문(해시)입니다. 코드를 고치면 이름이 <code>index-8b21d0.js</code>로 바뀝니다.</p>
+    <ul>
+      <li>그래서 이 파일들은 <b>1년</b> 캐시해도 안전합니다. 내용이 바뀌면 아예 다른 이름이 되니, 옛 복사본을 쓸 일이 없습니다.</li>
+      <li>대신 그 이름들을 적어 둔 <code>index.html</code>은 <b>no-cache</b>로 둡니다. 그래야 배포하자마자 새 이름을 압니다.</li>
+    </ul>
+    <div class="call tip"><span class="lb">쪽집게 · "배포했는데 화면이 안 바뀐다"</span><p>대개 <code>index.html</code>에 긴 캐시가 걸렸거나 CDN이 HTML을 들고 있는 경우입니다. 먼저 <code>curl -sI 주소 | grep -i cache-control</code>로 HTML의 보관 규칙부터 봅니다.</p></div>
+
+    <h3>사이트마다 다르고, 다 이유가 있다 (11/17 실측)</h3>
+    <div class="tbl"><table>
+      <tr><th>무엇</th><th>응답의 Cache-Control</th><th>읽는 법</th></tr>
+      <tr class="hl-o"><td>네이버 첫 화면</td><td><code>no-cache, no-store, must-revalidate</code></td><td>로그인·개인화 화면. 아예 안 남김</td></tr>
+      <tr><td>GitHub 첫 화면</td><td><code>max-age=0, private, must-revalidate</code> + ETag</td><td>내 브라우저만 저장, 매번 확인, 안 바뀌었으면 304</td></tr>
+      <tr><td>MDN 문서</td><td><code>public, max-age=3600</code> + ETag</td><td>누구에게나 같은 문서. CDN이 1시간 들고 있음</td></tr>
+      <tr class="hl"><td>jQuery 3.7.1 파일</td><td><code>public, max-age=31536000</code></td><td>주소에 버전이 있어 내용이 절대 안 바뀜 → 1년(31,536,000초)</td></tr>
+    </table></div>
+    <div class="call exam"><span class="lb">출제 예상 · 발표 뒤 질문</span>
+      <div class="qa">
+        <b>Q</b><span>POST 응답도 캐시돼요?</span><b>A</b><span>사실상 안 됩니다. 캐시는 GET(과 HEAD) 응답을 다시 쓰는 것이라고 보면 됩니다. 그래서 지난주 멱등 키 저장소는 서버가 직접 만든 것입니다.</span>
+        <b>Q</b><span>Service Worker 캐시도 같은 규칙이에요?</span><b>A</b><span>아닙니다. 개발자가 JS 코드로 직접 넣고 꺼내는 저장소라 Cache-Control을 따르지 않습니다. 오늘 이야기는 브라우저가 헤더를 보고 알아서 하는 HTTP 캐시입니다.</span>
+        <b>Q</b><span>HTTP/2·3에서도 같아요?</span><b>A</b><span>같습니다. 캐시 규칙은 HTTP 메시지의 뜻에 관한 것이라 버전과 상관없습니다. 버전은 그 메시지를 어떻게 실어 나르느냐의 이야기(주영님 발표)입니다.</span>
+      </div>
+    </div>
+    <div class="call tip"><span class="lb">우리 서비스에서 확인할 세 가지</span><p>① API 응답에 Cache-Control이 있나(없으면 휴리스틱 캐시) ② 로그인 API에 private나 no-store가 있나 ③ JS·CSS 파일 이름에 지문 + 긴 캐시, index.html은 no-cache인가.</p></div>
+    <a class="mini" href="#cards-field">이 단원 카드 10장 →</a>
+  </section>
+
+  <!-- 8 -->
+  <section class="unit" id="u8">
+    <div class="head"><span class="no">UNIT 8 · 지난주</span><h2>지난주 과제 C와 이어지는 곳</h2></div>
+    <p class="one">같은 멱등 키로 두 번 보내도 주문은 1건이었고, 500은 앱이, 502·504는 앞에 선 nginx가 만들었다.</p>
+    <p>과제 C는 주문 API 앞에 nginx(요청을 받아 뒤의 앱 서버에 넘겨 주는 문지기, 리버스 프록시)를 두고, 일부러 장애를 내 본 것입니다.</p>
+    <ul>
+      <li><b>멱등 키</b>: 같은 주문 요청이 재시도로 두 번 와도, 요청에 붙은 <code>Idempotency-Key</code>가 같으면 주문을 한 번만 만들고 처음 응답을 다시 돌려줍니다. 키는 클라이언트가 "주문 버튼을 누른 한 번"마다 만듭니다.</li>
+      <li><b>500</b>: 앱이 스스로 에러를 냄. <b>502·504</b>: nginx가 뒤의 앱과 통하지 못해 대신 냄.</li>
+    </ul>
+    <div class="vs">
+      <div class="a2"><span class="t">502 Bad Gateway</span><span class="s">거절당했다</span><p>앱 프로세스가 죽어 컴퓨터(OS)가 "여기 아무도 없어요"라고 바로 거절하거나, 앱이 응답 도중에 끊었을 때.</p></div>
+      <div class="a1"><span class="t">504 Gateway Timeout</span><span class="s">대답이 없다</span><p>앱이 너무 오래 걸리거나, 앱 컨테이너가 통째로 사라져 거절해 줄 OS조차 없어 기다리다 시간 초과.</p></div>
+    </div>
+    <div class="call mem"><span class="lb">외우는 법</span><p><b>거절은 502, 침묵은 504.</b></p></div>
+    <ul>
+      <li>nginx는 연결이 우연히 끊기면 <b>GET은 몰래 한 번 더 보내고</b>, POST는 보내지 않습니다. 두 번 보내도 안전한 요청만 재시도합니다.</li>
+      <li>504가 나도 <b>앱은 일을 계속</b>합니다. nginx만 기다리기를 포기한 것입니다.</li>
+    </ul>
+    <div class="call tip"><span class="lb">오늘 주제로 넘어가는 다리</span><p>멱등 키 저장소도, 캐시도 <b>"같은 요청엔 저장해 둔 응답"</b>입니다. 다른 건 <b>누가 저장하느냐</b>(서버 vs 브라우저·CDN)와 <b>언제까지 믿느냐</b>(키 24시간 vs max-age)입니다.</p></div>
+    <a class="mini" href="#cards-hwc">이 단원 카드 8장 →</a>
   </section>
 
   <!-- 마지막 -->
-  <section class="unit final" id="u7">
+  <section class="unit final" id="u9">
     <div class="eyebrow" style="color:inherit;opacity:.7">시험 직전 5문장</div>
     <h2>이 다섯 줄만은 입으로 말할 수 있게</h2>
     <ol>
-      <li>캐시는 <b>신선하면 묻지 않고, 상하면 지문을 들고 묻는다.</b></li>
-      <li><code>no-cache</code>는 <b>매번 확인</b>, <code>no-store</code>는 <b>저장 금지</b>. (Q20)</li>
+      <li>캐시는 한 번 받은 응답을 저장해 두고, <b>기한 안이면 묻지 않고 쓰고, 지나면 지문을 들고 묻는다.</b></li>
+      <li>응답의 <code>no-cache</code>는 <b>저장하되 매번 확인</b>, <code>no-store</code>는 <b>저장 금지</b>. (Q20)</li>
       <li><code>If-None-Match</code>로 물었는데 그대로면 <b>304, 본문 없음</b>. 304는 본문만 아낀다. (Q21)</li>
-      <li>같은 주소에서 Accept-*로 고르는 건 <b>콘텐츠 협상</b>. 그러면 <code>Vary</code>를 붙이고, 내 것이면 <code>private</code>. (Q23)</li>
-      <li><b>파일명에 해시가 있으면 1년, HTML은 no-cache.</b></li>
+      <li>같은 주소에서 Accept-*로 골라 주는 건 <b>콘텐츠 협상</b>. 그러면 <code>Vary</code>, 내 것이면 <code>private</code>. (Q23)</li>
+      <li>Cache-Control은 <b>응답에선 서버의 보관 규칙, 요청에선 브라우저의 한 번 부탁</b>(새로고침).</li>
     </ol>
-    <a class="cta" href="#cards">암기 카드 63장으로 복습하기 →</a>
+    <a class="cta" href="#cards">암기 카드 84장으로 복습하기 →</a>
   </section>
 </main>
 
 <main id="viewCards" hidden>
 <div class="wrap">
   <header class="cardhead">
-    <div class="eyebrow">NETWORK STUDY · WEEK 4 · Q20 · Q21 · Q23</div>
+    <div class="eyebrow">NETWORK STUDY · WEEK 4 · Q20 · Q21 · Q23 · 처음 배우는 사람용</div>
     <h1>캐시, ETag, 콘텐츠 협상 암기 카드</h1>
     <p>카드를 눌러 뒤집고, 답을 맞혔으면 "알아요", 헷갈렸으면 "다시"를 누릅니다. 표시는 이 브라우저에만 남습니다.</p>
   </header>
@@ -466,560 +606,644 @@ kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--line); 
 <script>
 const DECKS = [
  {
-  "id": "basic",
-  "name": "캐시 큰 그림"
+  "id": "basics",
+  "name": "1 요청·응답·헤더"
  },
  {
-  "id": "cc",
-  "name": "Cache-Control · Q20"
+  "id": "cache",
+  "name": "2 캐시가 뭔가"
  },
  {
   "id": "etag",
-  "name": "ETag · 304 · Q21"
+  "name": "3 ETag·304 · Q21"
+ },
+ {
+  "id": "cc",
+  "name": "4 응답의 Cache-Control · Q20"
+ },
+ {
+  "id": "reload",
+  "name": "5 요청의 Cache-Control · 새로고침"
  },
  {
   "id": "nego",
-  "name": "콘텐츠 협상 · Vary · Q23"
+  "name": "6 콘텐츠 협상·Vary · Q23"
  },
  {
   "id": "field",
-  "name": "실무 · 사이트 비교"
+  "name": "7 실무"
  },
  {
   "id": "hwc",
-  "name": "과제 C 돌아보기"
+  "name": "8 과제 C"
  }
 ];
 
 // q: 앞면 질문, a: 뒷면 한 줄 답, n: 덧붙임(문단 배열), c: 코드, s: 출처
 const CARDS = [
  {
-  "d": "basic",
-  "q": "캐시가 하는 일을 한 문장으로 말하면?",
-  "a": "신선하면 묻지 않고 쓰고, 상하면 지문(ETag)을 들고 묻고, 안 바뀌었으면 304를 받는다.",
+  "d": "basics",
+  "q": "웹페이지를 연다는 건 브라우저와 서버 사이에서 무슨 일이 일어나는 것인가?",
+  "a": "브라우저가 \"이 주소의 것을 주세요\"라고 요청을 보내고, 서버가 \"여기 있어요\"라고 응답을 돌려준다.",
   "n": [
-   "발표 정리 장표의 첫 줄. 말이 꼬이면 이 문장으로 돌아온다."
+   "페이지 하나에도 HTML, 그림, CSS, JS마다 요청·응답이 한 쌍씩 오간다."
   ],
-  "s": "장표 15"
+  "s": "노트 단원 1"
  },
  {
-  "d": "basic",
-  "q": "private 캐시와 shared 캐시는 각각 어디이고, 무엇이 다른가?",
-  "a": "private는 브라우저(나만 씀), shared는 CDN·프록시(여러 사람이 같이 씀).",
+  "d": "basics",
+  "q": "요청과 응답을 이루는 두 부분은?",
+  "a": "헤더(이름: 값 꼴의 메모 여러 줄)와 본문(실제 내용물).",
   "n": [
-   "비유: 내 냉장고와 동네 마트 진열대.",
-   "개인 정보가 담긴 응답이 shared 캐시에 들어가면 남에게 간다. <code>Cache-Control: private<\/code>로 막는다."
+   "택배로 치면 헤더는 상자에 붙인 송장, 본문은 상자 안의 물건."
   ],
-  "s": "장표 5"
+  "c": "HTTP/1.1 200 OK\nContent-Type: image/png     ← 헤더\nCache-Control: max-age=3600\n\n(그림 파일 내용)          ← 본문",
+  "s": "노트 단원 1"
  },
  {
-  "d": "basic",
-  "q": "요청은 어디까지 가나? (브라우저 → CDN → nginx → 앱)",
-  "a": "가까운 곳에 저장된 응답이 있으면 거기서 멈춘다.",
+  "d": "basics",
+  "q": "헤더는 요청에만 있나, 응답에만 있나?",
+  "a": "둘 다 있다. 요청 헤더는 브라우저가, 응답 헤더는 서버(나 중간 캐시)가 붙인다.",
   "n": [
-   "브라우저 캐시에 있으면 네트워크에 나가지도 않고, CDN에 있으면 원본 서버까지 오지 않는다."
+   "헤더마다 어느 쪽에 싣는지가 정해져 있다. <code>Cache-Control<\/code>은 양쪽 다 나오는 드문 헤더."
   ],
-  "s": "장표 5"
+  "s": "노트 단원 1"
  },
  {
-  "d": "basic",
-  "q": "fresh(신선)와 stale(상함)을 가르는 기준은?",
-  "a": "max-age 안이면 fresh, 지나면 stale.",
+  "d": "basics",
+  "q": "<code>Cache-Control<\/code>은 요청과 응답 중 어디에 싣나?",
+  "a": "둘 다. 응답에서는 서버의 보관 규칙, 요청에서는 브라우저의 이번 한 번 부탁.",
   "n": [
-   "fresh: 서버에 묻지 않고 바로 쓴다.",
-   "stale: 바로 버리지 않고 재검증(\"이거 아직 맞아요?\")을 거친다. 우유 유통기한이 지나면 냄새를 맡아 보는 것과 같다."
+   "\"서버만 보내는 헤더\"라고 알면 새로고침 이야기(단원 5)에서 막힌다."
   ],
-  "s": "장표 6"
+  "s": "노트 단원 1, 5"
  },
  {
-  "d": "basic",
-  "q": "응답에 <code>max-age=3600<\/code>과 <code>age: 1254<\/code>가 있다. 내 브라우저에서 남은 신선 시간은?",
+  "d": "basics",
+  "q": "<code>ETag<\/code>, <code>If-None-Match<\/code>는 각각 요청·응답 중 어디에 싣나?",
+  "a": "ETag는 응답(서버가 준 지문), If-None-Match는 요청(브라우저가 들고 가는 지문).",
+  "s": "노트 단원 1, 3"
+ },
+ {
+  "d": "basics",
+  "q": "헤더 이름만 보고 요청인지 응답인지 아는 요령은?",
+  "a": "<code>If-<\/code>와 <code>Accept-<\/code>로 시작하면 요청, <code>Content-<\/code>로 시작하면 응답.",
+  "n": [
+   "If-는 조건을 거는 쪽(받는 사람), Accept-는 원하는 걸 말하는 쪽, Content-는 실제로 보낸 본문 설명.",
+   "<code>Cache-Control<\/code>만 양쪽에 다 나온다."
+  ],
+  "s": "노트 단원 1"
+ },
+ {
+  "d": "basics",
+  "q": "<code>Age<\/code> 헤더는 누가, 어디에 붙이나?",
+  "a": "중간 캐시(CDN 등)가 응답에 붙인다. \"이 응답을 들고 있은 지 몇 초째\"라는 뜻.",
+  "s": "노트 단원 1, 2"
+ },
+ {
+  "d": "basics",
+  "q": "상태 코드 200, 304, 404를 한 마디씩 말하면?",
+  "a": "200 여기 있어요, 304 네가 가진 거 그대로 써, 404 그런 거 없어요.",
+  "s": "노트 단원 1"
+ },
+ {
+  "d": "basics",
+  "q": "내가 보낸 헤더와 받은 헤더를 눈으로 보려면?",
+  "a": "DevTools Network 탭에서 요청을 누르면 Request Headers와 Response Headers가 따로 나온다. curl -v에서는 > 줄이 요청, < 줄이 응답.",
+  "c": "curl -v https://developer.mozilla.org/en-US/ -o /dev/null",
+  "s": "노트 단원 1"
+ },
+ {
+  "d": "cache",
+  "q": "캐시를 한 문장으로 말하면?",
+  "a": "한 번 받은 응답을 가까운 곳에 복사해 두고, 다음에 같은 요청이 오면 그 복사본을 쓰는 것.",
+  "n": [
+   "비유: 우유를 매번 공장(서버)에 가서 사 오지 않고 냉장고(캐시)에 넣어 둔다."
+  ],
+  "s": "노트 단원 2"
+ },
+ {
+  "d": "cache",
+  "q": "캐시를 쓰면 좋아지는 세 가지는?",
+  "a": "빨라진다, 서버가 덜 힘들다, 데이터(요금·전송 비용)를 아낀다.",
+  "s": "노트 단원 2"
+ },
+ {
+  "d": "cache",
+  "q": "캐시가 만드는 문제와, 그래서 필요한 규칙 두 가지는?",
+  "a": "복사본이 낡을 수 있다. 그래서 \"얼마 동안 그냥 믿을지(max-age)\"와 \"기한이 지나면 어떻게 확인할지(ETag)\"가 필요하다.",
+  "n": [
+   "캐시 이야기는 전부 \"빨라지고 싶다\"와 \"낡은 걸 보여 주면 안 된다\" 사이의 줄다리기."
+  ],
+  "s": "노트 단원 2"
+ },
+ {
+  "d": "cache",
+  "q": "캐시는 어디어디에 있나? (요청이 지나가는 순서로)",
+  "a": "브라우저 캐시 → CDN → 프록시(nginx 등) → 원본 서버. 가는 길에 쓸 만한 복사본이 있으면 거기서 멈춘다.",
+  "s": "노트 단원 2"
+ },
+ {
+  "d": "cache",
+  "q": "CDN이 뭔가?",
+  "a": "원본 서버 대신 세계 곳곳에 둔 \"대리점\" 서버. 사용자는 가까운 대리점에서 복사본을 받는다.",
+  "n": [
+   "예: Cloudflare, CloudFront."
+  ],
+  "s": "노트 단원 2"
+ },
+ {
+  "d": "cache",
+  "q": "private 캐시와 shared 캐시의 차이는?",
+  "a": "private는 브라우저 캐시(나만 씀), shared는 CDN·프록시(한 사람이 받은 걸 다른 사람에게도 줌).",
+  "n": [
+   "\"내 정보\" 화면이 shared 캐시에 들어가면 다음 사람이 내 화면을 받는다. 서버가 응답에 <code>Cache-Control: private<\/code>로 막는다."
+  ],
+  "s": "노트 단원 2"
+ },
+ {
+  "d": "cache",
+  "q": "응답의 <code>Cache-Control: max-age=3600<\/code>은 무슨 뜻?",
+  "a": "받은 뒤 3600초(1시간) 동안은 서버에 묻지 말고 그냥 써도 된다.",
+  "s": "노트 단원 2"
+ },
+ {
+  "d": "cache",
+  "q": "fresh(신선)와 stale(상함)은 무엇으로 나뉘고, 각각 캐시는 무엇을 하나?",
+  "a": "max-age 안이면 fresh라 묻지 않고 쓰고, 지나면 stale이라 버리지 않고 서버에 아직 맞는지 묻는다(재검증).",
+  "s": "노트 단원 2"
+ },
+ {
+  "d": "cache",
+  "q": "CDN에서 받은 응답에 <code>max-age=3600<\/code>, <code>Age: 1254<\/code>. 내 브라우저에서 남은 신선 시간은?",
   "a": "3600 − 1254 = 2346초, 약 39분.",
   "n": [
-   "<code>age<\/code>는 shared 캐시(CDN)가 이 응답을 들고 있던 시간이다. CDN에서 받은 응답은 갓 만든 게 아닐 수 있다."
+   "Age는 CDN이 이미 들고 있던 시간. 기한은 원본 서버가 만든 순간부터 센다."
   ],
-  "s": "장표 6"
+  "s": "노트 단원 2"
  },
  {
-  "d": "basic",
-  "q": "캐시가 저장된 응답을 두고 내리는 판단 세 갈래는?",
-  "a": "신선하면 바로 쓰고(200), 상했는데 검증 값이 있으면 물어보고(304), 검증 값도 없으면 다시 받는다(200).",
+  "d": "cache",
+  "q": "응답에 Cache-Control이 아예 없으면 브라우저는 저장하지 않나?",
+  "a": "아니다. Last-Modified만 있어도 \"이 파일이 앞으로 얼마 동안 안 바뀔까\"를 짐작해 기한을 스스로 정한다(휴리스틱 캐시).",
   "n": [
-   "검증 값은 ETag(내용의 지문)와 Last-Modified(마지막 수정 시각) 두 가지다."
+   "오래 안 고친 파일은 앞으로도 한동안 안 바뀔 테니 길게, 방금 고친 파일은 곧 또 바뀔 수 있으니 짧게. 보통 \"마지막으로 고친 뒤 지난 시간의 10%\". 1년 전에 고친 파일이면 약 36일, 1시간 전이면 6분.",
+   "\"지금 최신인가\"를 따지는 게 아니다. 방금 받은 복사본은 늘 최신이고, 정하는 건 \"얼마나 오래 믿고 쓸까\"다.",
+   "개발자가 정하지 않은 기한이 생기는 셈이라 API 응답에는 Cache-Control을 꼭 적는다."
   ],
-  "s": "장표 7"
+  "s": "노트 단원 2"
  },
  {
-  "d": "basic",
-  "q": "DevTools Network의 Size 열에 <code>(disk cache)<\/code>나 <code>(memory cache)<\/code>가 보이면 무슨 뜻?",
-  "a": "서버에 요청이 나가지 않았다. 서버 로그에도 남지 않는다.",
+  "d": "cache",
+  "q": "DevTools Size 열에 <code>(disk cache)<\/code>가 보이면 무슨 뜻?",
+  "a": "서버에 요청이 가지도 않았다. 서버 로그에도 없다.",
   "n": [
    "\"배포했는데 사용자 화면이 안 바뀌어요\"의 단골 원인."
   ],
-  "s": "장표 7"
- },
- {
-  "d": "basic",
-  "q": "응답에 Cache-Control이 없고 Last-Modified만 있으면 브라우저는?",
-  "a": "기한을 스스로 추측해 캐시한다(휴리스틱 캐시).",
-  "n": [
-   "수정된 지 오래된 파일이면 \"좀 더 써도 되겠지\" 한다. 예상 못한 캐시의 흔한 원인이라 API 응답에는 Cache-Control을 꼭 적는다.",
-   "예: example.com은 Cache-Control 없이 Last-Modified만 준다."
-  ],
-  "s": "노트 장표 6, 14"
- },
- {
-  "d": "basic",
-  "q": "일반 새로고침(F5)과 강력 새로고침(Ctrl+Shift+R)의 차이는?",
-  "a": "F5는 신선한 것도 재검증하고, 강력 새로고침은 캐시를 무시하고 처음부터 받는다.",
-  "n": [
-   "F5는 요청에 <code>Cache-Control: max-age=0<\/code>, 강력 새로고침은 <code>no-cache<\/code>를 붙여 보낸다.",
-   "그래서 \"내 화면에선 되는데요\"를 확인할 때 두 결과가 다를 수 있다."
-  ],
-  "s": "노트 장표 7"
- },
- {
-  "d": "basic",
-  "q": "Q21 → Q23 → Q20, 세 퀴즈를 하나로 묶는 이야기는?",
-  "a": "같은 주소의 응답을 언제 다시 쓰고(Q20), 어떻게 아직 맞는지 확인하고(Q21), 무엇을 줄지 고르는가(Q23).",
-  "s": "장표 4"
- },
- {
-  "d": "cc",
-  "q": "Q20. <code>Cache-Control: no-cache<\/code>의 의미는?",
-  "a": "저장은 해도 된다. 쓰기 전에 매번 서버에 확인해야 한다.",
-  "n": [
-   "이름과 달리 \"저장 금지\"가 아니다. 사실상 max-age=0에 재검증 필수를 더한 것."
-  ],
-  "s": "장표 8"
- },
- {
-  "d": "cc",
-  "q": "<code>no-store<\/code>의 의미는?",
-  "a": "아예 저장하지 마라. 디스크에도 남기지 않는다.",
-  "n": [
-   "매번 본문 전체를 받는다. 계좌 내역, 개인정보 화면, 1회용 토큰 응답처럼 남으면 안 되는 것에만 쓴다."
-  ],
-  "s": "장표 8"
- },
- {
-  "d": "cc",
-  "q": "\"항상 최신만 보여 주면 된다.\" <code>no-cache<\/code>와 <code>no-store<\/code> 중 더 싼 쪽은?",
-  "a": "no-cache. 안 바뀌었으면 304로 본문 전송을 아낀다.",
-  "n": [
-   "함정: \"캐시 끄기\"라고 모든 응답에 no-store를 넣으면 304의 이득을 다 버린다."
-  ],
-  "s": "장표 8"
- },
- {
-  "d": "cc",
-  "q": "SPA의 <code>index.html<\/code>에 맞는 Cache-Control은?",
-  "a": "no-cache. 매번 묻되, 안 바뀌었으면 304로 아낀다.",
-  "n": [
-   "index.html이 새 번들 파일 이름을 가리키니, 배포하자마자 새 이름을 알아야 한다."
-  ],
-  "s": "노트 장표 8, 14"
- },
- {
-  "d": "cc",
-  "q": "<code>s-maxage=N<\/code>은 언제 쓰나?",
-  "a": "shared 캐시(CDN)에만 다른 기한을 주고 싶을 때.",
-  "n": [
-   "예: <code>max-age=60, s-maxage=3600<\/code> → 브라우저는 1분, CDN은 1시간. 배포 때 CDN만 비우면(purge) 된다."
-  ],
-  "s": "장표 9"
- },
- {
-  "d": "cc",
-  "q": "<code>public<\/code>과 <code>private<\/code>의 차이는?",
-  "a": "public은 shared 캐시도 저장해도 되고, private은 브라우저만 저장한다.",
-  "s": "장표 9"
- },
- {
-  "d": "cc",
-  "q": "<code>must-revalidate<\/code>는 무엇을 막나?",
-  "a": "상한 응답을 확인 없이 쓰는 것. 원본 서버가 죽었어도 상한 걸 몰래 주지 말고 504를 준다.",
-  "n": [
-   "3주차 504와 이어지는 지점."
-  ],
-  "s": "장표 9"
- },
- {
-  "d": "cc",
-  "q": "<code>immutable<\/code>은 무엇이고 어디에만 쓰나?",
-  "a": "신선 기간 안에는 새로고침해도 재검증하지 말라는 뜻. 파일명에 해시가 붙은 번들에만 쓴다.",
-  "n": [
-   "<code>app.3f9a1c.js<\/code>처럼 내용이 바뀌면 이름이 바뀌는 파일."
-  ],
-  "s": "장표 9"
- },
- {
-  "d": "cc",
-  "q": "<code>stale-while-revalidate=N<\/code>은 어떻게 동작하나?",
-  "a": "상한 뒤 N초까지는 옛것을 즉시 주고, 뒤에서 새로 받아 둔다.",
-  "n": [
-   "사용자 체감 속도가 좋아진다. React SWR 라이브러리 이름이 여기서 왔다."
-  ],
-  "s": "장표 9"
- },
- {
-  "d": "cc",
-  "q": "Cache-Control 자주 쓰는 값 여덟 개를 다섯 묶음으로 나누면?",
-  "a": "기한, 누가, 확인 방식, 저장 금지, 최적화.",
-  "n": [
-   "기한: <code>max-age<\/code> <code>s-maxage<\/code>",
-   "누가: <code>public<\/code> <code>private<\/code>",
-   "확인 방식: <code>no-cache<\/code> <code>must-revalidate<\/code>",
-   "저장 금지: <code>no-store<\/code>",
-   "최적화: <code>immutable<\/code> <code>stale-while-revalidate<\/code>"
-  ],
-  "s": "장표 9"
- },
- {
-  "d": "cc",
-  "q": "네이버는 왜 <code>no-cache, no-store, must-revalidate<\/code>를 다 넣었나?",
-  "a": "지시어 일부를 모르는 오래된 브라우저·프록시에 대비한 것. 실제로 이기는 건 no-store.",
-  "n": [
-   "\"허리띠와 멜빵\" 방식."
-  ],
-  "s": "노트 장표 8"
- },
- {
-  "d": "cc",
-  "q": "<code>Pragma: no-cache<\/code>는 지금도 써야 하나?",
-  "a": "아니다. HTTP/1.0 시절 헤더라 지금은 Cache-Control만 쓰면 된다.",
-  "s": "노트 장표 8"
+  "s": "노트 단원 2"
  },
  {
   "d": "etag",
-  "q": "Q21. <code>If-None-Match: \"abc123\"<\/code>을 붙여 요청했고 리소스는 그대로다. 서버의 응답은?",
-  "a": "304 Not Modified, 본문 없음.",
-  "s": "장표 4, 10"
- },
- {
-  "d": "etag",
-  "q": "ETag란?",
+  "q": "ETag가 뭔가?",
   "a": "서버가 응답에 붙이는 내용의 지문. 내용이 바뀌면 값도 바뀐다.",
   "n": [
    "비유: 우유팩의 제조 번호."
   ],
-  "s": "장표 10"
+  "s": "노트 단원 3"
  },
  {
   "d": "etag",
-  "q": "<code>If-None-Match<\/code> 요청 헤더는 서버에 무엇을 말하나?",
-  "a": "\"내가 가진 건 이 지문이니, 이것과 다르면 보내 줘.\"",
-  "n": [
-   "같으면 서버는 304로 \"가진 거 써\"라고만 한다."
-  ],
-  "s": "장표 10"
+  "q": "왜 내용 전체를 다시 받아 비교하지 않고 지문(ETag)을 쓰나?",
+  "a": "다 받아서 비교하면 그냥 다시 받는 것과 같아서 아끼는 게 없다. 짧은 지문만 비교하면 본문을 안 받아도 된다.",
+  "s": "노트 단원 3"
  },
  {
   "d": "etag",
-  "q": "ETag → If-None-Match → 304 흐름을 세 단계로 말하면?",
-  "a": "① 200 + ETag + 본문을 저장 → ② 기한이 지나면 If-None-Match를 붙여 요청 → ③ 같으면 304(본문 없음), 다르면 200 + 새 ETag·본문.",
-  "s": "장표 10"
+  "q": "<code>If-None-Match: \"v3\"<\/code>는 누가 어디에 싣고, 무슨 뜻인가?",
+  "a": "브라우저가 요청에 싣는다. \"내가 가진 지문은 v3인데, 이것과 다르면 새 걸 보내 줘.\"",
+  "s": "노트 단원 3"
+ },
+ {
+  "d": "etag",
+  "q": "ETag로 재검증하는 흐름을 세 단계로 말하면?",
+  "a": "① 서버가 200 + ETag + 본문을 주고 브라우저가 저장 → ② 기한이 지나면 브라우저가 If-None-Match에 그 지문을 넣어 요청 → ③ 같으면 304(본문 없음), 다르면 200 + 새 ETag·본문.",
+  "s": "노트 단원 3"
+ },
+ {
+  "d": "etag",
+  "q": "Q21. 브라우저가 <code>If-None-Match: \"abc123\"<\/code>을 붙여 요청했고 리소스는 그대로다. 서버의 응답은?",
+  "a": "304 Not Modified, 본문 없음.",
+  "s": "진단 퀴즈 Q21"
+ },
+ {
+  "d": "etag",
+  "q": "304는 에러인가?",
+  "a": "아니다. 3xx는 \"다른 곳을 봐\" 묶음이고, 304는 \"네가 이미 가진 걸 봐\"다. 화면은 정상으로 나온다.",
+  "s": "노트 단원 3"
  },
  {
   "d": "etag",
   "q": "304가 아끼는 것과 못 아끼는 것은?",
-  "a": "본문 전송은 아끼고, 요청·왕복은 그대로 든다.",
+  "a": "본문 전송은 아끼고, 요청을 보내고 답을 기다리는 왕복 시간은 그대로 든다.",
   "n": [
-   "서버도 지문을 계산하려고 DB를 읽을 수 있다. 그래서 \"아예 안 묻는\" max-age와 같이 쓴다."
+   "서버도 지문을 계산해야 한다. 그래서 아예 안 묻는 max-age와 같이 쓴다."
   ],
-  "s": "장표 11"
+  "s": "노트 단원 3"
  },
  {
   "d": "etag",
-  "q": "MDN 첫 화면 데모: 처음 받기와 ETag를 들고 다시 묻기의 결과는?",
-  "a": "200에 본문 약 117~119KB → 304에 본문 0바이트.",
-  "n": [
-   "11/12: 116,977B, 11/17: 118,790B. gzip으로 받으면 약 16.5KB.",
-   "<code>bash demo.sh etag<\/code>로 다시 볼 수 있다."
-  ],
-  "c": "HTTP/2 200   etag: \"3a8ce56f…\"   body=118790B\nHTTP/2 304   etag: \"3a8ce56f…\"   body=0B",
-  "s": "장표 11"
+  "q": "MDN 첫 화면을 받고, 받은 ETag를 들고 다시 물으면?",
+  "a": "처음은 200에 본문 118,790B, 다시 물으면 304에 본문 0B (11/17).",
+  "c": "HTTP/2 200   etag: \"3a8ce56f…\"   본문 118790B\nHTTP/2 304   etag: \"3a8ce56f…\"   본문 0B",
+  "s": "실측 11/17 · demo.sh etag"
  },
  {
   "d": "etag",
-  "q": "ETag는 무엇으로 만드나? 304를 싸게 주려면?",
-  "a": "본문 해시, DB의 updated_at, 버전 번호. 싼 값(updated_at·버전 칼럼)으로 만들면 DB 한 칸만 읽고 304를 줄 수 있다.",
-  "n": [
-   "본문 해시로 만들면 결국 데이터를 다 읽어야 지문이 나온다."
-  ],
-  "s": "노트 장표 10"
+  "q": "ETag는 무엇으로 만들고, 304를 싸게 주려면?",
+  "a": "본문 해시, DB의 updated_at, 버전 번호. 버전 칼럼처럼 싼 값으로 만들면 DB 한 칸만 읽고 304를 줄 수 있다.",
+  "s": "노트 단원 3"
  },
  {
   "d": "etag",
   "q": "강한 ETag <code>\"abc\"<\/code>와 약한 ETag <code>W/\"abc\"<\/code>의 차이는?",
-  "a": "강한 ETag는 바이트까지 같다는 뜻, 약한 ETag는 의미만 같다는 뜻.",
+  "a": "강한 것은 바이트까지 같다는 뜻, 약한 것(W/)은 뜻만 같다는 뜻.",
   "n": [
-   "압축 방식 차이 같은 건 약한 ETag가 무시한다. 304 판단에는 둘 다 쓸 수 있다."
+   "jQuery 파일은 압축해서 받으면 바이트가 달라져 W/가 붙는다. 304 판단에는 둘 다 쓴다."
   ],
-  "s": "노트 장표 10"
- },
- {
-  "d": "etag",
-  "q": "jQuery 파일의 ETag에 <code>W/<\/code>가 붙었다 안 붙었다 한다. 왜?",
-  "a": "gzip으로 받으면 압축 때문에 바이트가 달라져서, 서버가 \"의미만 같다\"는 약한 ETag로 바꿔 준다.",
-  "n": [
-   "11/17 실측: gzip이면 <code>W/\"28feccc0-155ed\"<\/code>, 압축 없이 받으면 <code>\"28feccc0-155ed\"<\/code>."
-  ],
-  "s": "발표 대본"
+  "s": "노트 단원 3"
  },
  {
   "d": "etag",
   "q": "Last-Modified / If-Modified-Since 방식의 약점은?",
-  "a": "1초 단위라 1초 안에 두 번 바뀌면 못 잡는다.",
-  "n": [
-   "ETag와 둘 다 있으면 ETag가 우선한다."
-  ],
-  "s": "노트 장표 10"
+  "a": "1초 단위라 1초 안에 두 번 바뀌면 못 잡는다. 둘 다 있으면 ETag가 우선.",
+  "s": "노트 단원 3"
  },
  {
   "d": "etag",
-  "q": "<code>If-Match: \"v3\"<\/code>를 붙여 PUT하면?",
-  "a": "\"내가 본 게 v3일 때만 바꿔 줘.\" 그사이 누가 바꿨으면 412 Precondition Failed.",
-  "n": [
-   "동시 수정 때 덮어쓰기를 막는 낙관적 잠금. 3주차 409·멱등성 이야기와 이어진다."
-  ],
-  "s": "노트 장표 10"
+  "q": "PUT 요청에 <code>If-Match: \"v3\"<\/code>를 붙이면? If-None-Match와 어떻게 다른가?",
+  "a": "\"내가 본 게 v3일 때만 바꿔 줘\". 그사이 바뀌었으면 412. None-Match는 \"안 맞으면 줘\"(읽기, 304), Match는 \"맞을 때만 해\"(고치기, 412).",
+  "s": "노트 단원 3"
  },
  {
-  "d": "etag",
-  "q": "304 응답에 Cache-Control이 함께 오면 브라우저는?",
-  "a": "저장해 둔 응답의 헤더를 그 값으로 바꾸고 신선 기간을 새로 시작한다.",
+  "d": "cc",
+  "q": "응답의 Cache-Control은 누가 적고, 누가 따르나?",
+  "a": "서버(개발자)가 응답 헤더에 적고, 그 응답이 지나가는 모든 캐시(CDN, 프록시, 브라우저)가 따른다.",
+  "s": "노트 단원 4"
+ },
+ {
+  "d": "cc",
+  "q": "Q20. 응답 헤더 <code>Cache-Control: no-cache<\/code>의 의미는?",
+  "a": "저장은 해도 된다. 쓰기 전에 매번 서버에 확인해야 한다.",
   "n": [
-   "그래서 304 한 번이면 다시 한동안 묻지 않는다."
+   "이름과 달리 \"캐시하지 마\"가 아니다."
   ],
-  "s": "발표 대본"
+  "s": "진단 퀴즈 Q20"
+ },
+ {
+  "d": "cc",
+  "q": "응답의 <code>no-store<\/code>는?",
+  "a": "아예 저장하지 마라. 디스크에도 남기지 않고 매번 처음부터 받는다.",
+  "n": [
+   "계좌 내역, 개인정보 화면처럼 남으면 안 되는 것에만."
+  ],
+  "s": "노트 단원 4"
+ },
+ {
+  "d": "cc",
+  "q": "no-cache와 no-store를 헷갈리지 않는 요령은?",
+  "a": "no-cache는 \"확인 없이 쓰지 마\". 저장을 막는 건 이름에 store(보관)가 들어간 쪽.",
+  "s": "노트 단원 4"
+ },
+ {
+  "d": "cc",
+  "q": "\"늘 최신만 보여 주면 된다.\" no-cache와 no-store 중 더 싼 쪽은?",
+  "a": "no-cache. 안 바뀌었으면 304로 본문을 아낀다.",
+  "n": [
+   "\"확실히 하려고\" 모든 응답에 no-store를 넣으면 304의 이득을 다 버린다."
+  ],
+  "s": "노트 단원 4"
+ },
+ {
+  "d": "cc",
+  "q": "<code>public<\/code>과 <code>private<\/code>는?",
+  "a": "public은 공용 캐시(CDN)도 저장해도 된다, private은 브라우저만 저장.",
+  "s": "노트 단원 4"
+ },
+ {
+  "d": "cc",
+  "q": "<code>s-maxage<\/code>는 언제 쓰나?",
+  "a": "공용 캐시(CDN)에만 다른 기한을 줄 때. <code>max-age=60, s-maxage=3600<\/code>이면 브라우저 1분, CDN 1시간.",
+  "s": "노트 단원 4"
+ },
+ {
+  "d": "cc",
+  "q": "<code>must-revalidate<\/code>는 무엇을 막나?",
+  "a": "상한 복사본을 확인 없이 쓰는 것. 서버가 죽었어도 상한 걸 몰래 주지 말고 에러(504)를 준다.",
+  "s": "노트 단원 4"
+ },
+ {
+  "d": "cc",
+  "q": "<code>immutable<\/code>은 무슨 뜻이고 어디에만 쓰나?",
+  "a": "\"절대 안 바뀜\". 기한 안에는 새로고침해도 묻지 마. 파일 이름에 지문(해시)이 붙은 파일에만.",
+  "s": "노트 단원 4"
+ },
+ {
+  "d": "cc",
+  "q": "<code>stale-while-revalidate=N<\/code>은?",
+  "a": "상한 뒤 N초까지는 옛것을 바로 보여 주고, 뒤에서 몰래 새것을 받아 둔다.",
+  "n": [
+   "체감 속도가 좋아진다. React SWR 라이브러리 이름이 여기서 왔다."
+  ],
+  "s": "노트 단원 4"
+ },
+ {
+  "d": "cc",
+  "q": "Cache-Control 여덟 값을 다섯 묶음으로 나누면?",
+  "a": "얼마나(max-age, s-maxage), 누가(public, private), 확인(no-cache, must-revalidate), 금지(no-store), 최적화(immutable, stale-while-revalidate).",
+  "s": "노트 단원 4"
+ },
+ {
+  "d": "cc",
+  "q": "네이버는 왜 <code>no-cache, no-store, must-revalidate<\/code>를 다 넣었나?",
+  "a": "일부 값을 모르는 옛 브라우저·프록시에 대비한 겹겹이 방어. 실제로 이기는 건 no-store.",
+  "n": [
+   "<code>Pragma: no-cache<\/code>는 HTTP/1.0 시절 헤더라 지금은 Cache-Control만 쓰면 된다."
+  ],
+  "s": "노트 단원 4"
+ },
+ {
+  "d": "reload",
+  "q": "요청에 실린 Cache-Control은 무슨 뜻인가?",
+  "a": "브라우저가 이번 요청 한 번에만 하는 부탁. \"저장된 복사본을 그냥 주지 말고 이렇게 해 줘.\"",
+  "n": [
+   "듣는 쪽은 주로 가는 길의 캐시(브라우저 자신, CDN). 앱 서버는 보통 신경 쓰지 않는다. CDN도 설정에 따라 따르기도, 무시하기도 한다."
+  ],
+  "s": "노트 단원 5"
+ },
+ {
+  "d": "reload",
+  "q": "응답의 Cache-Control과 요청의 Cache-Control의 차이는?",
+  "a": "응답의 것은 서버가 정한 보관 규칙(오래 유효, 모든 캐시가 따름), 요청의 것은 브라우저의 한 번 부탁(그 요청에만).",
+  "s": "노트 단원 5"
+ },
+ {
+  "d": "reload",
+  "q": "요청에 <code>Cache-Control: max-age=0<\/code>을 붙이면?",
+  "a": "\"0초보다 오래된 복사본은 싫어\" = 서버에 확인받은 걸로 달라는 뜻.",
+  "n": [
+   "모든 복사본은 0초보다 오래됐으니 결국 재검증이 일어난다. 안 바뀌었으면 304."
+  ],
+  "s": "노트 단원 5"
+ },
+ {
+  "d": "reload",
+  "q": "같은 <code>no-cache<\/code>가 응답에 있을 때와 요청에 있을 때 뜻은?",
+  "a": "응답: 저장해도 되지만 쓸 때마다 확인해(보관 규칙). 요청: 이번엔 저장본을 확인 없이 주지 마(한 번 부탁).",
+  "n": [
+   "어느 쪽 헤더인지 먼저 보고 뜻을 읽는다."
+  ],
+  "s": "노트 단원 5"
+ },
+ {
+  "d": "reload",
+  "q": "주소창 Enter나 링크 클릭으로 페이지를 열면 브라우저는 캐시를 어떻게 쓰나?",
+  "a": "요청에 아무것도 붙이지 않고 평소대로. 신선한 복사본은 서버에 묻지 않고 쓰고, 상한 것만 지문을 들고 확인한다.",
+  "s": "노트 단원 5"
+ },
+ {
+  "d": "reload",
+  "q": "F5(새로고침)를 누르면 브라우저는 요청에 무엇을 붙이고, 결과는?",
+  "a": "페이지 HTML 요청에 <code>Cache-Control: max-age=0<\/code>을 붙여 신선해도 확인받는다. 안 바뀌었으면 304. 페이지 안의 그림·JS는 신선하면 그대로 쓴다(크롬 기준).",
+  "s": "노트 단원 5"
+ },
+ {
+  "d": "reload",
+  "q": "강력 새로고침(Ctrl+Shift+R)은 무엇을 붙이고, 결과는?",
+  "a": "모든 요청에 <code>Cache-Control: no-cache<\/code>(와 옛 <code>Pragma: no-cache<\/code>)를 붙이고 지문(If-None-Match)도 빼서, 전부 200으로 새로 받는다.",
+  "s": "노트 단원 5"
+ },
+ {
+  "d": "reload",
+  "q": "F5와 강력 새로고침의 차이를 한 줄로?",
+  "a": "F5는 확인받기(304 가능), 강력 새로고침은 확인도 없이 처음부터 다 받기.",
+  "s": "노트 단원 5"
+ },
+ {
+  "d": "reload",
+  "q": "\"내 화면에선 되는데요\"를 확인하는 방법과 근본 해결은?",
+  "a": "강력 새로고침, 또는 DevTools Network 탭의 Disable cache를 켜고 본다. 근본 해결은 서버의 응답 Cache-Control을 고치는 것.",
+  "s": "노트 단원 5"
+ },
+ {
+  "d": "nego",
+  "q": "콘텐츠 협상이 왜 필요한가?",
+  "a": "주소는 하나인데 줄 수 있는 내용이 여러 개라서. 예: 같은 /에 한국어판·영어판, 같은 그림에 AVIF·JPEG.",
+  "s": "노트 단원 6"
  },
  {
   "d": "nego",
   "q": "Q23. 같은 URL인데 <code>Accept-Language<\/code>에 따라 한국어·영어 페이지를 돌려주는 것은?",
   "a": "콘텐츠 협상.",
-  "s": "장표 4, 12"
+  "s": "진단 퀴즈 Q23"
  },
  {
   "d": "nego",
   "q": "콘텐츠 협상에서 요청 헤더와 응답 헤더의 짝 세 쌍은?",
   "a": "Accept → Content-Type, Accept-Language → Content-Language, Accept-Encoding → Content-Encoding.",
   "n": [
-   "브라우저가 Accept-*로 원하는 걸 말하고, 서버가 골라서 Content-*로 무엇을 골랐는지 알린다."
+   "브라우저가 요청의 Accept-*로 원하는 걸 말하고, 서버가 응답의 Content-*로 무엇을 줬는지 알린다."
   ],
-  "s": "장표 12"
+  "s": "노트 단원 6"
+ },
+ {
+  "d": "nego",
+  "q": "콘텐츠 협상을 카페 주문으로 말하면?",
+  "a": "\"커피 주세요(같은 주소), 따뜻한 걸로, 없으면 아이스(Accept)\" → \"따뜻한 걸로 드렸어요(Content)\". 원하는 게 없으면 있는 걸 준다.",
+  "s": "노트 단원 6"
  },
  {
   "d": "nego",
   "q": "<code>Accept-Language: ko-KR,ko;q=0.9,en;q=0.8<\/code>에서 <code>q<\/code>는?",
-  "a": "선호도(0~1). 한국어가 제일, 영어는 차선이라는 뜻.",
-  "s": "노트 장표 12"
- },
- {
-  "d": "nego",
-  "q": "<code>Accept<\/code> 헤더로 협상하는 실무 예 두 가지는?",
-  "a": "같은 /orders/7을 API에는 JSON, 주소창에는 HTML로. 이미지 CDN이 AVIF·WebP 중 브라우저가 지원하는 가장 가벼운 형식으로.",
-  "s": "노트 장표 12"
+  "a": "선호도(0~1). 한국어가 제일, 영어는 차선.",
+  "s": "노트 단원 6"
  },
  {
   "d": "nego",
   "q": "MDN 첫 주소에 <code>Accept-Language: ko<\/code>를 보내면?",
   "a": "302로 /ko/에 보낸다. 같은 주소에서 바로 주지 않고 언어별 주소로 보낸다.",
   "n": [
-   "언어별로 주소가 다르면 캐시·검색 엔진·공유 링크가 단순해진다."
+   "주소가 나뉘면 캐시·검색·공유 링크가 단순해진다."
   ],
   "c": "ko → 302  Location: /ko/\nja → 302  Location: /ja/\nen → 302  Location: /en-US/",
-  "s": "장표 12"
+  "s": "실측 11/17 · demo.sh lang"
  },
  {
   "d": "nego",
   "q": "GitHub에 <code>Accept-Language: ko<\/code>를 보내면 한국어가 오나?",
-  "a": "아니다. content-language: en-US. 협상은 요청일 뿐이고, 서버에 그 언어가 없으면 기본값을 준다.",
-  "s": "노트 장표 12"
+  "a": "아니다. 영어(content-language: en-US)가 온다. 협상은 부탁일 뿐, 없으면 기본값을 준다.",
+  "s": "노트 단원 6"
  },
  {
   "d": "nego",
-  "q": "<code>Vary<\/code> 헤더는 캐시에게 무엇을 말하나?",
-  "a": "\"주소만 보지 말고 이 요청 헤더 값도 보고 구분해.\"",
+  "q": "캐시는 원래 무엇을 보고 \"같은 요청\"인지 판단하나? 협상하면 왜 문제인가?",
+  "a": "주소만 본다. 협상을 하면 같은 주소에 한국어판·영어판이 따로 있어서, 주소만 보면 섞인다.",
+  "s": "노트 단원 6"
+ },
+ {
+  "d": "nego",
+  "q": "응답의 <code>Vary: Accept-Language<\/code>는 캐시에게 무엇을 말하나?",
+  "a": "\"주소만 보지 말고 Accept-Language 값도 보고 따로 저장해.\" 캐시는 주소 + 언어를 묶어 저장한다.",
+  "s": "노트 단원 6"
+ },
+ {
+  "d": "nego",
+  "q": "Vary를 빼먹으면 생기는 사고는?",
+  "a": "한국인이 먼저 받은 한국어판이 CDN에 저장되어 다음 미국인도 한국어를 받는다.",
   "n": [
-   "캐시의 기본 열쇠는 메서드 + URL. <code>Vary: Accept-Language<\/code>가 있으면 열쇠에 언어 값이 더해져 따로 저장한다."
+   "그래서 거의 모든 사이트에 <code>Vary: Accept-Encoding<\/code>이 있다(nginx <code>gzip_vary on;<\/code>)."
   ],
-  "s": "장표 13"
+  "s": "노트 단원 6"
  },
  {
   "d": "nego",
-  "q": "협상하는 응답에 Vary를 빼먹으면 생기는 일은?",
-  "a": "한국인이 먼저 받은 한국어 페이지가 CDN에 저장되어 다음 미국인도 한국어를 받는다.",
-  "n": [
-   "gzip을 못 읽는 클라이언트가 압축된 본문을 받는 사고도 생긴다."
-  ],
-  "s": "장표 13"
+  "q": "Vary에 User-Agent나 Cookie를 걸면?",
+  "a": "사람마다 값이 달라 복사본이 잘게 쪼개지고 거의 다시 쓰이지 않는다. 캐시가 있으나 마나가 된다.",
+  "s": "노트 단원 6"
  },
  {
   "d": "nego",
-  "q": "거의 모든 사이트에 <code>Vary: Accept-Encoding<\/code>이 있는 이유는? nginx에서는?",
-  "a": "압축 응답과 비압축 응답을 섞지 않으려고. nginx는 <code>gzip_vary on;<\/code>이 붙여 준다.",
-  "s": "노트 장표 13"
- },
- {
-  "d": "nego",
-  "q": "Vary를 너무 많이 붙이면(Cookie, User-Agent 등)?",
-  "a": "캐시가 잘게 쪼개져 거의 맞지 않는다. CDN 적중률을 망친다.",
-  "n": [
-   "GitHub처럼 열 개 넘게 붙인 응답은 사실상 shared 캐시에 넣을 생각이 없는 것이고, 실제로 private이다."
-  ],
-  "s": "노트 장표 13"
- },
- {
-  "d": "nego",
-  "q": "로그인 사용자마다 다른 응답은 Vary로 막나?",
-  "a": "아니다. private(또는 no-store)로 shared 캐시에 아예 넣지 않는다.",
-  "n": [
-   "<code>Vary: Authorization<\/code>으로 버티는 것보다 안전하다."
-  ],
-  "s": "장표 13"
+  "q": "로그인한 사람마다 다른 응답은 Vary로 막나?",
+  "a": "아니다. private로 공용 캐시에 아예 안 넣는다. 같은 주소에서 고르는 거면 Vary, 내 것이면 private.",
+  "s": "노트 단원 6"
  },
  {
   "d": "field",
-  "q": "어떤 파일은 길게, 어떤 파일은 짧게 캐시하나? (규칙 하나)",
-  "a": "내용이 바뀌면 주소가 바뀌는 파일(해시·버전)은 길게, 주소는 그대로인데 내용이 바뀌는 HTML·API는 짧게 + ETag.",
-  "s": "장표 14"
+  "q": "무엇을 길게, 무엇을 짧게 캐시하나? (규칙 하나)",
+  "a": "내용이 바뀌면 이름도 바뀌는 파일은 길게, 이름은 그대로인데 내용이 바뀌는 HTML·API는 짧게 + ETag.",
+  "s": "노트 단원 7"
  },
  {
   "d": "field",
-  "q": "네이버, GitHub, MDN, jQuery 3.7.1의 Cache-Control을 떠올려 보자.",
-  "a": "네이버: 아예 안 남김. GitHub: 나만 저장 + 매번 확인. MDN: CDN이 1시간. jQuery: 1년.",
-  "c": "naver   no-cache, no-store, must-revalidate\ngithub  max-age=0, private, must-revalidate  + ETag W/\nmdn     public, max-age=3600  + ETag\njquery  public, max-age=31536000,\n        stale-while-revalidate=604800",
-  "s": "장표 14"
+  "q": "빌드한 파일 이름 <code>index-3f9a1c.js<\/code>의 이상한 글자는 무엇이고, 왜 붙이나?",
+  "a": "내용으로 만든 지문(해시). 코드를 고치면 이름이 바뀌니 1년 캐시를 걸어도 옛 복사본을 쓸 일이 없다.",
+  "s": "노트 단원 7"
+ },
+ {
+  "d": "field",
+  "q": "파일 이름에 지문이 붙은 JS를 1년 캐시하면, index.html은?",
+  "a": "no-cache로 둔다. 그래야 배포하자마자 새 JS 이름을 안다.",
+  "s": "노트 단원 7"
+ },
+ {
+  "d": "field",
+  "q": "\"배포했는데 사용자 화면이 안 바뀐다\"의 대표 원인과 먼저 볼 것은?",
+  "a": "index.html에 긴 캐시가 걸렸거나 CDN이 HTML을 들고 있다. 먼저 HTML 응답의 Cache-Control을 본다.",
+  "c": "curl -sI https://주소/ | grep -i cache-control",
+  "s": "노트 단원 7"
+ },
+ {
+  "d": "field",
+  "q": "네이버, GitHub, MDN, jQuery 3.7.1의 응답 Cache-Control은?",
+  "a": "네이버 아예 안 남김, GitHub 내 브라우저만 + 매번 확인, MDN CDN이 1시간, jQuery 1년.",
+  "c": "naver   no-cache, no-store, must-revalidate\ngithub  max-age=0, private, must-revalidate + ETag\nmdn     public, max-age=3600 + ETag\njquery  public, max-age=31536000, stale-while-revalidate=604800",
+  "s": "실측 11/17 · demo.sh sites"
  },
  {
   "d": "field",
   "q": "jQuery 3.7.1 파일에 1년 캐시를 걸어도 되는 이유는?",
-  "a": "주소에 버전(3.7.1)이 있어 그 주소의 내용은 절대 바뀌지 않는다.",
-  "s": "장표 14"
- },
- {
-  "d": "field",
-  "q": "Vite·webpack·Next.js가 파일명에 해시를 붙이는 이유와, 그때 index.html은?",
-  "a": "내용이 바뀌면 이름이 바뀌니 1년 캐시를 걸어도 안전하다. 대신 index.html은 no-cache로 둬야 새 이름을 바로 안다.",
-  "s": "노트 장표 14"
- },
- {
-  "d": "field",
-  "q": "\"배포했는데 사용자 화면이 안 바뀐다\"의 대표 원인 두 가지는?",
-  "a": "index.html에 긴 캐시가 걸렸거나, CDN이 HTML을 들고 있다.",
-  "s": "노트 장표 14"
+  "a": "주소에 버전(3.7.1)이 있어서 그 주소의 내용은 절대 안 바뀐다.",
+  "s": "노트 단원 7"
  },
  {
   "d": "field",
   "q": "POST 응답도 브라우저나 CDN이 캐시하나?",
-  "a": "사실상 안 한다. GET(과 HEAD) 응답만 캐시된다고 보면 된다.",
+  "a": "사실상 안 한다. GET(과 HEAD) 응답만 다시 쓴다고 보면 된다.",
   "n": [
-   "그래서 지난주 멱등 키 저장소는 서버가 직접 만든 것이다."
+   "그래서 지난주 멱등 키 저장소는 서버가 직접 만든 것."
   ],
-  "s": "발표 대본"
+  "s": "노트 단원 7"
  },
  {
   "d": "field",
-  "q": "Service Worker 캐시는 오늘 다룬 HTTP 캐시와 같나?",
-  "a": "다르다. JS 코드로 직접 관리하는 저장소라 Cache-Control을 따르지 않는다.",
-  "s": "발표 대본"
+  "q": "Service Worker 캐시는 오늘 배운 HTTP 캐시와 같나?",
+  "a": "다르다. 개발자가 JS 코드로 직접 넣고 꺼내는 저장소라 Cache-Control을 따르지 않는다.",
+  "s": "노트 단원 7"
  },
  {
   "d": "field",
   "q": "HTTP/2·3에서도 캐시 규칙은 같나?",
-  "a": "같다. 캐시 규칙은 HTTP 의미론이라 버전과 상관없다.",
-  "n": [
-   "h2·h3는 같은 메시지를 어떻게 실어 나르느냐의 이야기(주영님 발표). 데모의 <code>HTTP/2 304<\/code>가 그 예."
-  ],
-  "s": "발표 대본"
+  "a": "같다. 캐시 규칙은 메시지의 뜻에 관한 것이라 버전과 상관없다. 버전은 실어 나르는 방식의 이야기.",
+  "s": "노트 단원 7"
  },
  {
   "d": "field",
-  "q": "\"우리 서비스에서는\" 확인할 세 가지는?",
-  "a": "API 응답에 Cache-Control이 있나, 로그인 API에 private·no-store가 있나, 번들 파일명에 해시와 긴 캐시가 있고 index.html은 no-cache인가.",
-  "c": "curl -sI https://우리서비스/api/... | grep -i cache-control",
-  "s": "장표 15"
+  "q": "\"우리 서비스에서\" 확인할 세 가지는?",
+  "a": "API 응답에 Cache-Control이 있나, 로그인 API에 private·no-store가 있나, JS·CSS 이름에 지문 + 긴 캐시이고 index.html은 no-cache인가.",
+  "s": "노트 단원 7"
  },
  {
   "d": "hwc",
   "q": "과제 C를 한 줄로 말하면?",
-  "a": "같은 멱등 키로 두 번 보내도 주문은 1건이었고, 500은 앱이, 502·504는 nginx가 만들었다.",
-  "s": "장표 2"
+  "a": "같은 멱등 키로 두 번 보내도 주문은 1건이었고, 500은 앱이, 502·504는 앞에 선 nginx가 만들었다.",
+  "s": "노트 단원 8"
  },
  {
   "d": "hwc",
-  "q": "같은 Idempotency-Key로 POST /orders를 두 번 보내면?",
-  "a": "둘 다 201, 두 번째는 <code>Idempotent-Replayed: true<\/code>. 주문은 1건.",
-  "n": [
-   "처리 중에 또 오면 409, 키는 같은데 본문이 다르면 422."
-  ],
-  "s": "장표 2"
+  "q": "nginx(리버스 프록시)는 무슨 역할인가?",
+  "a": "요청을 먼저 받아 뒤의 앱 서버에 넘겨 주고, 앱의 응답을 다시 사용자에게 돌려주는 문지기.",
+  "s": "노트 단원 8"
  },
  {
   "d": "hwc",
-  "q": "앱 컨테이너를 통째로 끄면 왜 502가 아니라 504가 났나?",
-  "a": "컨테이너 IP가 사라져 SYN에 RST로 답해 줄 OS조차 없다. proxy_connect_timeout(2초)이 지나 504.",
-  "n": [
-   "OS는 살아 있고 포트를 듣는 프로세스만 없으면 OS가 즉시 RST로 거절해 502. Q17 정답(프로세스가 죽으면 502)은 그대로 맞다."
-  ],
-  "s": "장표 3"
+  "q": "멱등 키(Idempotency-Key)는 무엇을 막고, 누가 만드나?",
+  "a": "재시도로 같은 주문 요청이 두 번 와도 주문을 한 번만 만들게 한다. 클라이언트가 버튼을 누른 한 번마다 만들고, 재시도에는 같은 키를 쓴다.",
+  "s": "노트 단원 8"
  },
  {
   "d": "hwc",
-  "q": "502와 504를 한 마디로 가르면? 더 정확히 가르려면?",
-  "a": "거절당하면 502, 대답이 없으면 504. 정확히는 nginx error.log의 문구를 본다.",
-  "n": [
-   "504도 <code>while connecting<\/code>(연결 자체가 안 됨)과 <code>while reading response header<\/code>(연결은 됐는데 답이 늦음)로 나뉜다."
-  ],
-  "s": "노트 장표 3"
+  "q": "502와 504를 한 마디로 가르면?",
+  "a": "거절당하면 502, 대답이 없으면 504.",
+  "s": "노트 단원 8"
  },
  {
   "d": "hwc",
-  "q": "nginx 로그에 <code>upstream_status=502, 502<\/code>가 찍힌 이유는?",
-  "a": "upstream keepalive로 재사용하던 연결이 끊기자 nginx가 새 연결로 GET을 한 번 더 보냈다.",
+  "q": "앱 컨테이너를 통째로 끄면 왜 502가 아니라 504였나?",
+  "a": "컨테이너가 사라져 \"여기 아무도 없어요\"라고 거절해 줄 OS조차 없어서, nginx가 기다리다 시간 초과(504).",
   "n": [
-   "keepalive를 빼니 재시도가 사라졌다. POST는 다시 보내지 않았다(<code>proxy_next_upstream<\/code>에 <code>non_idempotent<\/code>를 붙여야 켜짐)."
+   "OS는 살아 있고 앱 프로세스만 죽었으면 OS가 바로 거절해 502."
   ],
-  "s": "장표 3"
+  "s": "노트 단원 8"
+ },
+ {
+  "d": "hwc",
+  "q": "nginx는 연결이 우연히 끊기면 어떤 요청을 다시 보내나?",
+  "a": "GET은 몰래 한 번 더 보내고, POST는 보내지 않는다. 두 번 보내도 안전한 요청만 재시도한다.",
+  "s": "노트 단원 8"
  },
  {
   "d": "hwc",
   "q": "nginx가 504를 돌려준 뒤 앱은?",
-  "a": "일을 계속한다. 4초를 다 채우고 아무도 받지 않는 응답을 보냈다.",
-  "n": [
-   "proxy_read_timeout만 줄이면 사용자는 빨리 실패를 보지만 서버는 헛일을 계속한다."
-  ],
-  "s": "장표 3"
+  "a": "일을 계속한다. nginx만 기다리기를 포기한 것.",
+  "s": "노트 단원 8"
  },
  {
   "d": "hwc",
   "q": "멱등 키 저장소와 캐시의 공통점과 차이는?",
-  "a": "둘 다 \"같은 요청엔 저장된 응답\". 차이는 누가 저장하느냐(서버 vs 브라우저·CDN)와 언제까지 믿느냐(키 24시간 vs max-age).",
-  "n": [
-   "과제 C에서 오늘 주제로 넘어가는 다리."
-  ],
-  "s": "장표 3"
+  "a": "둘 다 \"같은 요청엔 저장해 둔 응답\". 다른 건 누가 저장하느냐(서버 vs 브라우저·CDN)와 언제까지 믿느냐(키 24시간 vs max-age).",
+  "s": "노트 단원 8"
  },
  {
-  "d": "hwc",
-  "q": "멱등 키는 누가 만들고, 언제 새로 만드나?",
-  "a": "클라이언트가 만든다. 버튼을 누른 한 번마다 UUID 하나, 그 요청의 재시도에는 같은 키.",
+  "d": "cache",
+  "q": "응답에 Cache-Control 없이 <code>Last-Modified<\/code>만 있고, 그 시각이 100일 전이다. 브라우저는 보통 며칠 동안 묻지 않고 쓸까?",
+  "a": "약 10일. 마지막으로 고친 뒤 지난 시간(100일)의 10%.",
   "n": [
-   "버튼을 다시 누르는 건 새 주문이니 새 키."
+   "오래 안 바뀐 파일일수록 앞으로도 안 바뀔 거라 보고 길게 쓴다."
   ],
-  "s": "노트 과제 C 질문"
- },
- {
-  "d": "hwc",
-  "q": "메모리에 둔 멱등 키 저장소는 서버가 2대면?",
-  "a": "깨진다. 첫 요청은 1번, 재시도는 2번 서버로 가면 2번은 키를 모른다. Redis로 옮긴다.",
-  "c": "SET key \"processing\" NX EX 86400",
-  "s": "노트 과제 C 질문"
+  "s": "노트 단원 2"
  }
 ];
 
-const KEY = "w4-flash-v1";
+const KEY = "w4-flash-v2";
 let marks = {};
 try { marks = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { marks = {}; }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(marks)); } catch (e) {} };

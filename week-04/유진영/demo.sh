@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# 4주차 발표 라이브 데모 (장표 11·12·14). ETag 복사·붙여넣기 없이 한 번에 돈다.
+# 4주차 발표 라이브 데모 (장표 12·16·18). ETag 복사·붙여넣기 없이 한 번에 돈다.
 #   bash demo.sh        # 셋 다
-#   bash demo.sh etag   # 장표 11만: 200 → 같은 지문으로 다시 → 304
-#   bash demo.sh lang   # 장표 12만: Accept-Language만 바꿔 MDN에 요청
-#   bash demo.sh sites  # 장표 14만: 사이트별 Cache-Control
+#   bash demo.sh etag   # 장표 12만: 200 → 같은 지문으로 다시 → 304
+#   bash demo.sh lang   # 장표 16만: Accept-Language만 바꿔 MDN에 요청
+#   bash demo.sh sites  # 장표 18만: 사이트별 Cache-Control
 set -u
 U=https://developer.mozilla.org/en-US/
 pause() { [ -t 0 ] && read -r -p $'\n(엔터를 누르면 다음)' _; echo; }
