@@ -383,8 +383,9 @@ Accept-Language: en  →  302  Location: /en-US/</div>
     </div>
     <div class="box o" style="margin-top:0"><b>Vary를 빼먹으면</b><br>
       · 한국인이 먼저 받은 한국어 페이지가 CDN에 저장되고, 다음 미국인도 한국어를 받는다<br>
-      · gzip 못 읽는 클라이언트가 압축된 본문을 받는다<br>
-      · 로그인 사용자 화면이 남에게 간다 → 이건 Vary가 아니라 <code>private</code>로 막는다</div>
+      · gzip 못 읽는 클라이언트가 압축된 본문을 받는다<br><br>
+      <b>판이 아니라 사람마다 하나뿐인 응답은?</b><br>
+      내 장바구니는 나눌 판이 없다. 공용 캐시에 아예 안 넣는다 → <code>private</code></div>
   </div>
   <div class="code" style="margin-top:30px;font-size:20px"><span class="lab">11/17 실측 Vary</span>MDN·jQuery   vary: Accept-Encoding
 GitHub       vary: X-PJAX, …, <span class="hl">Accept-Language</span>, Sec-Fetch-Site, Accept-Encoding, Accept, …</div>
@@ -411,7 +412,7 @@ GitHub       vary: X-PJAX, …, <span class="hl">Accept-Language</span>, Sec-Fet
     <li>캐시는 한 번 받은 응답의 복사본. <b>기한 안이면 묻지 않고, 지나면 지문을 들고 묻는다.</b></li>
     <li>응답의 <code style="background:#24333f;color:#e9eef1">no-cache</code>는 저장하되 매번 확인, <code style="background:#24333f;color:#e9eef1">no-store</code>는 저장 금지. (Q20)</li>
     <li><code style="background:#24333f;color:#e9eef1">If-None-Match</code>로 물었는데 그대로면 <b>304, 본문 없음</b>. (Q21)</li>
-    <li>같은 주소에서 Accept-*로 고르면 <b>콘텐츠 협상</b>, 그러면 <code style="background:#24333f;color:#e9eef1">Vary</code>. 내 것이면 <code style="background:#24333f;color:#e9eef1">private</code>. (Q23)</li>
+    <li>같은 주소에서 Accept-*로 고르면 <b>콘텐츠 협상</b>. 공용 캐시가 판을 섞지 않게 <code style="background:#24333f;color:#e9eef1">Vary</code>. (Q23)</li>
     <li>Cache-Control은 <b>응답에선 서버의 보관 규칙, 요청에선 브라우저의 한 번 부탁</b>.</li>
   </ol>
   <div class="box us">

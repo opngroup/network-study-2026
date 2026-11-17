@@ -270,7 +270,13 @@ HTTP/2 304   etag: "3a8ce56f…"   본문 0B</pre>
     <p>캐시는 원래 <b>주소</b>만 보고 "같은 요청이네, 저장해 둔 걸 주자"라고 판단합니다. 그런데 협상을 하면 같은 주소에 한국어판과 영어판이 따로 있습니다. 서버가 응답에 <code>Vary: Accept-Language</code>를 붙이면 캐시는 "<b>주소 + 언어</b>"를 묶어 따로 저장합니다.</p>
     <div class="call trap"><span class="lb">함정 · Vary를 빼먹으면</span><p>한국인이 먼저 받은 한국어판이 CDN에 저장되고, 다음에 온 미국인도 한국어판을 받습니다. 압축을 못 읽는 프로그램이 압축된 본문을 받기도 합니다. 그래서 거의 모든 사이트에 <code>Vary: Accept-Encoding</code>이 붙어 있습니다(nginx는 <code>gzip_vary on;</code>).</p></div>
     <div class="call trap"><span class="lb">함정 · 너무 많이 붙여도 문제</span><p><code>Vary: User-Agent</code>(브라우저 종류)나 <code>Vary: Cookie</code>처럼 사람마다 값이 다른 헤더를 걸면 복사본이 잘게 쪼개져 거의 다시 쓰이지 않습니다. 캐시가 있으나 마나가 됩니다.</p></div>
-    <div class="call tip"><span class="lb">쪽집게</span><p><b>로그인한 사람마다 다른 응답은 Vary가 아니라 private로 막는다.</b> 같은 주소에서 고르는 거면 Vary, 내 것이면 private.</p></div>
+    <h3>Vary와 private: 같은 질문, 다른 답</h3>
+    <p>둘 다 "<b>같은 주소인데 사람마다 응답이 다를 때, 공용 캐시가 남의 응답을 엉뚱한 사람에게 주지 않게 하려면?</b>"에 대한 답입니다. 응답이 몇 가지로 나뉘느냐에 따라 갈립니다.</p>
+    <div class="vs">
+      <div class="a1"><span class="t">Vary</span><span class="s">응답이 몇 가지 판으로 나뉠 때</span><p>한국어판·영어판, 압축판·안 압축판. 판별로 따로 저장하면 됩니다. 한국어판은 다른 한국 사람과 <b>나눠 써도</b> 됩니다.</p></div>
+      <div class="a2"><span class="t">private</span><span class="s">응답이 사람마다 하나일 때</span><p>내 장바구니, 내 정보. 남과 나눌 일이 없으니 공용 캐시에 <b>아예 넣지 않습니다</b>. 단원 2에서 본 그 private입니다.</p></div>
+    </div>
+    <div class="call tip"><span class="lb">쪽집게</span><p><b>판이 몇 개면 Vary, 사람마다 하나면 private.</b> 로그인한 사람마다 다른 화면을 <code>Vary: Cookie</code>로 나눠 보려 하면, 사람 수만큼 복사본이 생겨 아무도 다시 안 쓰고 설정을 하나만 틀려도 남의 화면이 갑니다.</p></div>
     <a class="mini" href="#cards-nego">이 단원 카드 {{COUNT:nego}}장 →</a>
   </section>
 
@@ -336,7 +342,7 @@ HTTP/2 304   etag: "3a8ce56f…"   본문 0B</pre>
       <li>캐시는 한 번 받은 응답을 저장해 두고, <b>기한 안이면 묻지 않고 쓰고, 지나면 지문을 들고 묻는다.</b></li>
       <li>응답의 <code>no-cache</code>는 <b>저장하되 매번 확인</b>, <code>no-store</code>는 <b>저장 금지</b>. (Q20)</li>
       <li><code>If-None-Match</code>로 물었는데 그대로면 <b>304, 본문 없음</b>. 304는 본문만 아낀다. (Q21)</li>
-      <li>같은 주소에서 Accept-*로 골라 주는 건 <b>콘텐츠 협상</b>. 그러면 <code>Vary</code>, 내 것이면 <code>private</code>. (Q23)</li>
+      <li>같은 주소에서 Accept-*로 골라 주는 건 <b>콘텐츠 협상</b>. 공용 캐시가 판을 섞지 않게 <code>Vary</code>를 붙인다. (Q23)</li>
       <li>Cache-Control은 <b>응답에선 서버의 보관 규칙, 요청에선 브라우저의 한 번 부탁</b>(새로고침).</li>
     </ol>
     <a class="cta" href="#cards">암기 카드 {{COUNT:all}}장으로 복습하기 →</a>
