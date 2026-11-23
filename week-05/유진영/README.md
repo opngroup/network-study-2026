@@ -10,7 +10,7 @@ README 일정표의 11/16 회차가 한 주 밀려 11/24에 진행합니다.
 - [장표 (HTML)](./slides.html) — 원본 조각은 [`study-pack/slides.html`](./study-pack/slides.html)
 - [발표 대본](<./발표 대본.md>) — 장표별 말할 문장과 시간, 데모가 안 될 때, 질문 빠른 답
 - [정리 노트와 암기 카드 (HTML)](./flashcards.html) — 처음 배우는 사람 기준 정리 노트(단원 9개)와 카드 85장. 내용 원본은 [`study-pack/`](./study-pack/)
-- [`ws-demo/`](./ws-demo/) — 라이브러리 없이 만든 WebSocket 서버. 프레임 바이트를 그대로 찍는다. 시험 15개
+- [`ws-demo/`](./ws-demo/) — 라이브러리 없이 만든 WebSocket 서버. 프레임 바이트를 그대로 찍는다. 시험 18개
 - [`demo.sh`](./demo.sh) — 장표 9·10·13·18·19 라이브 데모 (`accept`·`handshake`·`client`·`real`·`server`)
 
 ```bash

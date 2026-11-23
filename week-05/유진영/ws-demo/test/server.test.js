@@ -2,7 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const net = require('node:net');
-const { createServer } = require('../server');
+const { createServer, MAX_MESSAGE_BYTES } = require('../server');
 const { encodeFrame, decodeFrame } = require('../lib/frame');
 
 function start(opts = {}) {
@@ -119,4 +119,39 @@ test('하트비트: pong이 안 오면 다음 차례에 연결을 끊는다', as
   const { sock } = await raw(s, good); // 날것 소켓은 pong을 알아서 보내지 않는다
   const closedAt = await new Promise((r) => sock.on('close', () => r(Date.now())));
   assert.ok(closedAt);
+});
+
+test('출처 검사: 다른 사이트의 Origin은 403, 같은 호스트와 Origin 없음은 101', async (t) => {
+  const s = await start();
+  t.after(() => s.close());
+  const evil = await raw(s, [...good, 'Origin: https://evil.example']);
+  evil.sock.destroy();
+  assert.match(evil.head, /^HTTP\/1\.1 403/);
+  const same = await raw(s, [...good, 'Origin: http://x']); // raw()는 Host: x를 보낸다
+  same.sock.destroy();
+  assert.match(same.head, /^HTTP\/1\.1 101/);
+});
+
+test('허락 목록에 넣은 출처는 받는다', async (t) => {
+  const s = await start({ allowedOrigins: ['https://app.example'] });
+  t.after(() => s.close());
+  const ok = await raw(s, [...good, 'Origin: https://app.example']);
+  ok.sock.destroy();
+  assert.match(ok.head, /^HTTP\/1\.1 101/);
+});
+
+test('머리에 적힌 길이가 한도를 넘으면 내용을 기다리지 않고 close 1009', async (t) => {
+  const s = await start();
+  t.after(() => s.close());
+  const { sock, rest } = await raw(s, good);
+  const head = Buffer.alloc(14);
+  head[0] = 0x82;
+  head[1] = 0x80 | 127;
+  head.writeBigUInt64BE(BigInt(MAX_MESSAGE_BYTES + 1), 2); // 마스크 키 4바이트는 0
+  sock.write(head); // 내용은 한 바이트도 안 보낸다
+  await new Promise((r) => setTimeout(r, 100));
+  const f = decodeFrame(rest());
+  sock.destroy();
+  assert.equal(f.opcode, 0x8);
+  assert.equal(f.payload.readUInt16BE(0), 1009);
 });

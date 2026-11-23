@@ -70,7 +70,7 @@ function encodeFrame({ opcode, payload = Buffer.alloc(0), fin = true, mask = fal
  * 버퍼 앞에서 프레임 하나를 읽는다. 아직 다 안 왔으면 null.
  * 돌려주는 값: { fin, opcode, masked, maskKey, payload, headerBytes, size }
  */
-function decodeFrame(buf) {
+function decodeFrame(buf, maxPayload = Infinity) {
   if (buf.length < 2) return null;
   const fin = (buf[0] & 0x80) !== 0;
   const rsv = buf[0] & 0x70;
@@ -90,6 +90,9 @@ function decodeFrame(buf) {
     len = Number(big);
     offset = 10;
   }
+
+  // 내용을 다 받기 전에, 머리에 적힌 길이만 보고 너무 크면 바로 거절한다 (메모리를 채우는 공격 막기)
+  if (len > maxPayload) throw new FrameError(1009, '프레임이 너무 큽니다');
 
   let maskKey = null;
   if (masked) {
