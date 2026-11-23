@@ -32,7 +32,7 @@ python3 .claude/skills/study-pack/build.py  week-04/유진영/study-pack week-04
 
 ## 과제 D. ETag 캐시와 프로토콜 비교
 
-다음 주까지. 내용은 루트 README의 4주차 항목.
+결과와 코드: [`assignment-d/`](./assignment-d/) (11/23). 5주차 장표 2~3에서 돌아본다.
 
-- [ ] 과제 C의 `GET /orders/:id`에 ETag를 붙이고, `curl`로 304가 본문 없이 오는 것 확인
-- [ ] 우리 서비스와 자주 쓰는 사이트 3곳의 DevTools Protocol 열(h1·h2·h3)과 Cache-Control 값을 표로 정리 (장표 18의 표가 출발점)
+- [x] 과제 C의 `GET /orders/:id`에 ETag를 붙이고, `curl`로 304가 본문 없이 오는 것 확인 — 200(71바이트) → 304(0바이트), 덤으로 `PATCH` + `If-Match` → 412
+- [x] 자주 쓰는 사이트의 DevTools Protocol 열(h1·h2·h3)과 Cache-Control 값을 표로 정리 — 네이버·GitHub·MDN·jQuery. "우리 서비스" 줄은 아직 빈칸

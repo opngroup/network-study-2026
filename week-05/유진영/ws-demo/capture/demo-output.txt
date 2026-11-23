@@ -1,0 +1,52 @@
+# bash demo.sh 출력 · 2026-11-23 18:05 KST
+Key    = dGhlIHNhbXBsZSBub25jZQ==
+고정값 = 258EAFA5-E914-47DA-95CA-C5AB0DC85B11
+Accept = base64(SHA-1(Key + 고정값))
+       = s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+(RFC 6455 1.3절의 답: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=)
+
+(서버를 뒤에서 띄웠다. 로그: /tmp/ws-demo-server.log)
+① 제대로 된 핸드셰이크 → 101
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+
+
+② Upgrade 없이 같은 주소 → 보통 HTTP라 426
+HTTP/1.1 426 Upgrade Required
+③ 버전을 8로 → 426 + 지원 버전 알림
+HTTP/1.1 426 Upgrade Required
+sec-websocket-version: 13
+
+open: readyState=1 protocol="demo.v1"
+→ 글 "Hi"
+← #2: Hi
+→ 바이너리 [1,2,3,255]
+← 바이너리 [1,2,3,255]
+→ 1,000바이트 글
+← #2: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+→ close(1000, "bye")
+close code=1000 reason="bye" wasClean=true
+
+--- 서버가 찍은 프레임 (← 받은 것, → 보낸 것)
+   #1 close 프레임 없이 TCP가 끊김 (브라우저라면 1006)
+   #1 TCP 연결 닫힘 (남은 연결 0개)
+← #2 81 82 f1 a7 d8 87 b9 ce   FIN=1 opcode=1(text) MASK=1 len=2 key=f1 a7 d8 87  "Hi"
+→ #2 81 06 23 32 3a 20 48 69   FIN=1 opcode=1(text) MASK=0 len=6  "#2: Hi"
+← #2 82 84 03 a8 6b c2 02 aa 68 3d   FIN=1 opcode=2(binary) MASK=1 len=4 key=03 a8 6b c2
+→ #2 82 04 01 02 03 ff   FIN=1 opcode=2(binary) MASK=0 len=4
+← #2 81 fe 03 e8 b5 b0 3e 02 d4 d1 5f 63 d4 d1 5f 63 d4 d1 5f 63 d4 d1 5f 63 … (+984바이트)   FIN=1 opcode=1(text) MASK=1 len=1000 key=b5 b0 3e 02  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+→ #2 81 7e 03 ec 23 32 3a 20 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 … (+984바이트)   FIN=1 opcode=1(text) MASK=0 len=1004  "#2: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+← #2 88 85 ec 03 26 0d ef eb 44 74 89   FIN=1 opcode=8(close) MASK=1 len=5 key=ec 03 26 0d  code=1000 "bye"
+   #2 상대가 닫자고 함: 1000 bye
+→ #2 88 05 03 e8 62 79 65   FIN=1 opcode=8(close) MASK=0 len=5  code=1000 "bye"
+   #2 TCP 연결 닫힘 (남은 연결 0개)
+
+공개 에코 서버에 같은 핸드셰이크 (HTTP/1.1로)
+HTTP/1.1 101 Switching Protocols
+upgrade: websocket
+connection: Upgrade
+sec-websocket-accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+via: 1.1 fly.io, 1.1 fly.io
+(via 줄 = 가운데 프록시가 Upgrade를 넘겨줬다)

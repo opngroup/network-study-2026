@@ -1,0 +1,4 @@
+앱 서버 대기 중: 0.0.0.0:3000
+[orders] key=d-001 → 주문 #1 생성
+[orders] #1 고침 {"qty":3}
+[orders] #1 If-Match "ff40bac14f087c63efe2" ≠ 지금 "5a8cabb86f64dbd34226" → 412

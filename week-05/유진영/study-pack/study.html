@@ -1,0 +1,401 @@
+  <section class="hero">
+    <div class="eyebrow">NETWORK STUDY · WEEK 5 · 정리 노트 · 처음 배우는 사람용</div>
+    <h1>WebSocket: 핸드셰이크와 프레임을 처음부터</h1>
+    <p class="lead">채팅 앱에서 친구가 보낸 말이 새로고침 없이 바로 뜨는 이유가 오늘 주제입니다. 끝까지 읽으면 세 가지에 답할 수 있습니다. 보통 HTTP로는 왜 <b>서버가 먼저 말을 못 하나</b>, WebSocket 연결은 <b>어떻게 시작되나</b>(Q32), 연결된 뒤에는 <b>무엇이 오가나</b>(프레임, ping·pong, close).</p>
+    <p>용어는 처음 나올 때 다 풀어 씁니다. 단원 1은 바탕이 되는 "HTTP는 묻고 답하면 끝" 이야기라, 이미 알아도 표 하나는 꼭 보고 가세요. 상자 읽는 법: <b>쪽집게</b>는 꼭 외울 것, <b>함정</b>은 다들 헷갈리는 것, <b>외우는 법</b>은 비유와 요령, <b>출제 예상</b>은 질문으로 나올 만한 것입니다. 바이트 값은 이번 주에 직접 만든 데모 서버(<code>ws-demo</code>)에서 찍은 실제 값입니다(11/23). 30분이면 됩니다.</p>
+    <a class="cta" href="#cards">암기 카드로 복습하기 →</a>
+    <nav class="toc" aria-label="단원">
+      <a href="#u1">1. 준비: HTTP는 묻고 답하면 끝</a>
+      <a href="#u2">2. WebSocket이 뭔가</a>
+      <a href="#u3">3. 연결 시작: 핸드셰이크</a>
+      <a href="#u4">4. 연결 뒤에 오가는 것: 프레임</a>
+      <a href="#u5">5. 클라이언트만 쓰는 가면: 마스킹</a>
+      <a href="#u6">6. 살아 있니, 그만하자: ping·pong·close</a>
+      <a href="#u7">7. 브라우저에서 쓰고 눈으로 보기</a>
+      <a href="#u8">8. 실무에서는</a>
+      <a href="#u9">9. 지난주 과제 D와 이어지는 곳</a>
+      <a href="#u10">마지막 정리</a>
+    </nav>
+  </section>
+
+  <!-- 1 -->
+  <section class="unit" id="u1">
+    <div class="head"><span class="no">UNIT 1 · 바탕</span><h2>준비: HTTP는 묻고 답하면 끝이다</h2></div>
+    <p class="one">HTTP에서는 브라우저가 물어야 서버가 답한다. 서버는 물어보지 않은 것을 먼저 보낼 수 없다.</p>
+
+    <h3>지금까지 배운 HTTP의 모양</h3>
+    <p>1~4주차에 본 HTTP는 언제나 같은 모양이었습니다. 브라우저(클라이언트)가 <b>요청</b>을 보내고, 서버가 <b>응답</b>을 하나 돌려주면 그 한 번의 대화가 끝납니다. 요청 하나에 응답 하나, 그리고 <b>시작은 언제나 브라우저</b>입니다.</p>
+    <div class="seq" role="img" aria-label="HTTP는 요청이 있어야 응답이 온다">
+      <div class="hd"><span>브라우저</span><span></span><span>서버</span></div>
+      <div class="m l"><span class="side">① 묻는다</span><span class="msg">GET /messages</span><span></span></div>
+      <div class="m r"><span></span><span class="msg">200 OK · 새 메시지 없음</span><span class="side">② 답한다. 끝</span></div>
+      <div class="gap">… 3초 뒤 친구가 메시지를 보냄. 서버는 알지만 브라우저에 알릴 길이 없다 …</div>
+      <div class="m l"><span class="side">③ 다시 물어야</span><span class="msg">GET /messages</span><span></span></div>
+      <div class="m r"><span></span><span class="msg ok">200 OK · 새 메시지 1개</span><span class="side">④ 그제야 전달</span></div>
+    </div>
+    <p>채팅이나 알림처럼 <b>서버 쪽에서 먼저 일이 생기는</b> 기능은 이 모양과 맞지 않습니다. 서버는 새 메시지가 왔다는 걸 알아도, 브라우저가 다시 묻기 전까지 전할 방법이 없습니다.</p>
+    <div class="call mem"><span class="lb">외우는 법 · 무전기와 전화</span><p>HTTP는 <b>무전기</b>입니다. 한 사람이 "오버" 하고 말을 마쳐야 상대가 답하고, 묻지 않으면 답도 없습니다. WebSocket은 <b>전화</b>입니다. 한 번 걸어 두면 둘 다 아무 때나 말할 수 있습니다.</p></div>
+
+    <h3>그런데 선(TCP)은 원래 양방향이다</h3>
+    <p>HTTP 아래에는 2주차에 본 <b>TCP 연결</b>이 있습니다. TCP 연결은 양쪽이 아무 때나 바이트를 보낼 수 있는 <b>양방향 통로</b>입니다. "브라우저가 묻고 서버가 답한다"는 건 TCP의 한계가 아니라 <b>HTTP라는 대화 규칙</b>의 한계입니다. WebSocket은 이 점을 이용합니다. TCP 연결은 그대로 두고, 그 위의 대화 규칙만 바꿉니다.</p>
+    <div class="layers">
+      <div class="layer p"><b>HTTP</b><span>대화 규칙 · 묻고 답하기</span></div>
+      <span class="arrow">↔</span>
+      <div class="layer s"><b>WebSocket</b><span>대화 규칙 · 아무 때나 서로</span></div>
+      <span class="arrow">위에서</span>
+      <div class="layer o"><b>TCP 연결</b><span>아래 통로 · 원래 양방향</span></div>
+    </div>
+    <div class="call trap"><span class="lb">함정</span><p>"서버가 먼저 브라우저에 연결하면 되잖아?"는 안 됩니다. 1주차에 본 것처럼 브라우저는 대개 공유기(NAT) 뒤에 있어서, 바깥에서 먼저 건 연결은 어느 기기로 보낼지 모릅니다. 그래서 실시간 기술은 모두 <b>브라우저가 먼저 연결을 열고, 서버가 그 길로 보내는</b> 구조입니다. WebSocket도 시작은 브라우저입니다.</p></div>
+
+    <h3>오늘 나오는 헤더·메시지는 누가 보내나</h3>
+    <p>오늘 공부의 절반은 이 표입니다. 핸드셰이크(단원 3)는 HTTP 요청·응답 한 쌍이라 지난주처럼 "요청에 싣는 것"과 "응답에 싣는 것"이 나뉩니다. 연결 뒤의 프레임(단원 4~6)은 <b>양쪽 다</b> 보냅니다.</p>
+    <div class="tbl"><table>
+      <tr><th style="width:32%">이름</th><th style="width:24%">누가, 어디에</th><th>한 줄 뜻</th></tr>
+      <tr class="hl"><td><code>Upgrade: websocket</code></td><td><b>요청</b>(브라우저) · 응답(서버)도 같은 값</td><td>요청: "이 연결을 WebSocket으로 바꾸자" · 응답: "좋아, 바꾼다"</td></tr>
+      <tr><td><code>Connection: Upgrade</code></td><td>요청과 응답 둘 다</td><td>"Upgrade 헤더는 이번 연결에 대한 것"이라는 표시</td></tr>
+      <tr><td><code>Sec-WebSocket-Key</code></td><td>요청 (브라우저)</td><td>브라우저가 고른 무작위 16바이트(base64로 24글자)</td></tr>
+      <tr><td><code>Sec-WebSocket-Version: 13</code></td><td>요청 (브라우저)</td><td>WebSocket 규칙 판 번호. 지금은 13 하나뿐</td></tr>
+      <tr class="hl"><td><code>Sec-WebSocket-Accept</code></td><td>응답 (서버)</td><td>키로 계산한 답. "WebSocket을 진짜 아는 서버"라는 증명</td></tr>
+      <tr><td><code>Sec-WebSocket-Protocol</code></td><td>요청: 후보 목록 · 응답: 하나 고름</td><td>WebSocket 위에서 쓸 "말투"(하위 프로토콜) 고르기</td></tr>
+      <tr><td><code>Sec-WebSocket-Extensions</code></td><td>요청: 제안 · 응답: 받아들인 것</td><td>압축(<code>permessage-deflate</code>) 같은 덧붙임 기능</td></tr>
+      <tr><td><code>Origin</code></td><td>요청 (브라우저가 알아서)</td><td>어느 사이트의 페이지가 연결하려는지. 서버가 확인할 몫(7주차)</td></tr>
+      <tr class="hl-o"><td><code>101 Switching Protocols</code></td><td>응답 (서버)</td><td>이 연결의 <b>마지막 HTTP 응답</b>. 이 뒤로는 프레임만 오간다</td></tr>
+      <tr><td>프레임 (text·binary·ping·pong·close)</td><td><b>양쪽 다</b>, 아무 때나</td><td>연결 뒤에 오가는 작은 꾸러미. 단원 4~6</td></tr>
+    </table></div>
+    <div class="call mem"><span class="lb">외우는 법 · 이름만 보고 방향 알기</span><p><code>Key</code>는 <b>묻는 쪽</b>(브라우저)이 내는 문제, <code>Accept</code>는 <b>답하는 쪽</b>(서버)이 내는 정답입니다. <code>Protocol</code>·<code>Extensions</code>는 브라우저가 <b>목록을 내밀고</b> 서버가 <b>골라서</b> 돌려줍니다. 지난주 <code>Accept-Language</code>(요청)와 이름이 닮았지만 <code>Sec-WebSocket-Accept</code>는 <b>응답</b> 헤더입니다.</p></div>
+    <a class="mini" href="#cards-basics">이 단원 카드 {{COUNT:basics}}장 →</a>
+  </section>
+
+  <!-- 2 -->
+  <section class="unit" id="u2">
+    <div class="head"><span class="no">UNIT 2</span><h2>WebSocket이 뭔가: 한 번 연결하고 계속 쓰는 양방향 통로</h2></div>
+    <p class="one">WebSocket은 HTTP로 인사한 뒤 같은 TCP 연결을 계속 열어 두고, 브라우저와 서버가 아무 때나 서로 메시지를 보내는 규칙이다.</p>
+
+    <h3>정의를 세 조각으로</h3>
+    <ol>
+      <li><b>HTTP로 시작한다</b>: 처음 한 번은 보통 HTTP 요청처럼 보냅니다. 그래서 80·443 포트, 기존 서버·프록시를 그대로 지날 수 있습니다. 단원 3.</li>
+      <li><b>연결을 끊지 않는다</b>: 인사가 끝나도 TCP 연결을 계속 씁니다. 메시지마다 새로 연결하거나 헤더를 다시 보내지 않습니다.</li>
+      <li><b>양쪽이 아무 때나 보낸다</b>: 브라우저도 서버도 상대가 묻지 않아도 메시지를 보냅니다. 메시지는 <b>프레임</b>이라는 작은 꾸러미에 담깁니다. 단원 4.</li>
+    </ol>
+    <p>규칙의 정식 이름은 <b>RFC 6455</b>(2011)입니다. RFC는 인터넷 기술의 공식 설명서이고, 숫자는 문서 번호입니다. 주소는 <code>ws://</code>(암호화 없음, 기본 80번 포트)와 <code>wss://</code>(TLS로 암호화, 기본 443번)로 씁니다. <code>http://</code>와 <code>https://</code>의 짝이라고 보면 됩니다.</p>
+
+    <h3>왜 필요한가</h3>
+    <ul>
+      <li><b>서버가 먼저 말할 수 있다</b>: 새 채팅 메시지, 주문 상태 변경, 다른 사람의 커서 위치를 생기는 즉시 보냅니다.</li>
+      <li><b>짧은 메시지가 가볍다</b>: HTTP 요청 하나에는 헤더만 수백 바이트(쿠키가 있으면 더)가 붙습니다. WebSocket 프레임의 머리는 <b>2~14바이트</b>입니다. "Hi" 두 글자를 서버가 보내면 선 위에는 4바이트가 지나갑니다.</li>
+      <li><b>양방향이 잦은 일에 맞다</b>: 채팅, 게임, 공동 편집처럼 양쪽이 쉴 새 없이 주고받는 경우.</li>
+    </ul>
+
+    <h3>대신 생기는 문제</h3>
+    <p>공짜는 아닙니다. HTTP가 알아서 해 주던 일을 이제 직접 챙겨야 합니다.</p>
+    <ul>
+      <li><b>연결을 계속 붙잡는다</b>: 사용자 만 명이면 서버에 열린 연결도 만 개입니다. 서버를 여러 대 두면 "이 사용자는 몇 번 서버에 붙어 있지?"를 알아야 합니다(7주차 Redis).</li>
+      <li><b>중간 장비가 끊는다</b>: 프록시·로드밸런서는 말 없는 연결을 정리합니다. 살아 있다는 신호(ping)를 직접 보내야 합니다. 단원 6, 6주차.</li>
+      <li><b>HTTP의 편의가 없다</b>: 메시지마다 상태 코드도, 캐시도, 자동 재연결도 없습니다. 끊기면 다시 붙는 코드도 직접 씁니다. 단원 8.</li>
+    </ul>
+    <div class="call tip"><span class="lb">쪽집게 · 세 방식 한 줄 비교</span><p>서버가 먼저 보내는 방법은 셋입니다(자세한 건 이주영님 발표). <b>롱 폴링</b>은 "새 소식 생길 때까지 답을 미루는 HTTP", <b>SSE</b>는 "서버 → 브라우저 한 방향으로 계속 흘리는 HTTP 응답", <b>WebSocket</b>은 "HTTP에서 갈아탄 <b>양방향</b> 통로"입니다. 알림만 내려보내면 SSE로 충분하고, 양쪽이 자주 말하면 WebSocket입니다.</p></div>
+    <div class="vs">
+      <div class="a1"><span class="t">SSE</span><span class="s">한 방향 · 그대로 HTTP</span><p>평범한 HTTP 응답을 끝내지 않고 이어 씁니다. 글자만, 서버 → 브라우저만. 끊기면 브라우저(<code>EventSource</code>)가 <b>알아서 다시 연결</b>합니다.</p></div>
+      <div class="a2"><span class="t">WebSocket</span><span class="s">양방향 · HTTP에서 갈아탐</span><p>101 뒤로는 HTTP가 아닙니다. 글자와 바이너리, 양쪽 다. 끊기면 <b>다시 연결은 내 코드 몫</b>입니다.</p></div>
+    </div>
+    <div class="call trap"><span class="lb">함정</span><p>"실시간이면 무조건 WebSocket"이 아닙니다. 진단 퀴즈 Q33처럼 알림만 내려보내고 사용자 행동은 가끔 일반 API로 보내는 화면이면 <b>SSE가 더 단순</b>합니다. WebSocket은 연결 관리, 재연결, 인증을 다 직접 해야 합니다.</p></div>
+    <a class="mini" href="#cards-ws">이 단원 카드 {{COUNT:ws}}장 →</a>
+  </section>
+
+  <!-- 3 -->
+  <section class="unit" id="u3">
+    <div class="head"><span class="no">UNIT 3 · Q32</span><h2>연결 시작: Upgrade 요청 → 101 Switching Protocols</h2></div>
+    <p class="one">브라우저가 <code>Upgrade: websocket</code>을 붙인 HTTP 요청을 보내고, 서버가 <code>101 Switching Protocols</code>로 답하면, 같은 TCP 연결에서 그때부터 WebSocket 프레임이 오간다.</p>
+
+    <h3>진단 퀴즈 Q32</h3>
+    <div class="call exam"><span class="lb">출제 예상 · Q32</span>
+      <div class="qa"><b>Q</b><span>WebSocket 연결은 어떻게 시작되나요?</span>
+      <b>A</b><span><b>HTTP 요청에 <code>Upgrade: websocket</code> 헤더를 붙여 보내고, 서버가 <code>101 Switching Protocols</code>로 응답하면 같은 TCP 연결에서 양방향 프레임을 주고받는다.</b> 별도 포트로 처음부터 따로 연결하는 게 아니고, 서버가 먼저 거는 것도 아닙니다.</span></div>
+    </div>
+
+    <h3>실제 모습: 데모 서버에서 찍은 핸드셰이크 (11/23)</h3>
+    <pre class="c">GET /ws HTTP/1.1                                 ← 요청 (브라우저 → 서버). 평범한 GET
+Host: localhost:8081
+Upgrade: websocket                               ← "WebSocket으로 바꾸자"
+Connection: Upgrade                              ← "Upgrade는 이 연결 얘기"
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==      ← 브라우저가 낸 문제 (무작위)
+Sec-WebSocket-Version: 13
+
+HTTP/1.1 101 Switching Protocols                 ← 응답 (서버 → 브라우저). 마지막 HTTP
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=  ← 서버가 계산한 정답
+                                                 ← 빈 줄. 여기부터 HTTP가 아니라 프레임</pre>
+    <p>응답에 <b>본문이 없습니다</b>. 빈 줄 다음부터 오는 바이트는 HTTP 본문이 아니라 WebSocket 프레임입니다. 같은 TCP 연결이 그대로 이어지고, 그 위의 대화 규칙만 바뀌었습니다.</p>
+    <div class="seq" role="img" aria-label="WebSocket 핸드셰이크와 그 뒤의 프레임">
+      <div class="hd"><span>브라우저</span><span></span><span>서버</span></div>
+      <div class="m l"><span class="side">⓪ TCP 연결</span><span class="msg">SYN → SYN+ACK → ACK</span><span></span></div>
+      <div class="m l"><span class="side">① HTTP로 인사</span><span class="msg">GET /ws · Upgrade: websocket · Key</span><span></span></div>
+      <div class="m r"><span></span><span class="msg ok">101 Switching Protocols · Accept</span><span class="side">② 갈아타기 승낙</span></div>
+      <div class="gap">… 같은 TCP 연결. 이제부터 HTTP가 아니다 …</div>
+      <div class="m l"><span class="side">③ 아무 때나</span><span class="msg">프레임: "Hi"</span><span></span></div>
+      <div class="m r"><span></span><span class="msg">프레임: "#1: Hi"</span><span class="side">④ 서버도 아무 때나</span></div>
+      <div class="m r"><span></span><span class="msg">프레임: "[서버] 공지"</span><span class="side">⑤ 묻지 않았는데 보냄</span></div>
+    </div>
+
+    <h3>Key와 Accept: 문제와 정답</h3>
+    <p>서버는 받은 키 뒤에 <b>RFC에 박혀 있는 고정 문자열</b> <code>258EAFA5-E914-47DA-95CA-C5AB0DC85B11</code>을 붙이고, SHA-1 해시를 낸 뒤 base64로 바꿔 돌려줍니다. 해시는 "아무 길이의 글을 넣으면 정해진 길이의 지문이 나오는 계산"이고, base64는 바이트를 글자로 옮겨 적는 방법입니다.</p>
+    <pre class="c">Accept = base64( SHA-1( Key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11" ) )
+
+$ printf '%s' 'dGhlIHNhbXBsZSBub25jZQ==258EAFA5-E914-47DA-95CA-C5AB0DC85B11' \
+    | openssl sha1 -binary | base64
+s3pPLMBiTxaQ9kYGzzhZRbK+xOo=          ← RFC 6455 1.3절의 예와 똑같다</pre>
+    <p>브라우저는 101을 받으면 이 값을 스스로 계산해 맞춰 봅니다. 틀리면 연결을 버립니다.</p>
+    <div class="call trap"><span class="lb">함정 · Key는 보안 장치가 아니다</span><p>Key·Accept는 비밀번호도 암호화도 아닙니다. 계산법이 공개되어 있어 누구나 맞힐 수 있습니다. 목적은 "<b>상대가 WebSocket을 진짜 이해하는 서버인지</b>" 확인하는 것입니다. WebSocket을 모르는 보통 HTTP 서버나 캐시가 옛 응답을 엉뚱하게 돌려줘도, 그 응답엔 맞는 Accept가 없으니 브라우저가 속지 않습니다. 인증은 따로 합니다(7주차).</p></div>
+
+    <h3>왜 굳이 HTTP로 시작하나</h3>
+    <ul>
+      <li><b>같은 문으로 들어간다</b>: 회사 방화벽은 대개 80·443만 열어 둡니다. HTTP처럼 시작하면 웹과 같은 포트, 같은 서버(nginx 등)를 씁니다.</li>
+      <li><b>HTTP가 해 놓은 걸 쓴다</b>: 주소(URL), 쿠키, TLS(<code>wss://</code>)가 그대로 따라옵니다. 브라우저는 그 사이트의 쿠키를 핸드셰이크 요청에 실어 보냅니다.</li>
+    </ul>
+    <div class="call tip"><span class="lb">쪽집게 · 갈아타기 승낙은 101 하나뿐</span><p>성공은 <b>101</b>뿐입니다. 200이 오면 실패입니다. 서버가 싫다고 할 때는 보통 HTTP 오류로 답합니다. 데모 서버 기준(11/23): 버전이 13이 아니면 <code>426 Upgrade Required</code> + <code>Sec-WebSocket-Version: 13</code>, 헤더가 빠지면 <code>400</code>, 허락하지 않는 출처면 <code>403</code>. 이때 브라우저 JS에는 자세한 이유 없이 <code>error</code>와 <code>close</code>(코드 1006)만 옵니다.</p></div>
+
+    <h3>하위 프로토콜과 확장: 목록을 내밀고 하나 고르기</h3>
+    <p>지난주 콘텐츠 협상(<code>Accept-*</code> → <code>Content-*</code>)과 같은 모양입니다. 브라우저가 <code>new WebSocket(url, ['demo.v1'])</code>처럼 후보를 주면 요청에 <code>Sec-WebSocket-Protocol: demo.v1</code>이 실리고, 서버가 그중 하나를 응답에 적어 고릅니다. 압축 같은 덧붙임 기능은 <code>Sec-WebSocket-Extensions</code>로 같은 식으로 고릅니다.</p>
+    <div class="call exam"><span class="lb">출제 예상 · 실측</span>
+      <div class="qa"><b>Q</b><span>Node 24의 WebSocket이 핸드셰이크에 <code>Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits</code>를 실어 보냈다. 데모 서버는 응답에 이 헤더를 안 넣었다. 압축이 될까?</span>
+      <b>A</b><span><b>안 된다.</b> 확장은 브라우저가 제안하고 <b>서버가 응답에 적어야</b> 켜집니다. 응답에 없으면 압축 없이 주고받습니다. 제안만으로는 아무것도 안 바뀝니다.</span></div>
+    </div>
+    <div class="call mem"><span class="lb">외우는 법 · 101 = "채널 돌립니다"</span><p>TV 리모컨의 채널 전환이라고 생각하세요. 같은 TV(TCP 연결)인데 채널(대화 규칙)만 HTTP에서 WebSocket으로 돌립니다. 1xx 상태 코드는 "정보" 묶음이고, 101은 "<b>프로토콜 바꿉니다</b>"입니다.</p></div>
+    <a class="mini" href="#cards-hs">이 단원 카드 {{COUNT:hs}}장 →</a>
+  </section>
+
+  <!-- 4 -->
+  <section class="unit" id="u4">
+    <div class="head"><span class="no">UNIT 4</span><h2>연결 뒤에 오가는 것: 프레임</h2></div>
+    <p class="one">101 뒤로는 프레임만 오간다. 프레임은 2바이트 머리(끝났나, 종류, 가면, 길이)와 내용으로 되어 있고, 메시지 하나는 프레임 하나 이상이다.</p>
+
+    <h3>메시지와 프레임</h3>
+    <p>내 코드에서 <code>ws.send("Hi")</code>로 보내는 단위가 <b>메시지</b>입니다. 선 위에서는 그 메시지가 <b>프레임</b>(frame)이라는 꾸러미에 담겨 갑니다. 보통은 메시지 하나 = 프레임 하나이고, 아주 큰 메시지는 프레임 여러 개로 쪼개 보낼 수 있습니다(조각내기). 받는 쪽 브라우저는 조각을 다 모아 <code>message</code> 이벤트 한 번으로 줍니다.</p>
+    <div class="call mem"><span class="lb">외우는 법 · 편지와 봉투</span><p>메시지는 <b>편지</b>, 프레임은 <b>봉투</b>입니다. 봉투 겉면(머리)에 "이게 마지막 장인지, 글인지 사진인지, 몇 바이트인지"를 적습니다. 긴 편지는 봉투 여러 개에 나눠 넣고, 마지막 봉투에만 "끝"(FIN) 표시를 합니다.</p></div>
+
+    <h3>머리 2바이트에 든 것</h3>
+    <div class="tbl"><table>
+      <tr><th style="width:22%">칸</th><th style="width:14%">크기</th><th>뜻</th></tr>
+      <tr class="hl"><td><b>FIN</b></td><td>1비트</td><td>1이면 메시지의 마지막 프레임. 보통은 1(한 프레임짜리 메시지)</td></tr>
+      <tr><td>RSV1~3</td><td>3비트</td><td>확장 기능용 예비 칸. 약속한 확장이 없으면 0이어야 한다(압축은 RSV1을 씀)</td></tr>
+      <tr class="hl"><td><b>opcode</b></td><td>4비트</td><td>프레임의 종류. 아래 표</td></tr>
+      <tr><td><b>MASK</b></td><td>1비트</td><td>내용에 가면을 씌웠나. 클라이언트가 보낸 건 1, 서버가 보낸 건 0. 단원 5</td></tr>
+      <tr class="hl"><td><b>길이</b></td><td>7비트 (+2 또는 +8바이트)</td><td>0~125면 그 값 그대로. 126이면 뒤 2바이트가 진짜 길이, 127이면 뒤 8바이트가 진짜 길이</td></tr>
+      <tr><td>마스크 키</td><td>4바이트 (MASK=1일 때만)</td><td>가면을 벗길 열쇠</td></tr>
+      <tr><td>내용 (payload)</td><td>길이만큼</td><td>실제 데이터</td></tr>
+    </table></div>
+    <div class="tbl"><table>
+      <tr><th style="width:18%">opcode</th><th style="width:22%">이름</th><th>언제</th></tr>
+      <tr class="hl"><td><code>0x1</code></td><td>text</td><td>글자 메시지. 내용은 반드시 올바른 UTF-8</td></tr>
+      <tr class="hl"><td><code>0x2</code></td><td>binary</td><td>바이트 메시지(그림, 압축 데이터 등)</td></tr>
+      <tr><td><code>0x0</code></td><td>continuation</td><td>쪼갠 메시지의 두 번째 조각부터</td></tr>
+      <tr class="hl-o"><td><code>0x8</code></td><td>close</td><td>"그만하자." 단원 6</td></tr>
+      <tr class="hl-o"><td><code>0x9</code> · <code>0xA</code></td><td>ping · pong</td><td>"살아 있니?" · "응." 단원 6</td></tr>
+    </table></div>
+    <p>opcode가 8 이상(<code>0x8</code>~)이면 <b>제어 프레임</b>입니다. 내용을 나르지 않고 연결 자체를 관리합니다.</p>
+
+    <h3>실제 바이트: "Hi"가 오가는 모습 (데모 서버, 11/23)</h3>
+    <pre class="c">← 브라우저 → 서버   81 82 33 bf 17 4c 7b d6       "Hi"
+   81 = 1000 0001  FIN=1, opcode=1(text)
+   82 = 1000 0010  MASK=1, 길이=2
+   33 bf 17 4c     마스크 키 (매번 무작위)
+   7b d6           가면 쓴 "Hi"  (7b⊕33=48 'H', d6⊕bf=69 'i')
+
+→ 서버 → 브라우저   81 06 23 31 3a 20 48 69       "#1: Hi"
+   81              FIN=1, opcode=1(text)
+   06              MASK=0, 길이=6
+   23 31 3a 20 48 69   "#1: Hi" 그대로</pre>
+    <p>글자 두 개를 보내는 데 브라우저 쪽은 8바이트(머리 6 + 내용 2), 서버 쪽은 머리 2바이트면 됩니다. 같은 일을 HTTP 요청으로 하면 헤더만 수백 바이트입니다.</p>
+    <div class="call exam"><span class="lb">출제 예상 · 계산</span>
+      <div class="qa"><b>Q</b><span>서버가 1,000바이트짜리 글 메시지를 마스크 없이 보낸다. 프레임 머리는 몇 바이트이고 두 번째 바이트 값은?</span>
+      <b>A</b><span><b>4바이트, 두 번째 바이트는 126(<code>0x7e</code>).</b> 1,000은 125보다 크고 65,535 이하라서, 길이 칸에 126을 적고 뒤 2바이트(<code>03 e8</code>)에 진짜 길이를 씁니다. 데모의 150바이트 한글 메시지도 <code>81 fe 00 96</code>(마스크 있음: fe = 1 + 126)으로 찍혔습니다.</span>
+      <b>Q</b><span>"Hi"를 브라우저가 보낼 때와 서버가 보낼 때 머리 크기는?</span>
+      <b>A</b><span><b>브라우저 6바이트, 서버 2바이트.</b> 브라우저가 보낸 프레임에는 마스크 키 4바이트가 붙습니다.</span></div>
+    </div>
+    <div class="call trap"><span class="lb">함정 · TCP는 프레임 경계를 모른다</span><p>TCP는 바이트를 순서대로 나를 뿐, "여기까지가 한 프레임"을 모릅니다. 프레임 하나가 두 번에 나뉘어 도착하거나, 두 프레임이 한 번에 붙어 올 수 있습니다. 그래서 받는 쪽은 길이 칸을 보고 "다 왔나"를 직접 셉니다. 데모 서버의 <code>decodeFrame</code>이 덜 왔으면 <code>null</code>을 돌려주고 기다리는 이유입니다.</p></div>
+    <div class="call tip"><span class="lb">쪽집게</span><p>text 프레임의 내용은 <b>UTF-8로 맞는 글자</b>여야 합니다. 깨진 바이트가 오면 받는 쪽은 close 코드 <b>1007</b>로 끊습니다. 글자가 아닌 데이터는 binary(<code>0x2</code>)로 보냅니다.</p></div>
+    <a class="mini" href="#cards-frame">이 단원 카드 {{COUNT:frame}}장 →</a>
+  </section>
+
+  <!-- 5 -->
+  <section class="unit" id="u5">
+    <div class="head"><span class="no">UNIT 5</span><h2>클라이언트만 쓰는 가면: 마스킹</h2></div>
+    <p class="one">브라우저 → 서버 프레임은 매번 무작위 4바이트 키로 가면을 씌우고, 서버 → 브라우저 프레임은 씌우지 않는다. 가면은 비밀 유지가 아니라 중간 장비를 속이지 않으려고 쓴다.</p>
+
+    <h3>어떻게 씌우나</h3>
+    <p>브라우저는 프레임마다 새 마스크 키 4바이트를 무작위로 고르고, 내용의 각 바이트를 키와 차례로 XOR합니다. XOR은 "같은 값으로 두 번 하면 원래대로 돌아오는" 비트 계산이라, 서버는 같은 키로 한 번 더 XOR해서 벗깁니다. 키는 프레임 머리에 그대로 적혀 갑니다.</p>
+    <pre class="c">내용 i번째 바이트  ⊕  키[i % 4]   = 가면 쓴 바이트
+'H' 48            ⊕  33          = 7b
+'i' 69            ⊕  bf          = d6
+받는 쪽:  7b ⊕ 33 = 48 'H'   (같은 키로 한 번 더 → 원래대로)</pre>
+
+    <h3>왜 쓰나: 엉뚱한 캐시가 속지 않게</h3>
+    <p>WebSocket이 나오던 무렵, 연구자들이 이런 공격을 보였습니다. 공격자 웹페이지가 브라우저를 시켜 <b>HTTP 요청처럼 보이는 바이트</b>를 WebSocket(정확히는 그 시험판)으로 보내게 하면, WebSocket을 모르는 오래된 투명 프록시가 그걸 진짜 HTTP 요청으로 착각해 <b>가짜 응답을 캐시에 저장</b>할 수 있었습니다. 그 뒤로 같은 프록시를 쓰는 다른 사람이 오염된 응답을 받게 됩니다(캐시 오염, 지난주 공용 캐시 이야기).</p>
+    <p>마스킹을 하면 브라우저가 실제로 선에 내보내는 바이트를 <b>페이지의 JavaScript가 고를 수 없습니다</b>. 키가 매번 무작위라 "HTTP처럼 보이는 바이트"를 일부러 만들 수 없게 됩니다.</p>
+    <div class="vs">
+      <div class="a1"><span class="t">브라우저 → 서버</span><span class="s">반드시 가면 (MASK=1)</span><p>서버는 가면 없는 프레임을 받으면 연결을 끊습니다. 데모 서버는 close 코드 <b>1002</b>(규칙 위반)로 끊습니다(시험으로 확인).</p></div>
+      <div class="a2"><span class="t">서버 → 브라우저</span><span class="s">가면 없음 (MASK=0)</span><p>공격 바이트를 만들 수 있는 건 남의 페이지가 시키는 <b>브라우저 쪽</b>이라, 서버 쪽은 씌울 필요가 없습니다. 씌우면 오히려 브라우저가 끊습니다.</p></div>
+    </div>
+    <div class="call trap"><span class="lb">함정 · 마스킹은 암호화가 아니다</span><p>키가 프레임 머리에 그대로 적혀 가니, 선을 엿보는 사람은 누구나 벗길 수 있습니다. 와이어샤크로 <code>ws://</code>를 잡으면 내용이 다 보입니다. <b>내용을 숨기려면 <code>wss://</code></b>(TLS)를 씁니다. 실서비스는 언제나 <code>wss://</code>입니다.</p></div>
+    <div class="call mem"><span class="lb">외우는 법 · 클라이언트가 가면(Client Masks)</span><p>"<b>C</b>lient <b>M</b>asks"로 외우세요. 가면을 쓰는 쪽은 남의 페이지가 시킬 수 있는 쪽(클라이언트)입니다. 서버는 맨얼굴입니다.</p></div>
+    <div class="call exam"><span class="lb">출제 예상</span>
+      <div class="qa"><b>Q</b><span>마스킹 키가 프레임 안에 그대로 있으면 무슨 소용인가?</span>
+      <b>A</b><span>숨기는 게 목적이 아니라 <b>예측할 수 없게</b> 하는 게 목적입니다. 페이지의 JS가 선 위의 바이트를 마음대로 정하지 못하게 해서, WebSocket을 모르는 중간 장비가 그 바이트를 HTTP로 착각하는 일을 막습니다.</span></div>
+    </div>
+    <a class="mini" href="#cards-mask">이 단원 카드 {{COUNT:mask}}장 →</a>
+  </section>
+
+  <!-- 6 -->
+  <section class="unit" id="u6">
+    <div class="head"><span class="no">UNIT 6</span><h2>살아 있니, 그만하자: ping·pong·close</h2></div>
+    <p class="one">ping을 받으면 같은 내용으로 pong을 돌려준다. 끝낼 때는 close 프레임을 주고받은 뒤 TCP를 닫고, close에는 이유를 말하는 숫자 코드가 붙는다.</p>
+
+    <h3>ping과 pong: "살아 있니?" "응"</h3>
+    <p>메시지가 한동안 없으면 연결이 살아 있는지 알 수 없습니다. 상대 컴퓨터가 꺼졌어도 TCP는 한참 동안 모를 수 있습니다. 그래서 한쪽이 <b>ping</b>(<code>0x9</code>)을 보내면 받은 쪽은 <b>같은 내용</b>으로 <b>pong</b>(<code>0xA</code>)을 돌려줍니다. 이걸 주기적으로 하는 것을 <b>하트비트</b>(heartbeat, 심장 박동)라고 합니다.</p>
+    <pre class="c">→ 서버 → 브라우저   89 0d 31 37 39 35 …    ping  "1795424013249" (보낸 시각)
+← 브라우저 → 서버   8a 8d 34 b9 47 1d …    pong  같은 내용 (가면 씀)
+   pong까지 1ms                            ← 데모 서버, 11/23</pre>
+    <p>하트비트는 두 가지 일을 합니다. ① <b>죽은 연결 찾기</b>: 데모 서버는 15초마다 ping을 보내고, 다음 차례까지 pong이 없으면 연결을 끊습니다. ② <b>중간 장비 깨우기</b>: 프록시·로드밸런서는 말 없는 연결을 일정 시간(흔히 60초 안팎) 뒤 끊습니다. 그보다 자주 ping이 지나가면 끊기지 않습니다. 6주차 주제입니다.</p>
+    <div class="call trap"><span class="lb">함정 · 브라우저 JS는 ping을 못 보낸다</span><p>브라우저는 서버의 ping에 pong을 <b>알아서</b> 답하지만, 브라우저 WebSocket API에는 <b>ping을 보내는 함수가 없습니다</b>. 그래서 브라우저 쪽에서 살아 있는지 확인하려면 <code>ws.send('{"type":"ping"}')</code>처럼 <b>보통 메시지</b>로 직접 만듭니다. "서버가 ping, 브라우저는 자동 pong"이 기본입니다.</p></div>
+    <div class="call tip"><span class="lb">쪽집게 · 제어 프레임 규칙</span><p>ping·pong·close는 내용이 <b>125바이트 이하</b>이고 <b>쪼갤 수 없습니다</b>. 대신 긴 메시지가 조각나 오는 <b>사이에 끼어들 수 있습니다</b>. 큰 파일을 보내는 중에도 하트비트가 막히지 않게 하려는 규칙입니다.</p></div>
+
+    <h3>close: 인사하고 헤어지기</h3>
+    <p>끝낼 때는 TCP를 그냥 끊지 않고, 먼저 <b>close 프레임</b>(<code>0x8</code>)을 보냅니다. 받은 쪽도 close 프레임으로 답하고, 그다음 TCP 연결을 닫습니다. close 내용의 앞 2바이트는 <b>이유 코드</b>, 나머지는 짧은 설명 글입니다.</p>
+    <div class="seq" role="img" aria-label="close 주고받기">
+      <div class="hd"><span>브라우저</span><span></span><span>서버</span></div>
+      <div class="m l"><span class="side">① ws.close(1000, "bye")</span><span class="msg">close 1000 "bye"</span><span></span></div>
+      <div class="m r"><span></span><span class="msg">close 1000 "bye"</span><span class="side">② 같은 코드로 답</span></div>
+      <div class="m r"><span></span><span class="msg ok">TCP 닫기 (FIN)</span><span class="side">③ 서버가 먼저 TCP를 닫는다</span></div>
+    </div>
+    <pre class="c">← 88 85 c8 ce 96 d8 cb 26 f4 a1 ad   close  code=1000 "bye"  (브라우저, 가면)
+→ 88 05 03 e8 62 79 65               close  code=1000 "bye"  (서버)
+   03 e8 = 1000    62 79 65 = "bye"</pre>
+    <div class="tbl"><table>
+      <tr><th style="width:14%">코드</th><th style="width:26%">이름</th><th>언제</th></tr>
+      <tr class="hl"><td><b>1000</b></td><td>정상 종료</td><td>할 일 다 하고 닫음</td></tr>
+      <tr><td>1001</td><td>떠남 (Going Away)</td><td>탭을 닫거나 페이지를 옮김, 서버가 내려감</td></tr>
+      <tr><td>1002</td><td>규칙 위반</td><td>가면 없는 클라이언트 프레임, 모르는 opcode</td></tr>
+      <tr><td>1007</td><td>잘못된 내용</td><td>text 프레임인데 UTF-8이 깨짐</td></tr>
+      <tr><td>1008</td><td>정책 위반</td><td>허락 안 된 사용자 등, 다른 코드가 안 맞을 때</td></tr>
+      <tr><td>1009</td><td>너무 큼</td><td>받을 수 없을 만큼 큰 메시지</td></tr>
+      <tr><td>1011</td><td>서버 오류</td><td>서버가 예상 못한 문제로 닫음</td></tr>
+      <tr class="hl-o"><td><b>1006</b></td><td>비정상 끊김</td><td><b>선 위로는 절대 안 나간다.</b> close 프레임 없이 TCP가 끊겼을 때 브라우저가 JS에 알려 주는 값</td></tr>
+    </table></div>
+    <div class="call trap"><span class="lb">함정 · 1006은 아무도 보내지 않았다</span><p>로그에 <code>close code=1006</code>이 찍히면 "서버가 1006을 보냈다"가 아닙니다. <b>close 프레임 없이 연결이 끊겼다</b>는 뜻입니다. 프록시 유휴 타임아웃, 서버 강제 종료, 네트워크 끊김, 핸드셰이크 실패가 흔한 원인입니다. 1005(코드 없이 닫음)도 같은 "알림 전용" 값입니다.</p></div>
+    <div class="call mem"><span class="lb">외우는 법</span><p><b>1000은 "잘 가"</b>, <b>1001은 "나 간다"</b>, <b>1006은 "전화가 그냥 끊겼다"</b>. 1006은 상대가 한 말이 아니라 내가 겪은 일입니다.</p></div>
+    <div class="call exam"><span class="lb">출제 예상</span>
+      <div class="qa"><b>Q</b><span>브라우저에서 <code>ws.close(1006)</code>을 부르면?</span>
+      <b>A</b><span><b>오류가 난다.</b> 브라우저 JS가 직접 쓸 수 있는 코드는 <b>1000</b>과 <b>3000~4999</b>뿐입니다. 3000번대는 라이브러리·프레임워크용, 4000번대는 내 앱이 마음대로 정해 쓰는 칸입니다(예: 4001 = 로그인 만료).</span></div>
+    </div>
+    <a class="mini" href="#cards-ctrl">이 단원 카드 {{COUNT:ctrl}}장 →</a>
+  </section>
+
+  <!-- 7 -->
+  <section class="unit" id="u7">
+    <div class="head"><span class="no">UNIT 7</span><h2>브라우저에서 쓰고 눈으로 보기</h2></div>
+    <p class="one">브라우저에서는 <code>new WebSocket(url)</code> 한 줄로 핸드셰이크가 시작되고, open·message·error·close 네 이벤트로 일이 일어난다. DevTools Network의 WS 줄 하나에서 101과 메시지를 다 볼 수 있다.</p>
+
+    <h3>코드 한 덩어리</h3>
+    <pre class="c">const ws = new WebSocket('wss://example.com/ws', ['demo.v1']);  // 여기서 핸드셰이크 시작
+ws.onopen    = () => ws.send('Hi');               // 101을 받은 뒤. 이 전에 send하면 오류
+ws.onmessage = (e) => console.log(e.data);        // 서버가 보낸 메시지 (글자면 string)
+ws.onerror   = () => console.log('문제 생김');      // 이유는 안 알려 준다
+ws.onclose   = (e) => console.log(e.code, e.reason, e.wasClean);
+ws.close(1000, 'bye');                            // 정중하게 끝내기</pre>
+    <div class="tbl"><table>
+      <tr><th style="width:24%">readyState</th><th>뜻</th></tr>
+      <tr><td><code>0</code> CONNECTING</td><td>핸드셰이크 중. 아직 <code>send</code> 못 함</td></tr>
+      <tr class="hl"><td><code>1</code> OPEN</td><td>101을 받았다. 주고받을 수 있음</td></tr>
+      <tr><td><code>2</code> CLOSING</td><td>close를 보냈고 답을 기다림</td></tr>
+      <tr><td><code>3</code> CLOSED</td><td>끝. 다시 쓰려면 <b>새 WebSocket</b>을 만든다</td></tr>
+    </table></div>
+    <ul>
+      <li><code>binaryType</code>: 바이너리 메시지를 <code>Blob</code>(기본)으로 받을지 <code>ArrayBuffer</code>로 받을지.</li>
+      <li><code>bufferedAmount</code>: <code>send</code>했지만 아직 선으로 못 나간 바이트 수. 너무 빨리 보내고 있는지 보는 값.</li>
+      <li><code>protocol</code>: 서버가 고른 하위 프로토콜(데모에서는 <code>"demo.v1"</code>).</li>
+    </ul>
+    <div class="call trap"><span class="lb">함정 · 헤더를 마음대로 못 붙인다</span><p>브라우저 WebSocket API에는 <b>요청 헤더를 넣는 칸이 없습니다</b>. <code>fetch</code>처럼 <code>Authorization: Bearer …</code>를 붙일 수 없습니다. 브라우저가 알아서 붙이는 건 쿠키와 <code>Origin</code>, 내가 고를 수 있는 건 하위 프로토콜 목록뿐입니다. 그래서 인증은 쿠키, 주소의 토큰, 연결 직후 첫 메시지 중에서 고릅니다. 7주차 이주영님 주제입니다.</p></div>
+    <div class="call trap"><span class="lb">함정 · 저절로 다시 붙지 않는다</span><p>SSE의 <code>EventSource</code>는 끊기면 알아서 다시 연결하지만, <b>WebSocket은 한 번 CLOSED면 끝</b>입니다. 다시 붙는 코드(기다렸다 새로 <code>new WebSocket</code>, 기다리는 시간은 점점 늘리기)는 직접 씁니다.</p></div>
+
+    <h3>DevTools로 보기</h3>
+    <ol>
+      <li>F12 → <b>Network</b> 탭을 연 채로 페이지를 새로 엽니다(연결 전에 열어 둬야 잡힙니다).</li>
+      <li>필터에서 <b>WS</b>(Chrome 버전에 따라 <b>Socket</b>)를 누르면 WebSocket 줄만 남습니다.</li>
+      <li>그 줄을 누르면 <b>Headers</b>에 101 요청·응답 헤더, <b>Messages</b>에 오간 메시지가 시간순으로 나옵니다. 위쪽 화살표(보낸 것)와 아래쪽 화살표(받은 것)로 방향을 구분합니다.</li>
+    </ol>
+    <div class="call tip"><span class="lb">쪽집게 · 실측</span><p>WebSocket은 Network 탭에 <b>줄이 하나</b>만 생깁니다. 메시지를 백 번 주고받아도 요청 줄은 늘지 않습니다. 폴링이면 묻는 횟수만큼 줄이 쌓입니다. "1분 동안 HTTP 요청 수"를 비교하면 차이가 바로 보입니다(과제 E 체크 항목).</p></div>
+    <div class="call exam"><span class="lb">출제 예상 · 발표 뒤 질문</span>
+      <div class="qa"><b>Q</b><span>Network 탭에 WebSocket 줄의 상태가 계속 "Pending"이고 시간이 늘어나요. 문제인가요?</span>
+      <b>A</b><span><b>정상입니다.</b> 101 이후 연결을 계속 쓰고 있어서 "끝나지 않은 요청"으로 보입니다. 상태 열에 <b>101</b>이 찍혀 있으면 핸드셰이크는 성공한 것입니다.</span></div>
+    </div>
+    <a class="mini" href="#cards-api">이 단원 카드 {{COUNT:api}}장 →</a>
+  </section>
+
+  <!-- 8 -->
+  <section class="unit" id="u8">
+    <div class="head"><span class="no">UNIT 8</span><h2>실무에서는: 프록시, 재연결, 서버 여러 대</h2></div>
+    <p class="one">WebSocket이 운영에서 깨지는 곳은 대개 가운데 장비다. 프록시가 Upgrade를 넘겨줘야 연결되고, ping이 지나가야 안 끊기고, 끊기면 다시 붙는 코드는 내가 쓴다.</p>
+
+    <h3>프록시가 Upgrade를 넘겨줘야 한다</h3>
+    <p><code>Upgrade</code>와 <code>Connection</code>은 "<b>바로 옆 한 구간에만 해당하는</b>" 헤더(hop-by-hop 헤더)라서, nginx 같은 리버스 프록시는 기본으로 다음 서버에 넘기지 않습니다. 그러면 앱 서버는 평범한 GET만 받고 101을 못 줍니다. nginx에서는 이렇게 넘깁니다.</p>
+    <pre class="c">location /ws {
+    proxy_pass http://app:8081;
+    proxy_http_version 1.1;                    # Upgrade는 HTTP/1.1의 기능
+    proxy_set_header Upgrade $http_upgrade;    # 받은 Upgrade를 그대로 넘김
+    proxy_set_header Connection "upgrade";
+    proxy_read_timeout 75s;                    # 이 시간 동안 말이 없으면 끊음 (기본 60s)
+}</pre>
+    <p>실제로 공개 에코 서버 <code>echo.websocket.org</code>에 핸드셰이크를 보내 보면(11/23), 101 응답에 <code>via: 1.1 fly.io, 1.1 fly.io</code>가 붙어 옵니다. 프록시 두 대를 지나서도 Upgrade가 잘 전달되어 연결된 것입니다.</p>
+    <div class="call trap"><span class="lb">함정 · 1~2분 뒤 끊기는 연결 (Q35)</span><p>"아무 메시지 없이 1분쯤 지나면 끊겨요"는 WebSocket의 제한이 아니라 <b>가운데 장비의 유휴 타임아웃</b>입니다(nginx <code>proxy_read_timeout</code> 기본 60초, 클라우드 로드밸런서도 비슷). 해결은 그보다 짧은 간격의 <b>ping</b>(하트비트)과 <b>재연결</b>입니다. 6주차에 직접 재현합니다.</p></div>
+
+    <h3>재연결: 점점 늦게, 조금씩 다르게</h3>
+    <p>서버를 배포하면 붙어 있던 사용자가 한꺼번에 끊기고, 한꺼번에 다시 붙으려 합니다. 모두 같은 순간에 재시도하면 서버가 다시 쓰러집니다. 그래서 기다리는 시간을 1초, 2초, 4초…로 <b>늘리고</b>(지수 백오프), 사람마다 조금씩 <b>흩뜨립니다</b>(지터). 3주차 재시도 이야기와 같은 원리입니다.</p>
+
+    <h3>서버가 여러 대면</h3>
+    <p>사용자 A는 1번 서버에, B는 2번 서버에 붙어 있으면, A가 보낸 메시지를 B에게 전하려면 서버끼리 알려 주는 길이 필요합니다. 흔히 Redis pub/sub(한 서버가 "발행"하면 구독한 모든 서버가 받는 방송)을 씁니다. 7주차 과제 F입니다.</p>
+
+    <h3>HTTP/2·3에서는?</h3>
+    <p>지금까지 본 Upgrade 방식은 <b>HTTP/1.1의 기능</b>입니다. HTTP/2는 연결 하나에 여러 요청을 섞어 보내서(4주차 멀티플렉싱) "이 연결을 통째로 바꾸자"가 안 맞습니다. 그래서 HTTP/2·3에서는 스트림 하나를 WebSocket으로 쓰는 방식(RFC 8441, RFC 9220: <code>CONNECT</code> 요청 + <code>:protocol: websocket</code>, 성공은 101이 아니라 200)이 따로 있습니다. 브라우저와 서버가 둘 다 지원할 때만 쓰이고, 지원이 아직 고르지 않습니다. "기본은 HTTP/1.1 Upgrade"로 알아 두면 됩니다.</p>
+    <div class="call tip"><span class="lb">쪽집게 · 운영 체크 다섯</span><p>① <b>wss://</b>만 쓴다 ② 프록시에 <b>Upgrade·Connection</b> 전달 ③ 유휴 타임아웃보다 짧은 <b>ping</b> ④ 끊기면 <b>백오프 재연결</b> ⑤ 핸드셰이크 때 <b>Origin과 로그인</b> 확인(7주차).</p></div>
+    <div class="call exam"><span class="lb">출제 예상 · 발표 뒤 질문</span>
+      <div class="qa"><b>Q</b><span>로컬에서는 되는데 nginx 뒤에 두니 연결이 안 되고, 앱 로그엔 보통 GET /ws만 찍혀요.</span>
+      <b>A</b><span>nginx가 <code>Upgrade</code>·<code>Connection</code> 헤더를 넘기지 않았습니다. <code>proxy_http_version 1.1</code>과 두 <code>proxy_set_header</code>를 넣습니다. 데모 서버는 Upgrade 없이 온 <code>/ws</code>에 426을 돌려주니, 이 상황이면 브라우저가 426을 봅니다.</span>
+      <b>Q</b><span>WebSocket은 CORS 검사를 받나요?</span>
+      <b>A</b><span><b>받지 않습니다.</b> 다른 사이트의 페이지도 내 서버에 WebSocket을 열 수 있습니다. 그래서 서버가 핸드셰이크의 <code>Origin</code>을 직접 확인해야 합니다. 7주차 주제입니다.</span></div>
+    </div>
+    <a class="mini" href="#cards-field">이 단원 카드 {{COUNT:field}}장 →</a>
+  </section>
+
+  <!-- 9 -->
+  <section class="unit" id="u9">
+    <div class="head"><span class="no">UNIT 9 · 지난주 과제</span><h2>지난주 과제 D와 이어지는 곳</h2></div>
+    <p class="one">과제 D에서 ETag를 붙여 "안 바뀌었으면 304, 본문 없음"을 확인했다. 그 모든 건 묻고 답하는 HTTP 안의 이야기이고, 오늘은 묻지 않아도 서버가 보내는 쪽으로 넘어간다.</p>
+    <h3>과제 D에서 한 일 (11/23, nginx 뒤에서)</h3>
+    <pre class="c">GET /orders/1                              → 200  본문 71바이트  ETag: "ff40bac14f087c63efe2"
+GET /orders/1  If-None-Match: "ff40…"      → 304  본문 0바이트   (ETag·Cache-Control만)
+PATCH /orders/1  If-Match: "ff40…" qty=3   → 200  ETag가 "5a8c…"로 바뀜
+GET /orders/1  If-None-Match: "ff40…"(옛것) → 200  새 본문
+PATCH /orders/1  If-Match: "ff40…"(옛것)    → 412  주문은 그대로 (남이 먼저 고쳤다)</pre>
+    <ul>
+      <li>주문은 사람마다 다르니 <code>Cache-Control: private, no-cache</code>: 브라우저만 저장하고, 쓸 때마다 ETag로 묻습니다.</li>
+      <li><b>nginx에서 gzip을 켜면 ETag가 <code>W/"…"</code>(약한 ETag)로 바뀌었습니다.</b> 304는 여전히 오지만(<code>If-None-Match</code>는 약하게 비교), <code>If-Match</code>는 강하게 비교해서 그 값으로는 412가 납니다.</li>
+      <li>사이트 프로토콜: 네이버·GitHub·MDN·jQuery 문서는 모두 h2. GitHub 정적 파일 서버에서는 같은 페이지 안에서도 <b>h2와 h3가 섞여</b> 나왔습니다. 다른 출처 파일은 서버가 <code>Timing-Allow-Origin</code>을 안 주면 Protocol 값을 읽을 수 없었습니다.</li>
+    </ul>
+    <div class="call tip"><span class="lb">쪽집게 · 다리</span><p>캐시와 ETag는 "<b>브라우저가 물을 때</b> 덜 보내는 법"이었습니다. WebSocket은 "<b>브라우저가 묻지 않아도</b> 보내는 법"입니다. 둘 다 같은 질문, "필요한 만큼만 주고받으려면?"에 대한 답입니다.</p></div>
+    <div class="call trap"><span class="lb">함정</span><p>WebSocket 메시지에는 ETag도 Cache-Control도 없습니다. 101 뒤로는 HTTP가 아니라서, 지난주에 배운 캐시 규칙은 <b>핸드셰이크 요청에만</b> 해당하고(그것도 저장하지 않습니다) 메시지에는 전혀 적용되지 않습니다. 같은 걸 또 보내지 않는 건 내 앱이 정할 일입니다.</p></div>
+    <a class="mini" href="#cards-hwd">이 단원 카드 {{COUNT:hwd}}장 →</a>
+  </section>
+
+  <section class="unit final" id="u10">
+    <div class="eyebrow" style="color:inherit;opacity:.7">시험 직전 5문장</div>
+    <h2>이 다섯 줄만은 입으로 말할 수 있게</h2>
+    <ol>
+      <li>HTTP는 브라우저가 물어야 서버가 답한다. WebSocket은 <b>한 번 연결해 두고 양쪽이 아무 때나</b> 보낸다.</li>
+      <li>시작은 <b><code>Upgrade: websocket</code>을 붙인 HTTP 요청</b>, 서버가 <b>101 Switching Protocols</b>로 답하면 같은 TCP 연결에서 프레임이 오간다. (Q32)</li>
+      <li>Accept는 <b>Key + 고정 문자열을 SHA-1 → base64</b>. 보안이 아니라 "WebSocket을 아는 서버"라는 증명이다.</li>
+      <li>프레임 머리는 <b>FIN · opcode · MASK · 길이</b>. text 1, binary 2, close 8, ping 9, pong A. <b>클라이언트만 가면</b>을 쓴다.</li>
+      <li>ping엔 pong, 끝낼 땐 close 코드(1000 정상). <b>1006은 close 없이 끊긴 것</b>이고, 끊기면 다시 붙는 건 내 몫이다.</li>
+    </ol>
+    <a class="cta" href="#cards">암기 카드 {{COUNT:all}}장으로 복습하기 →</a>
+  </section>
