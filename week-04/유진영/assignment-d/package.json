@@ -1,0 +1,16 @@
+{
+  "name": "week04-yoojinyoung-assignment-d",
+  "version": "1.0.0",
+  "private": true,
+  "description": "과제 D. 과제 C 주문 API에 ETag·304·If-Match(412)를 더함 (Node.js 표준 모듈만 사용)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js",
+    "up": "docker compose up -d --build",
+    "down": "docker compose down",
+    "repro": "bash reproduce.sh"
+  }
+}

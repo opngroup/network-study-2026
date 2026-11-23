@@ -1,0 +1,12 @@
+{
+  "name": "week05-yoojinyoung-ws-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "5주차 발표 데모: 라이브러리 없이 만든 WebSocket 서버 (핸드셰이크와 프레임을 16진수로 찍음)",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node server.js",
+    "client": "node client.mjs",
+    "test": "node --test test/*.test.js"
+  }
+}

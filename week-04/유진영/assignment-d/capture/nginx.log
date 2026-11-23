@@ -1,0 +1,9 @@
+192.168.65.1 "GET /health HTTP/1.1" status=200 upstream_status=200 request_time=0.003 upstream_time=0.003 req_id=7760bf9dc737706791f461e935453d38
+192.168.65.1 "POST /orders HTTP/1.1" status=201 upstream_status=201 request_time=0.003 upstream_time=0.003 req_id=45445266fd84c486ea20299a1e1a51f3
+192.168.65.1 "GET /orders/1 HTTP/1.1" status=200 upstream_status=200 request_time=0.000 upstream_time=0.000 req_id=629ecc4259efb5370be32e728d0582b4
+192.168.65.1 "GET /orders/1 HTTP/1.1" status=304 upstream_status=304 request_time=0.001 upstream_time=0.000 req_id=613494e655fc851a1342a1486368126c
+192.168.65.1 "GET /orders/1 HTTP/1.1" status=200 upstream_status=200 request_time=0.000 upstream_time=0.000 req_id=f4c6d25e6078a9e79185db4489abec15
+192.168.65.1 "PATCH /orders/1 HTTP/1.1" status=200 upstream_status=200 request_time=0.001 upstream_time=0.000 req_id=a6a9a17bfaba4583a19042886a1ca58a
+192.168.65.1 "GET /orders/1 HTTP/1.1" status=200 upstream_status=200 request_time=0.001 upstream_time=0.001 req_id=5812a9c7c81014b407744f441777b640
+192.168.65.1 "PATCH /orders/1 HTTP/1.1" status=412 upstream_status=412 request_time=0.000 upstream_time=0.000 req_id=4e9292265cffa3771222dc594ee15dce
+192.168.65.1 "GET /orders/1 HTTP/1.1" status=200 upstream_status=200 request_time=0.000 upstream_time=0.001 req_id=53488e10ce584b01e08c7e5084e05214

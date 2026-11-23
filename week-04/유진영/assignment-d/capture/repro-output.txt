@@ -1,0 +1,68 @@
+실행: 2026-11-23 17:53 KST
+
+== 준비: 깨끗하게 다시 띄우기 (nginx :8080 → app :3000)
+
+== ① 주문 하나 만들기
+$ curl -X POST http://localhost:8080/orders -H content-type: application/json -H Idempotency-Key: d-001 -d {"item":"coffee","qty":1}
+HTTP 201  본문 71바이트
+  본문: {"id":1,"item":"coffee","qty":1,"createdAt":"2026-11-23T08:53:20.776Z"}
+
+== ② 처음 GET: 200 + 본문 + ETag (지문)
+$ curl http://localhost:8080/orders/1
+HTTP 200  본문 71바이트
+  etag: "ff40bac14f087c63efe2"
+  cache-control: private, no-cache
+  본문: {"id":1,"item":"coffee","qty":1,"createdAt":"2026-11-23T08:53:20.776Z"}
+  → 받은 ETag: "ff40bac14f087c63efe2"
+  → 받은 본문으로 직접 계산한 ETag: "ff40bac14f087c63efe2"  (같음: nginx는 그대로 넘겼다)
+
+== ③ 같은 ETag를 If-None-Match에 실어 다시 GET → 304, 본문 0바이트
+$ curl http://localhost:8080/orders/1 -H If-None-Match: "ff40bac14f087c63efe2"
+HTTP 304  본문 0바이트
+  etag: "ff40bac14f087c63efe2"
+  cache-control: private, no-cache
+
+== ③-b gzip을 달라고 해도(Accept-Encoding) ETag가 그대로인지 (nginx 기본 설정은 gzip off)
+$ curl http://localhost:8080/orders/1 -H Accept-Encoding: gzip
+HTTP 200  본문 71바이트
+  etag: "ff40bac14f087c63efe2"
+  cache-control: private, no-cache
+  본문: {"id":1,"item":"coffee","qty":1,"createdAt":"2026-11-23T08:53:20.776Z"}
+
+== ④ 주문 고치기: PATCH + If-Match(지금 ETag) → 200 + 새 ETag
+$ curl -X PATCH http://localhost:8080/orders/1 -H content-type: application/json -H If-Match: "ff40bac14f087c63efe2" -d {"qty":3}
+HTTP 200  본문 110바이트
+  etag: "5a8cabb86f64dbd34226"
+  cache-control: private, no-cache
+  본문: {"id":1,"item":"coffee","qty":3,"createdAt":"2026-11-23T08:53:20.776Z","updatedAt":"2026-11-23T08:53:20.845Z"}
+  → ETag가 "ff40bac14f087c63efe2" → "5a8cabb86f64dbd34226" 로 바뀌었다
+
+== ⑤ 옛 ETag로 If-None-Match GET → 판이 바뀌었으니 304가 아니라 200 + 새 본문
+$ curl http://localhost:8080/orders/1 -H If-None-Match: "ff40bac14f087c63efe2"
+HTTP 200  본문 110바이트
+  etag: "5a8cabb86f64dbd34226"
+  cache-control: private, no-cache
+  본문: {"id":1,"item":"coffee","qty":3,"createdAt":"2026-11-23T08:53:20.776Z","updatedAt":"2026-11-23T08:53:20.845Z"}
+
+== ⑥ 옛 ETag로 If-Match PATCH (남이 먼저 고친 뒤 내가 고치려는 상황) → 412, 덮어쓰지 않음
+$ curl -X PATCH http://localhost:8080/orders/1 -H content-type: application/json -H If-Match: "ff40bac14f087c63efe2" -d {"qty":9}
+HTTP 412  본문 163바이트
+  etag: "5a8cabb86f64dbd34226"
+  cache-control: private, no-cache
+  본문: {"code":"PRECONDITION_FAILED","message":"그사이 주문이 바뀌었습니다. 다시 조회한 뒤 고치세요","requestId":"4e9292265cffa3771222dc594ee15dce"}
+$ curl http://localhost:8080/orders/1
+HTTP 200  본문 110바이트
+  etag: "5a8cabb86f64dbd34226"
+  cache-control: private, no-cache
+  본문: {"id":1,"item":"coffee","qty":3,"createdAt":"2026-11-23T08:53:20.776Z","updatedAt":"2026-11-23T08:53:20.845Z"}
+
+== nginx 접근 로그 (status = nginx가 준 코드, upstream_status = 앱이 준 코드)
+192.168.65.1 "GET /health HTTP/1.1" status=200 upstream_status=200 request_time=0.003 upstream_time=0.003 req_id=7760bf9dc737706791f461e935453d38
+192.168.65.1 "POST /orders HTTP/1.1" status=201 upstream_status=201 request_time=0.003 upstream_time=0.003 req_id=45445266fd84c486ea20299a1e1a51f3
+192.168.65.1 "GET /orders/1 HTTP/1.1" status=200 upstream_status=200 request_time=0.000 upstream_time=0.000 req_id=629ecc4259efb5370be32e728d0582b4
+192.168.65.1 "GET /orders/1 HTTP/1.1" status=304 upstream_status=304 request_time=0.001 upstream_time=0.000 req_id=613494e655fc851a1342a1486368126c
+192.168.65.1 "GET /orders/1 HTTP/1.1" status=200 upstream_status=200 request_time=0.000 upstream_time=0.000 req_id=f4c6d25e6078a9e79185db4489abec15
+192.168.65.1 "PATCH /orders/1 HTTP/1.1" status=200 upstream_status=200 request_time=0.001 upstream_time=0.000 req_id=a6a9a17bfaba4583a19042886a1ca58a
+192.168.65.1 "GET /orders/1 HTTP/1.1" status=200 upstream_status=200 request_time=0.001 upstream_time=0.001 req_id=5812a9c7c81014b407744f441777b640
+192.168.65.1 "PATCH /orders/1 HTTP/1.1" status=412 upstream_status=412 request_time=0.000 upstream_time=0.000 req_id=4e9292265cffa3771222dc594ee15dce
+192.168.65.1 "GET /orders/1 HTTP/1.1" status=200 upstream_status=200 request_time=0.000 upstream_time=0.001 req_id=53488e10ce584b01e08c7e5084e05214

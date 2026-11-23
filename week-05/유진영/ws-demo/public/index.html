@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebSocket 데모</title>
+<style>
+  :root { --ink:#1d2330; --muted:#6b7280; --line:#e5e7eb; --t:#0f766e; --o:#c2410c; --bg:#fafaf9; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif; color: var(--ink); background: var(--bg); }
+  main { max-width: 760px; margin: 32px auto; padding: 0 20px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  p.sub { margin: 0 0 20px; color: var(--muted); }
+  .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .state { font: 600 14px ui-monospace, Menlo, monospace; padding: 4px 10px; border-radius: 999px; background: #e5e7eb; }
+  .state.open { background: #ccfbf1; color: var(--t); }
+  .state.closed { background: #ffedd5; color: var(--o); }
+  input { flex: 1; min-width: 200px; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
+  button { font: inherit; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; cursor: pointer; }
+  button.main { background: var(--t); color: #fff; border-color: var(--t); }
+  #log { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 10px; background: #fff; height: 420px; overflow: auto; font: 14px/1.6 ui-monospace, Menlo, monospace; }
+  #log li { padding: 6px 12px; border-bottom: 1px solid #f3f4f6; }
+  #log .in { color: var(--t); }
+  #log .out { color: var(--ink); }
+  #log .sys { color: var(--muted); }
+  #log .err { color: var(--o); }
+  .hint { color: var(--muted); font-size: 14px; margin-top: 12px; }
+  code { font: 13px ui-monospace, Menlo, monospace; background: #f3f4f6; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>WebSocket 데모</h1>
+  <p class="sub">한 번 연결하면 브라우저와 서버가 아무 때나 서로 말합니다. DevTools → Network → <code>WS</code> 필터 → <code>ws</code> 줄 → Messages 탭에서 오가는 메시지를 보세요.</p>
+
+  <div class="bar">
+    <span id="state" class="state">CONNECTING (0)</span>
+    <button id="connect">다시 연결</button>
+    <button id="close">닫기 (1000)</button>
+  </div>
+  <div class="bar">
+    <input id="text" placeholder="보낼 글 (엔터)" autocomplete="off">
+    <button id="send" class="main">글 보내기</button>
+    <button id="bin">바이너리 4바이트</button>
+  </div>
+
+  <ul id="log"></ul>
+  <p class="hint">서버 터미널에 글을 치면 서버가 먼저 보냅니다. 브라우저는 서버의 ping에 pong을 알아서 답합니다(JavaScript로는 ping을 보낼 수 없음).</p>
+</main>
+<script>
+  const STATES = ['CONNECTING (0)', 'OPEN (1)', 'CLOSING (2)', 'CLOSED (3)'];
+  const $ = (id) => document.getElementById(id);
+  let ws;
+
+  function line(cls, text) {
+    const li = document.createElement('li');
+    li.className = cls;
+    li.textContent = `${new Date().toLocaleTimeString('ko-KR', { hour12: false })}  ${text}`;
+    $('log').append(li);
+    $('log').scrollTop = $('log').scrollHeight;
+  }
+  function showState() {
+    const s = ws ? ws.readyState : 3;
+    $('state').textContent = STATES[s];
+    $('state').className = 'state' + (s === 1 ? ' open' : s === 3 ? ' closed' : '');
+  }
+
+  function connect() {
+    const url = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`;
+    ws = new WebSocket(url, ['demo.v1']);
+    ws.binaryType = 'arraybuffer';
+    showState();
+    line('sys', `new WebSocket("${url}") → 핸드셰이크 중`);
+
+    ws.onopen = () => { showState(); line('sys', `open: 101을 받았다. 고른 하위 프로토콜 = "${ws.protocol}"`); };
+    ws.onmessage = (e) => {
+      if (typeof e.data === 'string') line('in', `← ${e.data}`);
+      else line('in', `← 바이너리 ${e.data.byteLength}바이트 [${[...new Uint8Array(e.data)].join(', ')}]`);
+    };
+    ws.onerror = () => line('err', 'error 이벤트 (자세한 이유는 브라우저가 알려 주지 않는다. 곧 close가 온다)');
+    ws.onclose = (e) => { showState(); line('sys', `close: code=${e.code} reason="${e.reason}" wasClean=${e.wasClean}`); };
+  }
+
+  function sendText() {
+    const text = $('text').value;
+    if (!text || !ws || ws.readyState !== 1) return;
+    ws.send(text);
+    line('out', `→ ${text}`);
+    $('text').value = '';
+  }
+
+  $('send').onclick = sendText;
+  $('text').onkeydown = (e) => { if (e.key === 'Enter' && !e.isComposing) sendText(); };
+  $('bin').onclick = () => {
+    if (!ws || ws.readyState !== 1) return;
+    ws.send(new Uint8Array([1, 2, 3, 255]));
+    line('out', '→ 바이너리 4바이트 [1, 2, 3, 255]');
+  };
+  $('close').onclick = () => { if (ws) { ws.close(1000, 'bye'); showState(); } };
+  $('connect').onclick = () => { if (ws && ws.readyState < 2) ws.close(1000, 'reconnect'); connect(); };
+
+  connect();
+</script>
+</body>
+</html>
