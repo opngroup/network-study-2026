@@ -1,7 +1,7 @@
 WebSocket 데모 서버: http://localhost:8081/  (핸드셰이크 주소 ws://localhost:8081/ws)
 여기에 글을 치고 엔터 → 서버가 먼저 모두에게 보낸다
 
-── #1 핸드셰이크 (127.0.0.1:58917) ──
+── #1 핸드셰이크 (127.0.0.1:59519) ──
 요청  GET /ws HTTP/1.1
       host: localhost:8081
       upgrade: websocket
@@ -17,30 +17,31 @@ WebSocket 데모 서버: http://localhost:8081/  (핸드셰이크 주소 ws://lo
    #1 close 프레임 없이 TCP가 끊김 (브라우저라면 1006)
    #1 TCP 연결 닫힘 (남은 연결 0개)
 ✗ 핸드셰이크 거절: 426 Upgrade Required
+✗ 핸드셰이크 거절: 403 Forbidden
 
-── #2 핸드셰이크 (127.0.0.1:58925) ──
+── #2 핸드셰이크 (127.0.0.1:59529) ──
 요청  GET /ws HTTP/1.1
       host: localhost:8081
       upgrade: websocket
       connection: upgrade
-      sec-websocket-key: bgnPZxUTPcR2DjiHd1brjQ==
+      sec-websocket-key: zK0dpkPSGI0T6f4+Mnljkg==
       sec-websocket-version: 13
       sec-websocket-protocol: demo.v1
       sec-websocket-extensions: permessage-deflate; client_max_window_bits
-계산  base64(SHA-1("bgnPZxUTPcR2DjiHd1brjQ==" + "258EAFA5-…")) = l6Ga3avk/c9rgpftt1/o0dQ1iIM=
+계산  base64(SHA-1("zK0dpkPSGI0T6f4+Mnljkg==" + "258EAFA5-…")) = 4LnnyuN/yAgQQSzGjuBwE+tC7Kk=
 응답  HTTP/1.1 101 Switching Protocols
       Upgrade: websocket
       Connection: Upgrade
-      Sec-WebSocket-Accept: l6Ga3avk/c9rgpftt1/o0dQ1iIM=
+      Sec-WebSocket-Accept: 4LnnyuN/yAgQQSzGjuBwE+tC7Kk=
       Sec-WebSocket-Protocol: demo.v1
 ── 여기부터 HTTP가 아니라 WebSocket 프레임 ──
-← #2 81 82 f1 a7 d8 87 b9 ce   FIN=1 opcode=1(text) MASK=1 len=2 key=f1 a7 d8 87  "Hi"
+← #2 81 82 1c 1d 56 ce 54 74   FIN=1 opcode=1(text) MASK=1 len=2 key=1c 1d 56 ce  "Hi"
 → #2 81 06 23 32 3a 20 48 69   FIN=1 opcode=1(text) MASK=0 len=6  "#2: Hi"
-← #2 82 84 03 a8 6b c2 02 aa 68 3d   FIN=1 opcode=2(binary) MASK=1 len=4 key=03 a8 6b c2
+← #2 82 84 8f a8 6b ab 8e aa 68 54   FIN=1 opcode=2(binary) MASK=1 len=4 key=8f a8 6b ab
 → #2 82 04 01 02 03 ff   FIN=1 opcode=2(binary) MASK=0 len=4
-← #2 81 fe 03 e8 b5 b0 3e 02 d4 d1 5f 63 d4 d1 5f 63 d4 d1 5f 63 d4 d1 5f 63 … (+984바이트)   FIN=1 opcode=1(text) MASK=1 len=1000 key=b5 b0 3e 02  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+← #2 81 fe 03 e8 2a 1f 7e 2a 4b 7e 1f 4b 4b 7e 1f 4b 4b 7e 1f 4b 4b 7e 1f 4b … (+984바이트)   FIN=1 opcode=1(text) MASK=1 len=1000 key=2a 1f 7e 2a  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 → #2 81 7e 03 ec 23 32 3a 20 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 … (+984바이트)   FIN=1 opcode=1(text) MASK=0 len=1004  "#2: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-← #2 88 85 ec 03 26 0d ef eb 44 74 89   FIN=1 opcode=8(close) MASK=1 len=5 key=ec 03 26 0d  code=1000 "bye"
+← #2 88 85 3b 73 62 13 38 9b 00 6a 5e   FIN=1 opcode=8(close) MASK=1 len=5 key=3b 73 62 13  code=1000 "bye"
    #2 상대가 닫자고 함: 1000 bye
 → #2 88 05 03 e8 62 79 65   FIN=1 opcode=8(close) MASK=0 len=5  code=1000 "bye"
    #2 TCP 연결 닫힘 (남은 연결 0개)

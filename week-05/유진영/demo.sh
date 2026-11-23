@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 5주차 발표 라이브 데모 (장표 10·9·13·18·19). 서버는 ws-demo/server.js (라이브러리 없음).
 #   bash demo.sh accept     # 장표 10: Key → Accept를 openssl로 직접 계산
-#   bash demo.sh handshake  # 장표 9·11: curl로 101 받기, Upgrade 없으면 426, 버전 틀리면 426
+#   bash demo.sh handshake  # 장표 9·11: curl로 101 받기, Upgrade 없으면 426, 버전 틀리면 426, 남의 출처면 403
 #   bash demo.sh client     # 장표 13: 터미널 클라이언트가 글·바이너리·1,000바이트·close를 보냄 (서버 로그에 바이트)
 #   bash demo.sh real       # 장표 19: 공개 에코 서버(echo.websocket.org)에 핸드셰이크 → via 헤더
 #   bash demo.sh server     # 장표 18: 서버를 앞에 띄움. 브라우저로 http://localhost:8081 열고, 여기 글 치면 방송
@@ -47,6 +47,10 @@ handshake() {
   curl -s -i --max-time 1 http://localhost:$PORT/ws \
     -H 'Connection: Upgrade' -H 'Upgrade: websocket' \
     -H "Sec-WebSocket-Key: $KEY" -H 'Sec-WebSocket-Version: 8' | grep -iE '^(HTTP|sec-websocket-version)'
+  echo "④ 다른 사이트의 페이지인 척 (Origin: https://evil.example) → 403"
+  curl -s -i --max-time 1 http://localhost:$PORT/ws \
+    -H 'Connection: Upgrade' -H 'Upgrade: websocket' -H 'Origin: https://evil.example' \
+    -H "Sec-WebSocket-Key: $KEY" -H 'Sec-WebSocket-Version: 13' | head -1
 }
 
 client() {

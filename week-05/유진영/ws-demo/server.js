@@ -17,10 +17,16 @@
  * 서버가 먼저 말하기: 서버 터미널에 글을 쳐서 엔터를 치면 모두에게 보낸다.
  * 하트비트: HEARTBEAT_MS마다 ping을 보내고, 다음 차례까지 pong이 없으면 죽은 연결로 보고 끊는다.
  *
+ * 출처(Origin) 검사: 브라우저는 핸드셰이크에 Origin을 알아서 붙인다. WebSocket은 CORS를 받지 않으므로
+ * 다른 사이트의 페이지가 사용자의 쿠키를 싣고 붙는 것(교차 사이트 WebSocket 하이재킹)을 서버가 막아야 한다.
+ * 같은 호스트에서 연 페이지와 ALLOWED_ORIGINS에 적은 출처만 받고, 나머지는 403. Origin이 없으면(curl, Node
+ * 클라이언트처럼 브라우저가 아닌 것) 받는다. 브라우저가 아닌 것은 Origin을 마음대로 쓸 수 있어서 인증을 대신하지 못한다.
+ *
  * 실행
  *   node server.js                          # 0.0.0.0:8081
  *   PORT=9000 HEARTBEAT_MS=5000 node server.js
  *   QUIET=1 node server.js                  # 프레임 로그 끄기 (시험용)
+ *   ALLOWED_ORIGINS=http://192.168.0.10:8081 node server.js   # 다른 주소로 연 페이지도 허락
  */
 
 'use strict';
@@ -43,7 +49,7 @@ const {
 const MAX_MESSAGE_BYTES = 1024 * 1024;
 const SUBPROTOCOL = 'demo.v1';
 
-function createServer({ heartbeatMs = 15_000, quiet = false } = {}) {
+function createServer({ heartbeatMs = 15_000, quiet = false, allowedOrigins = [] } = {}) {
   const log = quiet ? () => {} : (...args) => console.log(...args);
   const clients = new Map(); // id → { socket, alive, send }
   let nextId = 1;
@@ -82,6 +88,11 @@ function createServer({ heartbeatMs = 15_000, quiet = false } = {}) {
     if (upgrade !== 'websocket' || !connection.includes('upgrade')) return reject(400, 'Bad Request');
     if (version !== '13') return reject(426, 'Upgrade Required', 'sec-websocket-version: 13\r\n');
     if (!key || Buffer.from(key, 'base64').length !== 16) return reject(400, 'Bad Request');
+
+    const origin = req.headers.origin;
+    if (origin && origin !== `http://${req.headers.host}` && origin !== `https://${req.headers.host}` && !allowedOrigins.includes(origin)) {
+      return reject(403, 'Forbidden');
+    }
 
     const offered = (req.headers['sec-websocket-protocol'] || '').split(',').map((s) => s.trim()).filter(Boolean);
     const protocol = offered.includes(SUBPROTOCOL) ? SUBPROTOCOL : null;
@@ -158,9 +169,9 @@ function createServer({ heartbeatMs = 15_000, quiet = false } = {}) {
           return onMessage(frame.opcode, frame.payload);
         case 0x0:
           if (!fragments) throw new FrameError(1002, '이어 붙일 메시지가 없는 continuation');
+          if (fragments.size + frame.payload.length > MAX_MESSAGE_BYTES) throw new FrameError(1009, '메시지가 너무 큽니다');
           fragments.parts.push(frame.payload);
           fragments.size += frame.payload.length;
-          if (fragments.size > MAX_MESSAGE_BYTES) throw new FrameError(1009, '메시지가 너무 큽니다');
           if (frame.fin) {
             const { opcode, parts } = fragments;
             fragments = null;
@@ -185,7 +196,7 @@ function createServer({ heartbeatMs = 15_000, quiet = false } = {}) {
       buf = Buffer.concat([buf, chunk]);
       try {
         for (;;) {
-          const frame = decodeFrame(buf);
+          const frame = decodeFrame(buf, MAX_MESSAGE_BYTES);
           if (!frame) break;
           buf = buf.subarray(frame.size);
           onFrame(frame);
@@ -244,7 +255,7 @@ function preview(opcode, payload) {
   return '';
 }
 
-module.exports = { createServer };
+module.exports = { createServer, MAX_MESSAGE_BYTES };
 
 if (require.main === module) {
   const port = Number(process.env.PORT || 8081);
@@ -252,6 +263,7 @@ if (require.main === module) {
   const { server, broadcast } = createServer({
     heartbeatMs: Number(process.env.HEARTBEAT_MS ?? 15_000),
     quiet: process.env.QUIET === '1',
+    allowedOrigins: (process.env.ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean),
   });
   server.listen(port, host, () => {
     console.log(`WebSocket 데모 서버: http://localhost:${port}/  (핸드셰이크 주소 ws://localhost:${port}/ws)`);
